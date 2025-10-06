@@ -115,7 +115,7 @@ namespace SolusManifestApp.ViewModels
 
         private async void OnDownloadCompleted(object? sender, DownloadItem downloadItem)
         {
-            _logger.Info($"Download completed: {downloadItem.Name}. Auto-refreshing library...");
+            _logger.Info($"Download completed: {downloadItem.GameName}. Auto-refreshing library...");
             await Task.Delay(500); // Small delay to ensure file operations are complete
             RefreshLibrary();
         }
@@ -497,7 +497,7 @@ namespace SolusManifestApp.ViewModels
                             }
                         }
 
-                        success = await Task.Run(() => _fileInstallService.UninstallGreenLumaGame(item.AppId, customAppListPath));
+                        success = await _fileInstallService.UninstallGreenLumaGameAsync(item.AppId, customAppListPath);
                     }
 
                     if (success)
