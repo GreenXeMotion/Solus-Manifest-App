@@ -7,7 +7,7 @@
 [![Build](https://github.com/yourusername/solus-manifest-app/workflows/Build/badge.svg)](https://github.com/yourusername/solus-manifest-app/actions)
 [![Release](https://github.com/yourusername/solus-manifest-app/workflows/Build%20and%20Release/badge.svg)](https://github.com/yourusername/solus-manifest-app/releases)
 
-[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Tools](#integrated-tools) • [Support](#support)
+[At a Glance](#-at-a-glance) • [Features](#-key-features) • [Installation](#-installation) • [Usage](#-usage) • [Tools](#-integrated-tools) • [Support](#-support)
 
 </div>
 
@@ -16,6 +16,32 @@
 ## Overview
 
 Solus Manifest App is a powerful Windows desktop application for managing Steam game depots, downgrading games to previous versions, and advanced Steam library management. Built with .NET 8 and WPF, it features a modern Steam-inspired interface with comprehensive depot and manifest management capabilities.
+
+## 📊 At a Glance
+
+<div align="center">
+
+| Category | Details |
+|----------|---------|
+| **Platform** | Windows 10/11 |
+| **Framework** | .NET 8.0 (WPF) |
+| **Architecture** | x64 |
+| **UI Themes** | 8 Premium Themes |
+| **Integrated Tools** | 3 (Depot Dumper, Config VDF Extractor, Lua Installer) |
+| **Installation Modes** | 2 (SteamTools, GreenLuma with 3 sub-modes) |
+| **Lines of Code** | ~16,000+ |
+| **NuGet Packages** | 9 Core Dependencies |
+| **Release Type** | Self-Contained (No .NET Install Required) |
+
+</div>
+
+### 🛠️ Technology Stack
+- **Core**: .NET 8.0, WPF, C# 12
+- **Steam Integration**: SteamKit2 3.0.1
+- **MVVM Framework**: CommunityToolkit.Mvvm 8.2.2
+- **Data Serialization**: Newtonsoft.Json 13.0.3, protobuf-net 3.2.45
+- **Utilities**: QRCoder 1.6.0, System.IO.Compression
+- **Dependency Injection**: Microsoft.Extensions.DependencyInjection 8.0.0
 
 ## ✨ Key Features
 
