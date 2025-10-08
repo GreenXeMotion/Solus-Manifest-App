@@ -209,20 +209,6 @@
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            Margin="0,0,0,15"/>
 
-                                <TextBlock Text="Auto-Update"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           Margin="0,0,0,5"/>
-                                <ComboBox SelectedValue="{Binding SelectedAutoUpdateMode}"
-                                          SelectedValuePath="Tag"
-                                          FontSize="14"
-                                          Padding="10,8"
-                                          Margin="0,0,0,10"
-                                          ToolTip="Control how the app handles updates">
-                                    <ComboBoxItem Content="Disabled - Never check for updates" Tag="Disabled"/>
-                                    <ComboBoxItem Content="Check Only - Notify me about updates" Tag="CheckOnly"/>
-                                    <ComboBoxItem Content="Auto Download &amp; Install - Update automatically" Tag="AutoDownloadAndInstall"/>
-                                </ComboBox>
-
                                 <CheckBox Content="Minimize to system tray"
                                           IsChecked="{Binding MinimizeToTray}"
                                           Foreground="{DynamicResource TextPrimaryBrush}"
@@ -445,6 +431,74 @@
                                            Foreground="{DynamicResource TextSecondaryBrush}"
                                            FontSize="12"
                                            FontStyle="Italic"/>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Auto-Update Tab -->
+            <TabItem Header="Auto-Update">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
+
+                        <!-- Update Mode Selection -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Update Mode"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Choose how the app handles updates"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,10"/>
+
+                                <ComboBox SelectedValue="{Binding SelectedAutoUpdateMode}"
+                                          SelectedValuePath="Tag"
+                                          FontSize="14"
+                                          Padding="10,8"
+                                          Margin="0,0,0,15">
+                                    <ComboBoxItem Content="Disabled" Tag="Disabled"/>
+                                    <ComboBoxItem Content="Check Only (Notify me)" Tag="CheckOnly"/>
+                                    <ComboBoxItem Content="Auto Download &amp; Install" Tag="AutoDownloadAndInstall"/>
+                                </ComboBox>
+
+                                <TextBlock Text="• Disabled: Never check for updates"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"
+                                           Margin="0,0,0,3"/>
+                                <TextBlock Text="• Check Only: Notify when updates are available and ask permission to install"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"
+                                           Margin="0,0,0,3"/>
+                                <TextBlock Text="• Auto Download &amp; Install: Automatically download and install updates without asking"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Update Information -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Update Information"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Current Version: 1.0.0"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,10"/>
+
+                                <TextBlock TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12">
+                                    Updates are downloaded from the GitHub releases page.<LineBreak/>
+                                    The app automatically detects your build variant (single-file, full, or compressed) and downloads the matching update.
+                                </TextBlock>
                             </StackPanel>
                         </Border>
 
