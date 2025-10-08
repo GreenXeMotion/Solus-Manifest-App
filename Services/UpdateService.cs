@@ -100,14 +100,49 @@ namespace SolusManifestApp.Services
         {
             try
             {
-                // Find the single-file zip matching pattern: SolusManifestApp-v2025.10.07.27-singlefile.zip
-                var zipAsset = updateInfo.Assets
-                    .FirstOrDefault(a => a.Name.StartsWith("SolusManifestApp-", StringComparison.OrdinalIgnoreCase)
-                                      && a.Name.EndsWith("-singlefile.zip", StringComparison.OrdinalIgnoreCase));
+                // Get current exe size to match the closest variant
+                var currentExePath = Process.GetCurrentProcess().MainModule?.FileName;
+                var currentExeSize = !string.IsNullOrEmpty(currentExePath) && File.Exists(currentExePath)
+                    ? new FileInfo(currentExePath).Length
+                    : 0;
+
+                // Find all SolusManifestApp zip variants
+                var zipAssets = updateInfo.Assets
+                    .Where(a => a.Name.StartsWith("SolusManifestApp-", StringComparison.OrdinalIgnoreCase)
+                             && a.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (zipAssets.Count == 0)
+                {
+                    return null;
+                }
+
+                // Pick the variant with size closest to current exe
+                // singlefile.zip ≈ 9MB (framework-dependent)
+                // full.zip ≈ 70MB (self-contained)
+                // compressed.zip ≈ 72MB (self-contained compressed)
+                UpdateAsset? selectedAsset;
+
+                if (currentExeSize < 20_000_000) // Less than 20MB = singlefile
+                {
+                    selectedAsset = zipAssets.FirstOrDefault(a => a.Name.Contains("-singlefile.zip", StringComparison.OrdinalIgnoreCase));
+                }
+                else if (currentExeSize < 71_000_000) // 20-71MB = full
+                {
+                    selectedAsset = zipAssets.FirstOrDefault(a => a.Name.Contains("-full.zip", StringComparison.OrdinalIgnoreCase));
+                }
+                else // Over 71MB = compressed
+                {
+                    selectedAsset = zipAssets.FirstOrDefault(a => a.Name.Contains("-compressed.zip", StringComparison.OrdinalIgnoreCase));
+                }
+
+                // Fallback to singlefile if specific variant not found
+                var zipAsset = selectedAsset ?? zipAssets.FirstOrDefault(a => a.Name.Contains("-singlefile.zip", StringComparison.OrdinalIgnoreCase));
 
                 if (zipAsset == null)
                 {
-                    return null;
+                    // Ultimate fallback - just pick the first zip
+                    zipAsset = zipAssets.First();
                 }
 
                 var tempZipPath = Path.Combine(Path.GetTempPath(), "SolusManifestApp_Update.zip");
