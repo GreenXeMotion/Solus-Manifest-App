@@ -495,10 +495,17 @@
 
                                 <TextBlock TextWrapping="Wrap"
                                            Foreground="{DynamicResource TextSecondaryBrush}"
-                                           FontSize="12">
+                                           FontSize="12"
+                                           Margin="0,0,0,15">
                                     Updates are downloaded from the GitHub releases page.<LineBreak/>
                                     The app automatically detects your build variant (single-file, full, or compressed) and downloads the matching update.
                                 </TextBlock>
+
+                                <Button Content="Check for Updates Now"
+                                        Command="{Binding CheckForUpdatesCommand}"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Padding="20,10"
+                                        HorizontalAlignment="Left"/>
                             </StackPanel>
                         </Border>
 

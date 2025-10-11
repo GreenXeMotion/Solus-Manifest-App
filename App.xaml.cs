@@ -39,6 +39,9 @@ namespace SolusManifestApp
                     services.AddSingleton<SteamLibraryService>();
                     services.AddSingleton<ThemeService>();
                     services.AddSingleton<ProtocolHandlerService>();
+                    services.AddSingleton<LibraryDatabaseService>();
+                    services.AddSingleton<LibraryRefreshService>();
+                    services.AddSingleton<RecentGamesService>();
 
                     // ViewModels
                     services.AddSingleton<MainViewModel>();
@@ -92,8 +95,12 @@ namespace SolusManifestApp
 
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
 
-            // Initialize tray icon service
-            _trayIconService = new TrayIconService(mainWindow, settingsService);
+            // Initialize tray icon service with all dependencies
+            var recentGamesService = _host.Services.GetRequiredService<RecentGamesService>();
+            var steamService = _host.Services.GetRequiredService<SteamService>();
+            var mainViewModel = _host.Services.GetRequiredService<MainViewModel>();
+
+            _trayIconService = new TrayIconService(mainWindow, settingsService, recentGamesService, steamService, mainViewModel, themeService);
             _trayIconService.Initialize();
 
             mainWindow.Show();
@@ -203,6 +210,29 @@ namespace SolusManifestApp
         public TrayIconService? GetTrayIconService()
         {
             return _trayIconService;
+        }
+
+        protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
+        {
+            // Save critical state before Windows shuts down/reboots
+            try
+            {
+                var mainWindow = _host.Services.GetService<MainWindow>();
+                if (mainWindow != null)
+                {
+                    var settingsService = _host.Services.GetRequiredService<SettingsService>();
+                    var settings = settingsService.LoadSettings();
+                    settings.WindowWidth = mainWindow.Width;
+                    settings.WindowHeight = mainWindow.Height;
+                    settingsService.SaveSettings(settings);
+                }
+            }
+            catch
+            {
+                // Fail silently - don't block shutdown
+            }
+
+            base.OnSessionEnding(e);
         }
 
         protected override async void OnExit(ExitEventArgs e)

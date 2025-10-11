@@ -28,6 +28,9 @@ namespace SolusManifestApp.ViewModels
         private readonly ArchiveExtractionService _archiveExtractor;
         private readonly SteamApiService _steamApiService;
         private readonly LoggerService _logger;
+        private readonly LibraryDatabaseService _dbService;
+        private readonly LibraryRefreshService _refreshService;
+        private readonly RecentGamesService _recentGamesService;
 
         private List<LibraryItem> _allItems = new();
 
@@ -89,7 +92,10 @@ namespace SolusManifestApp.ViewModels
             SettingsService settingsService,
             CacheService cacheService,
             NotificationService notificationService,
-            LoggerService logger)
+            LoggerService logger,
+            LibraryDatabaseService dbService,
+            LibraryRefreshService refreshService,
+            RecentGamesService recentGamesService)
         {
             _fileInstallService = fileInstallService;
             _steamService = steamService;
@@ -99,12 +105,29 @@ namespace SolusManifestApp.ViewModels
             _settingsService = settingsService;
             _cacheService = cacheService;
             _notificationService = notificationService;
+            _dbService = dbService;
+            _refreshService = refreshService;
+            _recentGamesService = recentGamesService;
 
             // Initialize new services
             var stpluginPath = _steamService.GetStPluginPath() ?? "";
             _luaFileManager = new LuaFileManager(stpluginPath);
             _archiveExtractor = new ArchiveExtractionService();
             _steamApiService = new SteamApiService(_cacheService);
+
+            // Subscribe to library refresh events
+            _refreshService.GameInstalled += OnGameInstalled;
+            _refreshService.GreenLumaGameInstalled += OnGreenLumaGameInstalled;
+        }
+
+        private async void OnGameInstalled(object? sender, GameInstalledEventArgs e)
+        {
+            await AddGameToLibraryAsync(e.AppId);
+        }
+
+        private async void OnGreenLumaGameInstalled(object? sender, GameInstalledEventArgs e)
+        {
+            await AddGreenLumaGameToLibraryAsync(e.AppId);
         }
 
         partial void OnSearchQueryChanged(string value)
@@ -131,6 +154,11 @@ namespace SolusManifestApp.ViewModels
 
         [RelayCommand]
         public async Task RefreshLibrary()
+        {
+            await RefreshLibrary(forceFullScan: false);
+        }
+
+        public async Task RefreshLibrary(bool forceFullScan)
         {
             IsLoading = true;
             StatusMessage = "Loading library...";
@@ -161,6 +189,38 @@ namespace SolusManifestApp.ViewModels
 
             try
             {
+                // Check if we have recent database cache (< 5 minutes old)
+                if (!forceFullScan && _dbService.HasRecentData(TimeSpan.FromMinutes(5)))
+                {
+                    _logger.Info("Loading library from database cache (fast path)");
+                    var cachedItems = _dbService.GetAllLibraryItems();
+
+                    // Only use cache if it has items
+                    if (cachedItems.Count > 0)
+                    {
+                        _allItems = cachedItems;
+
+                        // Update statistics
+                        TotalLua = _allItems.Count(i => i.ItemType == LibraryItemType.Lua);
+                        TotalSteamGames = _allItems.Count(i => i.ItemType == LibraryItemType.SteamGame);
+                        TotalGreenLuma = _allItems.Count(i => i.ItemType == LibraryItemType.GreenLuma);
+                        TotalSize = _allItems.Sum(i => i.SizeBytes);
+
+                        ApplyFilters();
+                        StatusMessage = $"{_allItems.Count} item(s) loaded from cache";
+                        IsLoading = false;
+
+                        // Load missing icons in background
+                        _ = LoadMissingIconsAsync();
+                        return;
+                    }
+                    else
+                    {
+                        _logger.Info("Database cache is empty, performing full scan instead");
+                    }
+                }
+
+                _logger.Info("Performing full library scan");
                 _allItems.Clear();
 
                 // Load Steam games to get actual sizes
@@ -232,6 +292,7 @@ namespace SolusManifestApp.ViewModels
                                 {
                                     item.CachedIconPath = iconPath;
                                 });
+                                _dbService.UpdateIconPath(item.AppId, iconPath);
                             }
                             else
                             {
@@ -307,6 +368,7 @@ namespace SolusManifestApp.ViewModels
                                         {
                                             item.CachedIconPath = iconPath;
                                         });
+                                        _dbService.UpdateIconPath(item.AppId, iconPath);
                                     }
                                 }
                                 catch { }
@@ -365,6 +427,10 @@ namespace SolusManifestApp.ViewModels
                                 {
                                     item.CachedIconPath = iconPath;
                                 });
+                                if (!string.IsNullOrEmpty(iconPath))
+                                {
+                                    _dbService.UpdateIconPath(item.AppId, iconPath);
+                                }
                             }
                             catch { }
                             finally
@@ -379,6 +445,18 @@ namespace SolusManifestApp.ViewModels
                 catch (Exception ex)
                 {
                     _notificationService.ShowError($"Failed to load Steam games: {ex.Message}");
+                }
+
+                // Save to database for fast loading next time
+                try
+                {
+                    _logger.Info($"Saving {_allItems.Count} items to database");
+                    _dbService.BulkUpsertLibraryItems(_allItems);
+                    _logger.Info("Database save complete");
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Failed to save to database: {ex.Message}");
                 }
 
                 // Update statistics
@@ -398,6 +476,239 @@ namespace SolusManifestApp.ViewModels
             finally
             {
                 IsLoading = false;
+            }
+        }
+
+        private async Task LoadMissingIconsAsync()
+        {
+            var itemsMissingIcons = _allItems.Where(i => string.IsNullOrEmpty(i.CachedIconPath)).ToList();
+            if (itemsMissingIcons.Count == 0)
+                return;
+
+            _logger.Info($"Loading {itemsMissingIcons.Count} missing icons in background");
+
+            var semaphore = new System.Threading.SemaphoreSlim(5, 5);
+            var tasks = itemsMissingIcons.Select(async item =>
+            {
+                await semaphore.WaitAsync();
+                try
+                {
+                    string? iconPath = null;
+                    if (item.ItemType == LibraryItemType.SteamGame)
+                    {
+                        var localIconPath = _steamGamesService.GetLocalIconPath(item.AppId);
+                        var cdnIconUrl = _steamGamesService.GetSteamCdnIconUrl(item.AppId);
+                        iconPath = await _cacheService.GetSteamGameIconAsync(item.AppId, localIconPath, cdnIconUrl);
+                    }
+                    else
+                    {
+                        var cdnIconUrl = _steamGamesService.GetSteamCdnIconUrl(item.AppId);
+                        iconPath = await _cacheService.GetSteamGameIconAsync(item.AppId, null, cdnIconUrl);
+                    }
+
+                    if (!string.IsNullOrEmpty(iconPath))
+                    {
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            item.CachedIconPath = iconPath;
+                        });
+
+                        // Update database with new icon path
+                        _dbService.UpdateIconPath(item.AppId, iconPath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Failed to load icon for {item.Name}: {ex.Message}");
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
+
+            await Task.WhenAll(tasks);
+            _logger.Info("Background icon loading complete");
+        }
+
+        // Method to instantly add newly installed game to library (no full scan needed)
+        public async Task AddGameToLibraryAsync(string appId)
+        {
+            try
+            {
+                _logger.Info($"Adding game {appId} to library instantly");
+
+                // Check if already exists
+                if (_allItems.Any(i => i.AppId == appId))
+                {
+                    _logger.Info($"Game {appId} already in library");
+                    return;
+                }
+
+                // Load the game data
+                var luaGames = await Task.Run(() => _fileInstallService.GetInstalledGames());
+                var game = luaGames.FirstOrDefault(g => g.AppId == appId);
+
+                if (game == null)
+                {
+                    _logger.Warning($"Could not find installed game {appId}");
+                    return;
+                }
+
+                // Get Steam app list for name enrichment
+                var steamAppList = await _steamApiService.GetAppListAsync();
+
+                // Try cache first
+                var cachedManifest = _cacheService.GetCachedManifest(appId);
+                if (cachedManifest != null)
+                {
+                    game.Name = cachedManifest.Name;
+                    game.Description = cachedManifest.Description;
+                    game.Version = cachedManifest.Version;
+                    game.IconUrl = cachedManifest.IconUrl;
+                }
+                else
+                {
+                    // Get name from Steam app list
+                    game.Name = _steamApiService.GetGameName(appId, steamAppList);
+                }
+
+                // Check if game is installed via Steam for size
+                var steamGames = await Task.Run(() => _steamGamesService.GetInstalledGames());
+                var steamGame = steamGames.FirstOrDefault(g => g.AppId == appId);
+                if (steamGame != null)
+                {
+                    game.SizeBytes = steamGame.SizeOnDisk;
+                }
+
+                // Create library item
+                var item = LibraryItem.FromGame(game);
+
+                // Add to memory
+                _allItems.Add(item);
+
+                // Save to database
+                _dbService.UpsertLibraryItem(item);
+
+                // Update UI
+                ApplyFilters();
+                TotalLua = _allItems.Count(i => i.ItemType == LibraryItemType.Lua);
+                TotalSize = _allItems.Sum(i => i.SizeBytes);
+
+                _logger.Info($"✓ Game {appId} added to library");
+
+                // Load icon in background
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var cdnIconUrl = _steamGamesService.GetSteamCdnIconUrl(appId);
+                        var iconPath = await _cacheService.GetSteamGameIconAsync(appId, null, cdnIconUrl);
+
+                        if (!string.IsNullOrEmpty(iconPath))
+                        {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                item.CachedIconPath = iconPath;
+                            });
+                            _dbService.UpdateIconPath(appId, iconPath);
+                            _logger.Info($"✓ Icon loaded for {game.Name}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"Failed to load icon for {appId}: {ex.Message}");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to add game to library: {ex.Message}");
+            }
+        }
+
+        // Method to instantly add GreenLuma game to library
+        public async Task AddGreenLumaGameToLibraryAsync(string appId)
+        {
+            try
+            {
+                _logger.Info($"Adding GreenLuma game {appId} to library instantly");
+
+                // Check if already exists
+                if (_allItems.Any(i => i.AppId == appId))
+                {
+                    _logger.Info($"Game {appId} already in library");
+                    return;
+                }
+
+                var settings = _settingsService.LoadSettings();
+                string? customAppListPath = null;
+                if (settings.GreenLumaSubMode == GreenLumaMode.StealthAnyFolder)
+                {
+                    var injectorDir = Path.GetDirectoryName(settings.DLLInjectorPath);
+                    if (!string.IsNullOrEmpty(injectorDir))
+                    {
+                        customAppListPath = Path.Combine(injectorDir, "AppList");
+                    }
+                }
+
+                var greenLumaGames = await Task.Run(() => _fileInstallService.GetGreenLumaGames(customAppListPath));
+                var glGame = greenLumaGames.FirstOrDefault(g => g.AppId == appId);
+
+                if (glGame == null)
+                {
+                    _logger.Warning($"Could not find GreenLuma game {appId}");
+                    return;
+                }
+
+                // Enrich with name if needed
+                var steamAppList = await _steamApiService.GetAppListAsync();
+                if (string.IsNullOrEmpty(glGame.Name) || glGame.Name.StartsWith("App ") || glGame.Name == glGame.AppId)
+                {
+                    glGame.Name = _steamApiService.GetGameName(appId, steamAppList);
+                }
+
+                // Create library item
+                var item = LibraryItem.FromGreenLumaGame(glGame);
+
+                // Add to memory
+                _allItems.Add(item);
+
+                // Save to database
+                _dbService.UpsertLibraryItem(item);
+
+                // Update UI
+                ApplyFilters();
+                TotalGreenLuma = _allItems.Count(i => i.ItemType == LibraryItemType.GreenLuma);
+
+                _logger.Info($"✓ GreenLuma game {appId} added to library");
+
+                // Load icon in background
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var cdnIconUrl = _steamGamesService.GetSteamCdnIconUrl(appId);
+                        var iconPath = await _cacheService.GetSteamGameIconAsync(appId, null, cdnIconUrl);
+
+                        if (!string.IsNullOrEmpty(iconPath))
+                        {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                item.CachedIconPath = iconPath;
+                            });
+                            _dbService.UpdateIconPath(appId, iconPath);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"Failed to load icon for {appId}: {ex.Message}");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to add GreenLuma game to library: {ex.Message}");
             }
         }
 
@@ -490,6 +801,7 @@ namespace SolusManifestApp.ViewModels
                     if (success)
                     {
                         _allItems.Remove(item);
+                        _dbService.DeleteLibraryItem(item.AppId);
                         ApplyFilters();
 
                         // Update statistics
@@ -603,6 +915,7 @@ namespace SolusManifestApp.ViewModels
                         if (success)
                         {
                             _allItems.Remove(item);
+                            _dbService.DeleteLibraryItem(item.AppId);
                             successCount++;
                         }
                     }
@@ -623,6 +936,9 @@ namespace SolusManifestApp.ViewModels
         [RelayCommand]
         private void OpenInExplorer(LibraryItem item)
         {
+            // Track as recently accessed
+            _recentGamesService.MarkAsRecentlyAccessed(item.AppId);
+
             try
             {
                 string? pathToOpen = null;
@@ -884,10 +1200,15 @@ namespace SolusManifestApp.ViewModels
                 }
 
                 int copiedCount = 0;
+                var installedAppIds = new List<string>();
+
                 foreach (var luaFile in luaFiles)
                 {
                     var fileName = Path.GetFileName(luaFile);
                     var destPath = Path.Combine(stpluginPath, fileName);
+
+                    // Extract appId from filename (e.g., "123456.lua" -> "123456")
+                    var appId = Path.GetFileNameWithoutExtension(fileName);
 
                     // Remove existing files
                     if (File.Exists(destPath))
@@ -897,6 +1218,7 @@ namespace SolusManifestApp.ViewModels
 
                     File.Copy(luaFile, destPath, true);
                     copiedCount++;
+                    installedAppIds.Add(appId);
                 }
 
                 // Cleanup temp directories
@@ -906,7 +1228,12 @@ namespace SolusManifestApp.ViewModels
                 }
 
                 _notificationService.ShowSuccess($"Successfully added {copiedCount} file(s)! Restart Steam for changes to take effect.");
-                await RefreshLibrary();
+
+                // Add games to library instantly instead of full refresh
+                foreach (var appId in installedAppIds)
+                {
+                    await AddGameToLibraryAsync(appId);
+                }
             }
             catch (Exception ex)
             {

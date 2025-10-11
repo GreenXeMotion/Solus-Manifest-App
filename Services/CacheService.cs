@@ -62,7 +62,7 @@ namespace SolusManifestApp.Services
                         var bytes = await response.Content.ReadAsByteArrayAsync();
                         if (bytes.Length > 0)
                         {
-                            await File.WriteAllBytesAsync(iconPath, bytes);
+                            await WriteFileSafelyAsync(iconPath, bytes);
                             _logger?.Info($"✓ Downloaded icon for {appId} from provided URL ({bytes.Length} bytes)");
                             ManageIconCacheSize();
                             return iconPath;
@@ -101,7 +101,7 @@ namespace SolusManifestApp.Services
                                 var bytes = await imageResponse.Content.ReadAsByteArrayAsync();
                                 if (bytes.Length > 0)
                                 {
-                                    await File.WriteAllBytesAsync(iconPath, bytes);
+                                    await WriteFileSafelyAsync(iconPath, bytes);
                                     _logger?.Info($"✓ Downloaded icon for {appId} from SteamCMD API ({bytes.Length} bytes)");
                                     ManageIconCacheSize();
                                     return iconPath;
@@ -143,7 +143,7 @@ namespace SolusManifestApp.Services
                                 var bytes = await imageResponse.Content.ReadAsByteArrayAsync();
                                 if (bytes.Length > 0)
                                 {
-                                    await File.WriteAllBytesAsync(iconPath, bytes);
+                                    await WriteFileSafelyAsync(iconPath, bytes);
                                     _logger?.Info($"✓ Downloaded icon for {appId} from Steam Store API ({bytes.Length} bytes)");
                                     ManageIconCacheSize();
                                     return iconPath;
@@ -177,7 +177,7 @@ namespace SolusManifestApp.Services
                         var bytes = await response.Content.ReadAsByteArrayAsync();
                         if (bytes.Length > 0)
                         {
-                            await File.WriteAllBytesAsync(iconPath, bytes);
+                            await WriteFileSafelyAsync(iconPath, bytes);
                             _logger?.Info($"✓ Downloaded icon for {appId} from direct CDN: {url} ({bytes.Length} bytes)");
                             ManageIconCacheSize();
                             return iconPath;
@@ -248,7 +248,7 @@ namespace SolusManifestApp.Services
                     if (response.IsSuccessStatusCode)
                     {
                         var bytes = await response.Content.ReadAsByteArrayAsync();
-                        await File.WriteAllBytesAsync(cachedPath, bytes);
+                        await WriteFileSafelyAsync(cachedPath, bytes);
                         _logger?.Info($"✓ Success! Downloaded {bytes.Length} bytes from {url}");
                         ManageIconCacheSize();
                         return cachedPath;
@@ -291,7 +291,7 @@ namespace SolusManifestApp.Services
                             if (imageResponse.IsSuccessStatusCode)
                             {
                                 var bytes = await imageResponse.Content.ReadAsByteArrayAsync();
-                                await File.WriteAllBytesAsync(cachedPath, bytes);
+                                await WriteFileSafelyAsync(cachedPath, bytes);
                                 _logger?.Info($"✓ Success! Downloaded {bytes.Length} bytes from Steam Store API");
                                 ManageIconCacheSize();
                                 return cachedPath;
@@ -566,6 +566,17 @@ namespace SolusManifestApp.Services
                 return DateTime.Now - timestamp.Value < maxAge;
             }
             return false;
+        }
+
+        // Helper method to write files safely with explicit flush to disk
+        private async Task WriteFileSafelyAsync(string filePath, byte[] bytes)
+        {
+            await using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
+            {
+                await fileStream.WriteAsync(bytes, 0, bytes.Length);
+                await fileStream.FlushAsync();
+                fileStream.Close();
+            }
         }
     }
 }

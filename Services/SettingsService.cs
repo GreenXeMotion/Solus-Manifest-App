@@ -61,7 +61,15 @@ namespace SolusManifestApp.Services
             {
                 _settings = settings;
                 var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
-                File.WriteAllText(_settingsPath, json);
+
+                // Write with explicit flush to disk
+                using (var fileStream = new FileStream(_settingsPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
+                using (var writer = new StreamWriter(fileStream))
+                {
+                    writer.Write(json);
+                    writer.Flush();
+                    fileStream.Flush(flushToDisk: true);
+                }
             }
             catch (Exception ex)
             {

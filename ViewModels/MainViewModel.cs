@@ -92,6 +92,38 @@ namespace SolusManifestApp.ViewModels
             return true;
         }
 
+        // Public method for navigation from external services (like TrayIcon)
+        public void NavigateTo(string pageName)
+        {
+            switch (pageName.ToLower())
+            {
+                case "home":
+                    NavigateToHome();
+                    break;
+                case "installer":
+                    NavigateToInstaller();
+                    break;
+                case "library":
+                    NavigateToLibrary();
+                    break;
+                case "store":
+                    NavigateToStore();
+                    break;
+                case "downloads":
+                    NavigateToDownloads();
+                    break;
+                case "tools":
+                    NavigateToTools();
+                    break;
+                case "settings":
+                    NavigateToSettings();
+                    break;
+                case "support":
+                    NavigateToSupport();
+                    break;
+            }
+        }
+
         [RelayCommand]
         private void NavigateToHome()
         {

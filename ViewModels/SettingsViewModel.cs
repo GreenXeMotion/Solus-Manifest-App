@@ -26,6 +26,7 @@ namespace SolusManifestApp.ViewModels
         private readonly SteamLibraryService _steamLibraryService;
         private readonly ThemeService _themeService;
         private readonly LoggerService _logger;
+        private readonly UpdateService _updateService;
 
         [ObservableProperty]
         private AppSettings _settings;
@@ -242,7 +243,8 @@ namespace SolusManifestApp.ViewModels
             LuaInstallerViewModel luaInstallerViewModel,
             SteamLibraryService steamLibraryService,
             ThemeService themeService,
-            LoggerService logger)
+            LoggerService logger,
+            UpdateService updateService)
         {
             _steamService = steamService;
             _settingsService = settingsService;
@@ -254,6 +256,7 @@ namespace SolusManifestApp.ViewModels
             _steamLibraryService = steamLibraryService;
             _themeService = themeService;
             _logger = logger;
+            _updateService = updateService;
 
             _settings = new AppSettings();
             LoadSettings();
@@ -878,6 +881,63 @@ namespace SolusManifestApp.ViewModels
                 len /= 1024;
             }
             return $"{len:0.##} {sizes[order]}";
+        }
+
+        [RelayCommand]
+        private async System.Threading.Tasks.Task CheckForUpdates()
+        {
+            try
+            {
+                StatusMessage = "Checking for updates...";
+                var (hasUpdate, updateInfo) = await _updateService.CheckForUpdatesAsync();
+
+                if (hasUpdate && updateInfo != null)
+                {
+                    var result = MessageBoxHelper.Show(
+                        $"A new version ({updateInfo.TagName}) is available!\n\nWould you like to download and install it now?\n\nCurrent version: {_updateService.GetCurrentVersion()}",
+                        "Update Available",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Information);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        StatusMessage = "Downloading update...";
+                        _notificationService.ShowNotification("Downloading Update", "Downloading the latest version...", NotificationType.Info);
+
+                        var updatePath = await _updateService.DownloadUpdateAsync(updateInfo);
+
+                        if (!string.IsNullOrEmpty(updatePath))
+                        {
+                            var installResult = MessageBoxHelper.Show(
+                                "Update downloaded successfully!\n\nThe app will now restart to install the update.",
+                                "Update Ready",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+
+                            _updateService.InstallUpdate(updatePath);
+                        }
+                        else
+                        {
+                            StatusMessage = "Failed to download update";
+                            _notificationService.ShowError("Failed to download update. Please try again later.", "Update Failed");
+                        }
+                    }
+                    else
+                    {
+                        StatusMessage = "Update cancelled";
+                    }
+                }
+                else
+                {
+                    StatusMessage = "You're up to date!";
+                    _notificationService.ShowSuccess($"You have the latest version ({_updateService.GetCurrentVersion()})");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                StatusMessage = $"Update check failed: {ex.Message}";
+                _notificationService.ShowError($"An error occurred while checking for updates: {ex.Message}", "Update Error");
+            }
         }
     }
 }

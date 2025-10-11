@@ -22,6 +22,7 @@ namespace SolusManifestApp.ViewModels
         private readonly SteamService _steamService;
         private readonly SteamApiService _steamApiService;
         private readonly NotificationService _notificationService;
+        private readonly LibraryRefreshService _libraryRefreshService;
 
         [ObservableProperty]
         private ObservableCollection<DownloadItem> _activeDownloads;
@@ -42,7 +43,8 @@ namespace SolusManifestApp.ViewModels
             DepotDownloadService depotDownloadService,
             SteamService steamService,
             SteamApiService steamApiService,
-            NotificationService notificationService)
+            NotificationService notificationService,
+            LibraryRefreshService libraryRefreshService)
         {
             _downloadService = downloadService;
             _fileInstallService = fileInstallService;
@@ -51,6 +53,7 @@ namespace SolusManifestApp.ViewModels
             _steamService = steamService;
             _steamApiService = steamApiService;
             _notificationService = notificationService;
+            _libraryRefreshService = libraryRefreshService;
 
             ActiveDownloads = _downloadService.ActiveDownloads;
 
@@ -280,6 +283,9 @@ namespace SolusManifestApp.ViewModels
                 _notificationService.ShowSuccess($"{fileName} has been installed successfully! Restart Steam for changes to take effect.", "Installation Complete");
 
                 StatusMessage = $"{fileName} installed successfully";
+
+                // Notify library to add the game instantly
+                _libraryRefreshService.NotifyGameInstalled(appId, settings.Mode == ToolMode.GreenLuma);
 
                 // Auto-delete the ZIP file
                 File.Delete(filePath);
