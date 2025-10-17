@@ -132,6 +132,195 @@ namespace SolusManifestApp.ViewModels
                 var settings = _settingsService.LoadSettings();
                 var appId = Path.GetFileNameWithoutExtension(filePath);
 
+                // Handle DepotDownloader mode
+                if (settings.Mode == ToolMode.DepotDownloader)
+                {
+                    // DepotDownloader flow: extract depot keys, filter by language, and start download
+                    StatusMessage = "Extracting depot information from lua file...";
+                    var luaContent = _downloadService.ExtractLuaContentFromZip(filePath, appId);
+
+                    // Parse depot keys from lua content
+                    var depotFilterService = new DepotFilterService(new LoggerService());
+                    var parsedDepotKeys = depotFilterService.ExtractDepotKeysFromLua(luaContent);
+
+                    if (parsedDepotKeys.Count == 0)
+                    {
+                        MessageBoxHelper.Show(
+                            "No depot keys found in the lua file. Cannot proceed with download.",
+                            "Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                        StatusMessage = "Installation cancelled - No depot keys found";
+                        IsInstalling = false;
+                        return;
+                    }
+
+                    StatusMessage = $"Found {parsedDepotKeys.Count} depot keys. Fetching depot metadata...";
+
+                    // Fetch depot metadata from SteamCMD API
+                    var steamCmdService = new SteamCmdApiService();
+                    var steamCmdData = await steamCmdService.GetDepotInfoAsync(appId);
+
+                    if (steamCmdData == null)
+                    {
+                        MessageBoxHelper.Show(
+                            "Failed to fetch depot information from SteamCMD API. Cannot proceed with download.",
+                            "Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                        StatusMessage = "Installation cancelled - API fetch failed";
+                        IsInstalling = false;
+                        return;
+                    }
+
+                    // Get available languages
+                    var availableLanguages = depotFilterService.GetAvailableLanguages(steamCmdData, appId);
+
+                    if (availableLanguages.Count == 0)
+                    {
+                        _notificationService.ShowWarning("No languages found in depot metadata. Using all depots.");
+                        availableLanguages = new List<string> { "all" };
+                    }
+
+                    // Show language selection dialog
+                    StatusMessage = "Waiting for language selection...";
+                    var languageDialog = new LanguageSelectionDialog(availableLanguages);
+                    var languageResult = languageDialog.ShowDialog();
+
+                    if (languageResult != true || string.IsNullOrEmpty(languageDialog.SelectedLanguage))
+                    {
+                        StatusMessage = "Installation cancelled";
+                        IsInstalling = false;
+                        return;
+                    }
+
+                    // Filter depots using Python-style logic
+                    StatusMessage = $"Filtering depots for language: {languageDialog.SelectedLanguage}...";
+                    var filteredDepotIds = depotFilterService.GetDepotsForLanguage(
+                        steamCmdData,
+                        parsedDepotKeys,
+                        languageDialog.SelectedLanguage,
+                        appId);
+
+                    if (filteredDepotIds.Count == 0)
+                    {
+                        MessageBoxHelper.Show(
+                            "No depots matched the selected language. Cannot proceed with download.",
+                            "Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                        StatusMessage = "Installation cancelled - No matching depots";
+                        IsInstalling = false;
+                        return;
+                    }
+
+                    StatusMessage = $"Found {filteredDepotIds.Count} depots for {languageDialog.SelectedLanguage}. Preparing depot selection...";
+
+                    // Convert filtered depot IDs to depot info list for selection dialog
+                    var depotsForSelection = new List<DepotInfo>();
+                    foreach (var depotIdStr in filteredDepotIds)
+                    {
+                        if (uint.TryParse(depotIdStr, out var depotId) && parsedDepotKeys.ContainsKey(depotIdStr))
+                        {
+                            // Try to get depot name/info from SteamCMD data
+                            string depotName = $"Depot {depotId}";
+                            string depotLanguage = "";
+
+                            if (steamCmdData.Data.TryGetValue(appId, out var appData) &&
+                                appData.Depots?.TryGetValue(depotIdStr, out var depotData) == true)
+                            {
+                                depotLanguage = depotData.Config?.Language ?? "";
+                            }
+
+                            depotsForSelection.Add(new DepotInfo
+                            {
+                                DepotId = depotIdStr,
+                                Name = depotName,
+                                Size = 0, // Size unknown at this stage
+                                Language = depotLanguage
+                            });
+                        }
+                    }
+
+                    // Show depot selection dialog
+                    StatusMessage = "Waiting for depot selection...";
+                    var depotDialog = new DepotSelectionDialog(depotsForSelection);
+                    var depotResult = depotDialog.ShowDialog();
+
+                    if (depotResult != true || depotDialog.SelectedDepotIds.Count == 0)
+                    {
+                        StatusMessage = "Installation cancelled";
+                        IsInstalling = false;
+                        return;
+                    }
+
+                    // Prepare download path
+                    var outputPath = settings.DepotDownloaderOutputPath;
+                    if (string.IsNullOrEmpty(outputPath))
+                    {
+                        MessageBoxHelper.Show(
+                            "DepotDownloader output path not configured. Please set it in Settings.",
+                            "Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                        StatusMessage = "Installation cancelled - Output path not set";
+                        IsInstalling = false;
+                        return;
+                    }
+
+                    // Extract manifest files from zip
+                    StatusMessage = "Extracting manifest files...";
+                    var manifestFiles = _downloadService.ExtractManifestFilesFromZip(filePath, appId);
+
+                    // Prepare depot list with keys and manifest files
+                    var depotsToDownload = new List<(uint depotId, string depotKey, string? manifestFile)>();
+                    foreach (var selectedDepotId in depotDialog.SelectedDepotIds)
+                    {
+                        if (uint.TryParse(selectedDepotId, out var depotId) && parsedDepotKeys.TryGetValue(selectedDepotId, out var depotKey))
+                        {
+                            // Try to get the manifest file path for this depot
+                            string? manifestFilePath = null;
+                            if (manifestFiles.TryGetValue(selectedDepotId, out var manifestPath))
+                            {
+                                manifestFilePath = manifestPath;
+                            }
+
+                            depotsToDownload.Add((depotId, depotKey, manifestFilePath));
+                        }
+                    }
+
+                    // Get game name from SteamCMD data
+                    string gameName = appId;
+                    if (steamCmdData.Data.TryGetValue(appId, out var gameData))
+                    {
+                        gameName = gameData.Common?.Name ?? appId;
+                    }
+
+                    // Start download via DownloadService (shows in Downloads tab with progress)
+                    StatusMessage = "Starting download...";
+
+                    // Start the download asynchronously
+                    _ = _downloadService.DownloadViaDepotDownloaderAsync(
+                        appId,
+                        gameName,
+                        depotsToDownload,
+                        outputPath,
+                        settings.VerifyFilesAfterDownload,
+                        settings.MaxConcurrentDownloads
+                    );
+
+                    _notificationService.ShowSuccess($"Download started for {gameName}!\n\nCheck the Downloads tab to monitor progress.\nFiles will be downloaded to: {Path.Combine(outputPath, appId)}", "Download Started");
+
+                    StatusMessage = "Download started - check progress below";
+
+                    // Auto-delete the ZIP file after starting download
+                    File.Delete(filePath);
+                    RefreshDownloadedFiles();
+
+                    IsInstalling = false;
+                    return; // Skip the regular file installation flow
+                }
+
                 // Validate appId for GreenLuma mode
                 if (settings.Mode == ToolMode.GreenLuma)
                 {
