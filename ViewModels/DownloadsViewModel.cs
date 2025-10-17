@@ -283,20 +283,27 @@ namespace SolusManifestApp.ViewModels
                             // Try to get depot name/info from SteamCMD data
                             string depotName = $"Depot {depotId}";
                             string depotLanguage = "";
+                            long depotSize = 0;
 
                             if (steamCmdData.Data.TryGetValue(appId, out var appData) &&
                                 appData.Depots?.TryGetValue(depotIdStr, out var depotData) == true)
                             {
                                 depotLanguage = depotData.Config?.Language ?? "";
+
+                                // Get size from manifest if available
+                                if (depotData.Manifests?.TryGetValue("public", out var manifestData) == true)
+                                {
+                                    depotSize = manifestData.Size;
+                                }
                             }
 
-                            _logger.Debug($"  Added depot {depotId} - Language: {(string.IsNullOrEmpty(depotLanguage) ? "none (base depot)" : depotLanguage)}");
+                            _logger.Debug($"  Added depot {depotId} - Language: {(string.IsNullOrEmpty(depotLanguage) ? "none (base depot)" : depotLanguage)}, Size: {depotSize} bytes");
 
                             depotsForSelection.Add(new DepotInfo
                             {
                                 DepotId = depotIdStr,
                                 Name = depotName,
-                                Size = 0, // Size unknown at this stage
+                                Size = depotSize,
                                 Language = depotLanguage
                             });
                         }

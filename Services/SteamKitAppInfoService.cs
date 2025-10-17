@@ -306,6 +306,24 @@ namespace SolusManifestApp.Services
                             {
                                 depotInfo.ManifestGid = manifests["public"]["gid"].Value;
                             }
+
+                            // Get manifest size if available
+                            if (manifests["public"]["size"] != KeyValue.Invalid)
+                            {
+                                if (long.TryParse(manifests["public"]["size"].Value, out var size))
+                                {
+                                    depotInfo.Size = size;
+                                }
+                            }
+
+                            // Get download size if available
+                            if (manifests["public"]["download"] != KeyValue.Invalid)
+                            {
+                                if (long.TryParse(manifests["public"]["download"].Value, out var downloadSize))
+                                {
+                                    depotInfo.DownloadSize = downloadSize;
+                                }
+                            }
                         }
                     }
 
@@ -393,8 +411,8 @@ namespace SolusManifestApp.Services
                         ["public"] = new ManifestData
                         {
                             Gid = depot.ManifestGid,
-                            Size = 0, // Size not available from SteamKit
-                            Download = 0
+                            Size = depot.Size,
+                            Download = depot.DownloadSize
                         }
                     };
                 }
@@ -451,5 +469,7 @@ namespace SolusManifestApp.Services
         public string? DlcAppId { get; set; }
         public bool HasManifests { get; set; }
         public string? ManifestGid { get; set; }
+        public long Size { get; set; }
+        public long DownloadSize { get; set; }
     }
 }
