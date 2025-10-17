@@ -28,6 +28,7 @@ namespace SolusManifestApp.Models
         public string DestinationPath { get; set; } = string.Empty;
         public DateTime StartTime { get; set; }
         public DateTime? EndTime { get; set; }
+        public bool IsDepotDownloaderMode { get; set; } = false; // If true, skip auto-install (files are downloaded directly, not as zip)
 
         public double Progress
         {

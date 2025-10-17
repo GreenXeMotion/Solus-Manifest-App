@@ -741,7 +741,8 @@ namespace SolusManifestApp.Services
                 Status = DownloadStatus.Downloading,
                 StartTime = DateTime.Now,
                 StatusMessage = "Initializing Steam session...",
-                DestinationPath = Path.Combine(outputPath, appId)
+                DestinationPath = Path.Combine(outputPath, appId),
+                IsDepotDownloaderMode = true // Mark as DepotDownloader to skip auto-install
             };
 
             var cancellationTokenSource = new CancellationTokenSource();

@@ -68,6 +68,12 @@ namespace SolusManifestApp.ViewModels
             // Auto-refresh the downloaded files list when a download completes
             RefreshDownloadedFiles();
 
+            // Skip auto-install for DepotDownloader mode (files are downloaded directly, not as zip)
+            if (downloadItem.IsDepotDownloaderMode)
+            {
+                return;
+            }
+
             // Check if auto-install is enabled
             var settings = _settingsService.LoadSettings();
             if (settings.AutoInstallAfterDownload && !string.IsNullOrEmpty(downloadItem.DestinationPath) && File.Exists(downloadItem.DestinationPath))
