@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace SolusManifestApp.Services
@@ -28,7 +29,7 @@ namespace SolusManifestApp.Services
             var hasBaseDepots = false; // Tracks if there are depots with no language (treated as English/base)
 
             if (steamCmdData?.Data == null || !steamCmdData.Data.ContainsKey(appId))
-                return new List<string> { "english" };
+                return new List<string> { "English" };
 
             var depots = steamCmdData.Data[appId].Depots;
 
@@ -77,11 +78,13 @@ namespace SolusManifestApp.Services
             // If no languages found at all (shouldn't happen but safeguard)
             if (languages.Count == 0)
             {
-                _logger.Warning("No languages found in depots - defaulting to 'english'");
-                return new List<string> { "english" };
+                _logger.Warning("No languages found in depots - defaulting to 'English'");
+                return new List<string> { "English" };
             }
 
-            return languages.OrderBy(l => l).ToList();
+            // Convert all languages to Title Case for professional display
+            var textInfo = CultureInfo.CurrentCulture.TextInfo;
+            return languages.OrderBy(l => l).Select(l => textInfo.ToTitleCase(l.ToLower())).ToList();
         }
 
         /// <summary>
