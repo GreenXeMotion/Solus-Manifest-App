@@ -734,6 +734,10 @@ namespace SolusManifestApp.Services
             bool verifyFiles = true,
             int maxDownloads = 8)
         {
+            // Create folder structure: {GameName} ({AppId})\{GameName}
+            var gameFolderName = $"{gameName} ({appId})";
+            var gameDownloadPath = Path.Combine(outputPath, gameFolderName, gameName);
+
             var downloadItem = new DownloadItem
             {
                 AppId = appId,
@@ -741,7 +745,7 @@ namespace SolusManifestApp.Services
                 Status = DownloadStatus.Downloading,
                 StartTime = DateTime.Now,
                 StatusMessage = "Initializing Steam session...",
-                DestinationPath = Path.Combine(outputPath, appId),
+                DestinationPath = gameDownloadPath,
                 IsDepotDownloaderMode = true // Mark as DepotDownloader to skip auto-install
             };
 

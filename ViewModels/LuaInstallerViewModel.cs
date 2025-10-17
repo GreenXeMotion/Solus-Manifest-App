@@ -439,7 +439,9 @@ namespace SolusManifestApp.ViewModels
                             settings.MaxConcurrentDownloads
                         );
 
-                        _notificationService.ShowSuccess($"Download started for {gameName}!\n\nCheck the Downloads tab to monitor progress.\nFiles will be downloaded to: {Path.Combine(outputPath, appId)}");
+                        var gameFolderName = $"{gameName} ({appId})";
+                        var gameDownloadPath = Path.Combine(outputPath, gameFolderName, gameName);
+                        _notificationService.ShowSuccess($"Download started for {gameName}!\n\nCheck the Downloads tab to monitor progress.\nFiles will be downloaded to: {gameDownloadPath}");
                         StatusMessage = "Download started - check Downloads tab";
 
                         // Clear selection
