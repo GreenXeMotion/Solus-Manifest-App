@@ -79,20 +79,27 @@ namespace SolusManifestApp.Services
                     _logger.Warning("[SteamKit] Disconnected from Steam");
                     _isConnected = false;
                     _isAnonymousLoggedIn = false;
+                    connectedTcs.TrySetCanceled();
+                    loggedOnTcs.TrySetCanceled();
                 });
 
-                // Connect to Steam
-                _steamClient.Connect();
-
-                // Start callback processing in background
-                _ = Task.Run(async () =>
+                // Start callback processing BEFORE connecting
+                var callbackTask = Task.Run(() =>
                 {
-                    while (_steamClient != null && _steamClient.IsConnected)
+                    _logger.Info("[SteamKit] Starting callback manager loop...");
+                    while (!connectedTcs.Task.IsCompleted || !loggedOnTcs.Task.IsCompleted)
                     {
                         _callbacks?.RunWaitCallbacks(TimeSpan.FromSeconds(1));
-                        await Task.Delay(100);
                     }
+                    _logger.Info("[SteamKit] Callback manager loop finished initialization phase");
                 });
+
+                // Give callback loop time to start
+                await Task.Delay(100);
+
+                // Now connect to Steam
+                _logger.Info("[SteamKit] Connecting to Steam...");
+                _steamClient.Connect();
 
                 // Wait for connection (increased timeout to 30 seconds)
                 var connectionTask = await Task.WhenAny(connectedTcs.Task, Task.Delay(30000));
