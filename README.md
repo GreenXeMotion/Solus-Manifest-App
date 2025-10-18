@@ -2,10 +2,11 @@
 
 <div align="center">
 
-**A comprehensive Steam depot management and game downgrading tool**
+**A comprehensive Steam depot and manifest management tool**
 
-[![Build](https://github.com/MorrenusGames/Solus-Manifest-App/workflows/Build/badge.svg)](https://github.com/MorrenusGames/Solus-Manifest-App/actions)
-[![Release](https://github.com/MorrenusGames/Solus-Manifest-App/workflows/Build%20and%20Release/badge.svg)](https://github.com/MorrenusGames/Solus-Manifest-App/releases)
+[![Latest Release](https://img.shields.io/github/v/release/MorrenusGames/Solus-Manifest-App)](https://github.com/MorrenusGames/Solus-Manifest-App/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/MorrenusGames/Solus-Manifest-App/total)](https://github.com/MorrenusGames/Solus-Manifest-App/releases)
+[![License](https://img.shields.io/github/license/MorrenusGames/Solus-Manifest-App)](LICENSE)
 
 </div>
 
@@ -13,14 +14,14 @@
 
 ## 📖 Description
 
-Solus Manifest App is a powerful Windows desktop application for managing Steam game depots, downgrading games to previous versions, and advanced Steam library management. Built with .NET 8 and WPF, it features a modern Steam-inspired interface with comprehensive depot and manifest management capabilities.
+Solus Manifest App is a powerful Windows desktop application for managing Steam game depots and advanced Steam library management. Built with .NET 8 and WPF, it features a modern Steam-inspired interface with comprehensive depot and manifest management capabilities.
 
 ## ✨ Key Features
 
 ### Depot & Manifest Management
 - **Browse & Download Depots**: Search and download Steam depots with automatic key lookup
 - **Manifest Downloads**: Download specific game manifests and depot files
-- **Game Downgrading**: Revert games to previous versions using manifests
+- **Version Management**: Download and install specific game versions using manifests
 - **DepotDownloader Integration**: Built-in DepotDownloader with progress tracking and notifications
 - **Depot Name Lookup**: Built-in database of depot names from `depots.ini`
 
