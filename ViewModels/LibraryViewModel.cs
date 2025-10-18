@@ -447,19 +447,7 @@ namespace SolusManifestApp.ViewModels
                     _notificationService.ShowError($"Failed to load Steam games: {ex.Message}");
                 }
 
-                // Save to database for fast loading next time
-                try
-                {
-                    _logger.Info($"Saving {_allItems.Count} items to database");
-                    _dbService.BulkUpsertLibraryItems(_allItems);
-                    _logger.Info("Database save complete");
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error($"Failed to save to database: {ex.Message}");
-                }
-
-                // Update statistics
+                // Update statistics on UI thread (fast)
                 TotalLua = _allItems.Count(i => i.ItemType == LibraryItemType.Lua);
                 TotalSteamGames = _allItems.Count(i => i.ItemType == LibraryItemType.SteamGame);
                 TotalGreenLuma = _allItems.Count(i => i.ItemType == LibraryItemType.GreenLuma);
@@ -468,6 +456,21 @@ namespace SolusManifestApp.ViewModels
                 ApplyFilters();
 
                 StatusMessage = $"{_allItems.Count} item(s) loaded";
+
+                // Save to database in background (don't block UI)
+                _ = Task.Run(() =>
+                {
+                    try
+                    {
+                        _logger.Info($"Saving {_allItems.Count} items to database");
+                        _dbService.BulkUpsertLibraryItems(_allItems);
+                        _logger.Info("Database save complete");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"Failed to save to database: {ex.Message}");
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -714,35 +717,49 @@ namespace SolusManifestApp.ViewModels
 
         private void ApplyFilters()
         {
-            var filtered = _allItems.AsEnumerable();
-
-            // Filter by type
-            if (!ShowLua)
-                filtered = filtered.Where(i => i.ItemType != LibraryItemType.Lua && i.ItemType != LibraryItemType.GreenLuma);
-            if (!ShowSteamGames)
-                filtered = filtered.Where(i => i.ItemType != LibraryItemType.SteamGame);
-
-            // Search filter
-            if (!string.IsNullOrWhiteSpace(SearchQuery))
+            // Do filtering/sorting on background thread
+            Task.Run(() =>
             {
-                var query = SearchQuery.ToLower();
-                filtered = filtered.Where(i =>
-                    i.Name.ToLower().Contains(query) ||
-                    i.AppId.ToLower().Contains(query) ||
-                    i.Description.ToLower().Contains(query));
-            }
+                var filtered = _allItems.AsEnumerable();
 
-            // Sort
-            filtered = SelectedSort switch
-            {
-                "Size" => filtered.OrderByDescending(i => i.SizeBytes),
-                "Install Date" => filtered.OrderByDescending(i => i.InstallDate),
-                "Last Updated" => filtered.OrderByDescending(i => i.LastUpdated),
-                _ => filtered.OrderBy(i => i.Name)
-            };
+                // Filter by type
+                if (!ShowLua)
+                    filtered = filtered.Where(i => i.ItemType != LibraryItemType.Lua && i.ItemType != LibraryItemType.GreenLuma);
+                if (!ShowSteamGames)
+                    filtered = filtered.Where(i => i.ItemType != LibraryItemType.SteamGame);
 
-            DisplayedItems = new ObservableCollection<LibraryItem>(filtered);
-            StatusMessage = $"{DisplayedItems.Count} of {_allItems.Count} item(s)";
+                // Search filter
+                if (!string.IsNullOrWhiteSpace(SearchQuery))
+                {
+                    var query = SearchQuery.ToLower();
+                    filtered = filtered.Where(i =>
+                        i.Name.ToLower().Contains(query) ||
+                        i.AppId.ToLower().Contains(query) ||
+                        i.Description.ToLower().Contains(query));
+                }
+
+                // Sort
+                filtered = SelectedSort switch
+                {
+                    "Size" => filtered.OrderByDescending(i => i.SizeBytes),
+                    "Install Date" => filtered.OrderByDescending(i => i.InstallDate),
+                    "Last Updated" => filtered.OrderByDescending(i => i.LastUpdated),
+                    _ => filtered.OrderBy(i => i.Name)
+                };
+
+                var filteredList = filtered.ToList();
+
+                // Update UI on UI thread - but reuse existing collection
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    DisplayedItems.Clear();
+                    foreach (var item in filteredList)
+                    {
+                        DisplayedItems.Add(item);
+                    }
+                    StatusMessage = $"{DisplayedItems.Count} of {_allItems.Count} item(s)";
+                });
+            });
         }
 
         [RelayCommand]

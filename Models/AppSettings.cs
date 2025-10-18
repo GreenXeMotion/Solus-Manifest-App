@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace SolusManifestApp.Models
@@ -49,12 +50,17 @@ namespace SolusManifestApp.Models
         public string DownloadsPath { get; set; } = string.Empty;
         public bool AutoInstallAfterDownload { get; set; } = false;
 
+        // Key Upload
+        public bool AutoUploadConfigKeys { get; set; } = true;
+        public DateTime LastConfigKeysUpload { get; set; } = DateTime.MinValue;
+
         // Application Behavior
         public bool MinimizeToTray { get; set; } = true;
         public bool StartMinimized { get; set; } = false;
         public bool ShowNotifications { get; set; } = true;
         public bool ConfirmBeforeDelete { get; set; } = true;
         public bool ConfirmBeforeUninstall { get; set; } = true;
+        public bool AlwaysShowTrayIcon { get; set; } = false;
 
         // Display & Interface
         public AppTheme Theme { get; set; } = AppTheme.Default;

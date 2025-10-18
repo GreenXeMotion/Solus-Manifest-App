@@ -11,6 +11,14 @@
     <Version>1.0.0</Version>
     <Authors>Solus</Authors>
     <Description>Solus Manifest App</Description>
+
+    <!-- Self-contained single-file publishing -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,11 +39,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Keep Resources folder external for single-file -->
     <None Update="Resources\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
+
     <None Update="depots.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
     <Resource Include="icon.ico" />
     <EmbeddedResource Include="icon.ico" />

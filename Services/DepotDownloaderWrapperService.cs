@@ -46,6 +46,7 @@ namespace SolusManifestApp.Services
         public static DepotDownloaderWrapperService Instance => _instance ??= new DepotDownloaderWrapperService();
 
         private readonly LoggerService _logger;
+        private readonly NotificationService _notificationService;
 
         // Events
         public event EventHandler<DownloadProgressEventArgs>? ProgressChanged;
@@ -59,6 +60,7 @@ namespace SolusManifestApp.Services
         public DepotDownloaderWrapperService()
         {
             _logger = new LoggerService("DepotDownloader");
+            _notificationService = new NotificationService(new SettingsService());
         }
 
         public async Task<bool> InitializeAsync(string username = "", string password = "")
@@ -171,6 +173,9 @@ namespace SolusManifestApp.Services
                     // Calculate overall progress: (completed depots + current depot progress) / total depots
                     double overallProgress = ((currentDepotIndex + (e.Progress / 100.0)) / totalDepots) * 100.0;
 
+                    // Clamp progress to 100% to prevent overflow when depot completes
+                    overallProgress = Math.Min(overallProgress, 100.0);
+
                     ProgressChanged?.Invoke(this, new DownloadProgressEventArgs
                     {
                         JobId = appId.ToString(),
@@ -235,6 +240,13 @@ namespace SolusManifestApp.Services
                     }
 
                     LogInfo($"Download completed for App ID: {appId}");
+
+                    // Show completion notification
+                    _notificationService.ShowSuccess(
+                        $"Successfully downloaded {totalDepots} depot{(totalDepots != 1 ? "s" : "")} for App {appId}",
+                        "Download Complete"
+                    );
+
                     DownloadCompleted?.Invoke(this, new DownloadCompletedEventArgs
                     {
                         JobId = appId.ToString(),

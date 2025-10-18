@@ -65,6 +65,11 @@ namespace SolusManifestApp.ViewModels
         private bool _confirmBeforeUninstall;
 
         [ObservableProperty]
+        private bool _alwaysShowTrayIcon;
+        [ObservableProperty]
+        private bool _autoUploadConfigKeys;
+
+        [ObservableProperty]
         private int _storePageSize;
 
         [ObservableProperty]
@@ -179,6 +184,8 @@ namespace SolusManifestApp.ViewModels
         partial void OnAutoInstallAfterDownloadChanged(bool value) => MarkAsUnsaved();
         partial void OnShowNotificationsChanged(bool value) => MarkAsUnsaved();
         partial void OnStartMinimizedChanged(bool value) => MarkAsUnsaved();
+        partial void OnAlwaysShowTrayIconChanged(bool value) => MarkAsUnsaved();
+        partial void OnAutoUploadConfigKeysChanged(bool value) => MarkAsUnsaved();
         partial void OnConfirmBeforeDeleteChanged(bool value) => MarkAsUnsaved();
         partial void OnConfirmBeforeUninstallChanged(bool value) => MarkAsUnsaved();
         partial void OnStorePageSizeChanged(int value) => MarkAsUnsaved();
@@ -350,6 +357,8 @@ namespace SolusManifestApp.ViewModels
             AutoInstallAfterDownload = Settings.AutoInstallAfterDownload;
             ShowNotifications = Settings.ShowNotifications;
             StartMinimized = Settings.StartMinimized;
+            AlwaysShowTrayIcon = Settings.AlwaysShowTrayIcon;
+            AutoUploadConfigKeys = Settings.AutoUploadConfigKeys;
             ConfirmBeforeDelete = Settings.ConfirmBeforeDelete;
             ConfirmBeforeUninstall = Settings.ConfirmBeforeUninstall;
             StorePageSize = Settings.StorePageSize;
@@ -456,6 +465,8 @@ namespace SolusManifestApp.ViewModels
             Settings.AutoInstallAfterDownload = AutoInstallAfterDownload;
             Settings.ShowNotifications = ShowNotifications;
             Settings.StartMinimized = StartMinimized;
+            Settings.AlwaysShowTrayIcon = AlwaysShowTrayIcon;
+            Settings.AutoUploadConfigKeys = AutoUploadConfigKeys;
             Settings.ConfirmBeforeDelete = ConfirmBeforeDelete;
             Settings.ConfirmBeforeUninstall = ConfirmBeforeUninstall;
             Settings.StorePageSize = StorePageSize;

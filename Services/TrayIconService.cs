@@ -38,10 +38,12 @@ namespace SolusManifestApp.Services
 
         public void Initialize()
         {
+            var settings = _settingsService.LoadSettings();
+
             _notifyIcon = new NotifyIcon
             {
                 Text = "Solus Manifest App",
-                Visible = false
+                Visible = settings.AlwaysShowTrayIcon  // Controlled by settings
             };
 
             // Load icon from embedded resources first, then try file path
@@ -77,9 +79,10 @@ namespace SolusManifestApp.Services
                 _notifyIcon.Icon = SystemIcons.Application;
             }
 
-            // Create context menu that rebuilds on each open
+            // Create context menu and populate it initially
             var contextMenu = new ContextMenuStrip();
-            contextMenu.Opening += (s, e) => RebuildContextMenu(contextMenu);
+            RebuildContextMenu(contextMenu);  // Build menu immediately
+            contextMenu.Opening += (s, e) => RebuildContextMenu(contextMenu);  // Rebuild on each open
 
             _notifyIcon.ContextMenuStrip = contextMenu;
             _notifyIcon.DoubleClick += (s, e) => ShowWindow();
@@ -248,7 +251,12 @@ namespace SolusManifestApp.Services
         {
             if (_notifyIcon != null)
             {
-                _notifyIcon.Visible = false;
+                var settings = _settingsService.LoadSettings();
+                // Only hide if not set to always show
+                if (!settings.AlwaysShowTrayIcon)
+                {
+                    _notifyIcon.Visible = false;
+                }
             }
         }
 

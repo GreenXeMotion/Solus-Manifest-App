@@ -16,6 +16,7 @@ namespace SolusManifestApp
         private readonly IHost _host;
         private SingleInstanceHelper? _singleInstance;
         private TrayIconService? _trayIconService;
+        private MainWindow? _mainWindow;
 
         public App()
         {
@@ -42,6 +43,7 @@ namespace SolusManifestApp
                     services.AddSingleton<LibraryDatabaseService>();
                     services.AddSingleton<LibraryRefreshService>();
                     services.AddSingleton<RecentGamesService>();
+                    services.AddSingleton<ConfigKeysUploadService>();
 
                     // ViewModels
                     services.AddSingleton<MainViewModel>();
@@ -69,7 +71,13 @@ namespace SolusManifestApp
             _singleInstance = new SingleInstanceHelper();
             if (!_singleInstance.TryAcquire())
             {
-                // Not the first instance, send args to first instance and exit
+                // Not the first instance, notify user and send args to first instance
+                MessageBox.Show(
+                    "Solus Manifest App is already running.\n\nThe existing instance has been brought to the foreground.",
+                    "Already Running",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
                 var args = string.Join(" ", e.Args);
                 if (!string.IsNullOrEmpty(args))
                 {
@@ -82,7 +90,22 @@ namespace SolusManifestApp
             // This is the first instance, set up IPC listener
             _singleInstance.ArgumentsReceived += async (sender, args) =>
             {
-                await Dispatcher.InvokeAsync(() => HandleProtocolUrl(args));
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    // Show and activate the main window
+                    if (_mainWindow != null)
+                    {
+                        _mainWindow.Show();
+                        _mainWindow.WindowState = WindowState.Normal;
+                        _mainWindow.Activate();
+                    }
+
+                    // Handle protocol URL if provided
+                    if (!string.IsNullOrEmpty(args))
+                    {
+                        HandleProtocolUrl(args);
+                    }
+                });
             };
 
             await _host.StartAsync();
@@ -93,17 +116,17 @@ namespace SolusManifestApp
             var settings = settingsService.LoadSettings();
             themeService.ApplyTheme(settings.Theme);
 
-            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+            _mainWindow = _host.Services.GetRequiredService<MainWindow>();
 
             // Initialize tray icon service with all dependencies
             var recentGamesService = _host.Services.GetRequiredService<RecentGamesService>();
             var steamService = _host.Services.GetRequiredService<SteamService>();
             var mainViewModel = _host.Services.GetRequiredService<MainViewModel>();
 
-            _trayIconService = new TrayIconService(mainWindow, settingsService, recentGamesService, steamService, mainViewModel, themeService);
+            _trayIconService = new TrayIconService(_mainWindow, settingsService, recentGamesService, steamService, mainViewModel, themeService);
             _trayIconService.Initialize();
 
-            mainWindow.Show();
+            _mainWindow.Show();
 
             // Handle protocol URL if passed as argument
             if (e.Args.Length > 0)
@@ -116,6 +139,10 @@ namespace SolusManifestApp
             {
                 _ = CheckForUpdatesAsync(settings.AutoUpdate);
             }
+
+            // Start background config keys upload service
+            var configKeysUploadService = _host.Services.GetRequiredService<ConfigKeysUploadService>();
+            configKeysUploadService.Start();
 
             base.OnStartup(e);
         }
