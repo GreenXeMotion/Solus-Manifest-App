@@ -8,7 +8,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <AssemblyName>SolusManifestApp</AssemblyName>
     <RootNamespace>SolusManifestApp</RootNamespace>
-    <Version>2025.11.20.03</Version>
+    <Version>0.0.0.0</Version>
+    <!-- Version is auto-set by GitHub Actions from git tag -->
     <Authors>Solus</Authors>
     <Description>Solus Manifest App</Description>
 
