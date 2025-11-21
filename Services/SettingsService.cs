@@ -49,7 +49,23 @@ namespace SolusManifestApp.Services
                     "SolusManifestApp",
                     "Downloads"
                 );
-                Directory.CreateDirectory(_settings.DownloadsPath);
+            }
+
+            // Ensure downloads directory exists
+            try
+            {
+                if (!Directory.Exists(_settings.DownloadsPath))
+                {
+                    Directory.CreateDirectory(_settings.DownloadsPath);
+                }
+            }
+            catch
+            {
+                // If we can't create in Documents, fall back to AppData
+                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var fallbackPath = Path.Combine(appData, "SolusManifestApp", "Downloads");
+                Directory.CreateDirectory(fallbackPath);
+                _settings.DownloadsPath = fallbackPath;
             }
 
             return _settings;
