@@ -318,6 +318,63 @@ namespace SolusManifestApp.ViewModels
                 _logger.Info("Performing full library scan");
                 _allItems.Clear();
 
+                // Validate and clean up deleted Lua files from database
+                var stpluginPath = _steamService.GetStPluginPath();
+                if (!string.IsNullOrEmpty(stpluginPath))
+                {
+                    var dbItems = _dbService.GetAllLibraryItems();
+
+                    // Validate Lua files
+                    foreach (var item in dbItems.Where(i => i.ItemType == LibraryItemType.Lua))
+                    {
+                        var luaFile = Path.Combine(stpluginPath, $"{item.AppId}.lua");
+                        var disabledFile = Path.Combine(stpluginPath, $"{item.AppId}.lua.disabled");
+
+                        // If neither file exists, remove from database
+                        if (!File.Exists(luaFile) && !File.Exists(disabledFile))
+                        {
+                            _logger.Info($"Removing deleted Lua file from library: {item.AppId}");
+                            _dbService.DeleteLibraryItem(item.AppId);
+                        }
+                    }
+
+                    // Validate GreenLuma files
+                    string? greenLumaAppListPath = null;
+                    if (settings.GreenLumaSubMode == GreenLumaMode.StealthAnyFolder)
+                    {
+                        var injectorDir = Path.GetDirectoryName(settings.DLLInjectorPath);
+                        if (!string.IsNullOrEmpty(injectorDir))
+                        {
+                            greenLumaAppListPath = Path.Combine(injectorDir, "AppList");
+                        }
+                    }
+                    else
+                    {
+                        var steamPath = _steamService.GetSteamPath();
+                        if (!string.IsNullOrEmpty(steamPath))
+                        {
+                            greenLumaAppListPath = Path.Combine(steamPath, "AppList");
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(greenLumaAppListPath))
+                    {
+                        foreach (var item in dbItems.Where(i => i.ItemType == LibraryItemType.GreenLuma))
+                        {
+                            var appListFile = Path.Combine(greenLumaAppListPath, item.AppId);
+                            var luaFile = Path.Combine(stpluginPath, $"{item.AppId}.lua");
+
+                            // If AppList file doesn't exist, remove from database
+                            // (We don't check for .lua file here as GreenLuma games may not have one)
+                            if (!File.Exists(appListFile))
+                            {
+                                _logger.Info($"Removing deleted GreenLuma file from library: {item.AppId}");
+                                _dbService.DeleteLibraryItem(item.AppId);
+                            }
+                        }
+                    }
+                }
+
                 // Load Steam games to get actual sizes
                 var steamGames = await Task.Run(() => _steamGamesService.GetInstalledGames());
                 var steamGameDict = steamGames.ToDictionary(g => g.AppId, g => g);
