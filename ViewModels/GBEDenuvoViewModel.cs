@@ -79,6 +79,15 @@ namespace SolusManifestApp.ViewModels
                 return;
             }
 
+            // Check for API key
+            var settings = _settingsService.LoadSettings();
+            if (string.IsNullOrWhiteSpace(settings.GBESteamWebApiKey))
+            {
+                MessageBox.Show("Please set your Steam Web API key in Settings → GBE Token Generator.\n\nYou can get one at: https://steamcommunity.com/dev/apikey",
+                    "API Key Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             IsGenerating = true;
             LogOutput = string.Empty;
 
@@ -89,7 +98,7 @@ namespace SolusManifestApp.ViewModels
                 Log($"Output: {OutputPath}\n");
 
                 string finalZipPath = Path.Combine(OutputPath, $"Token [{appIdInt}].zip");
-                var generator = new GoldbergLogic(appIdInt, finalZipPath, (message, isError) =>
+                var generator = new GoldbergLogic(appIdInt, finalZipPath, settings.GBESteamWebApiKey, (message, isError) =>
                 {
                     Application.Current.Dispatcher.Invoke(() => Log(message, isError));
                 });

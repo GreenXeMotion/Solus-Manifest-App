@@ -116,9 +116,7 @@
                     </TabItem>
 
                     <TabItem Header="GBE Token Generator">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <views:GBEDenuvoControl HorizontalAlignment="Stretch" MaxWidth="800" Margin="0,20,0,0"/>
-                        </ScrollViewer>
+                        <views:GBEDenuvoControl HorizontalAlignment="Stretch"/>
                     </TabItem>
                 </TabControl>
             </TabItem>

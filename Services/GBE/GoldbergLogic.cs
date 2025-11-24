@@ -16,16 +16,18 @@ namespace SolusManifestApp.Services.GBE
     {
         private readonly int _appId;
         private readonly string _outputPath;
+        private readonly string _apiKey;
         private readonly Action<string, bool> _log;
         private static readonly HttpClient HttpClient = new HttpClient()
         {
             Timeout = TimeSpan.FromSeconds(30)
         };
 
-        public GoldbergLogic(int appId, string outputPath, Action<string, bool> logAction)
+        public GoldbergLogic(int appId, string outputPath, string apiKey, Action<string, bool> logAction)
         {
             _appId = appId;
             _outputPath = outputPath;
+            _apiKey = apiKey;
             _log = logAction;
         }
 
@@ -47,10 +49,9 @@ namespace SolusManifestApp.Services.GBE
                 }
 
                 _log("\n--- Generating Config Files ---", false);
-                string apiKey = "STEAM_API_HERE"; // Access the api through here https://steamcommunity.com/dev/apikey preferably use dummy account or change to logic to something else that doesn't require any API
 
                 WriteAppIdFile(settingsPath);
-                await FetchAndWriteAchievementsAsync(settingsPath, apiKey);
+                await FetchAndWriteAchievementsAsync(settingsPath, _apiKey);
                 await FetchAndWriteDepotsAsync(settingsPath);
                 await FetchAndWriteDlcsAsync(settingsPath);
                 await FetchAndWriteLanguagesAsync(settingsPath);

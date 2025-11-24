@@ -95,6 +95,7 @@ namespace SolusManifestApp.Models
 
         // GBE Token Generator Configuration
         public string GBETokenOutputPath { get; set; } = string.Empty;
+        public string GBESteamWebApiKey { get; set; } = string.Empty;
 
         // Notification Preferences
         public bool ShowGameAddedNotification { get; set; } = true;

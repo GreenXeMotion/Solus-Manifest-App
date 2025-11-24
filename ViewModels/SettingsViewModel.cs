@@ -176,6 +176,13 @@ namespace SolusManifestApp.ViewModels
         [ObservableProperty]
         private string _steamUsername = string.Empty;
 
+        // GBE Token Generator properties
+        [ObservableProperty]
+        private string _gBETokenOutputPath = string.Empty;
+
+        [ObservableProperty]
+        private string _gBESteamWebApiKey = string.Empty;
+
         [ObservableProperty]
         private bool _verifyFilesAfterDownload;
 
@@ -220,6 +227,8 @@ namespace SolusManifestApp.ViewModels
         partial void OnSteamUsernameChanged(string value) => MarkAsUnsaved();
         partial void OnVerifyFilesAfterDownloadChanged(bool value) => MarkAsUnsaved();
         partial void OnMaxConcurrentDownloadsChanged(int value) => MarkAsUnsaved();
+        partial void OnGBETokenOutputPathChanged(string value) => MarkAsUnsaved();
+        partial void OnGBESteamWebApiKeyChanged(string value) => MarkAsUnsaved();
 
         private void MarkAsUnsaved()
         {
@@ -459,6 +468,10 @@ namespace SolusManifestApp.ViewModels
             VerifyFilesAfterDownload = Settings.VerifyFilesAfterDownload;
             MaxConcurrentDownloads = Settings.MaxConcurrentDownloads;
 
+            // Load GBE settings
+            GBETokenOutputPath = Settings.GBETokenOutputPath;
+            GBESteamWebApiKey = Settings.GBESteamWebApiKey;
+
             _isLoading = false;
             HasUnsavedChanges = false; // Clear unsaved changes flag after load
 
@@ -522,6 +535,10 @@ namespace SolusManifestApp.ViewModels
             Settings.SteamUsername = SteamUsername;
             Settings.VerifyFilesAfterDownload = VerifyFilesAfterDownload;
             Settings.MaxConcurrentDownloads = MaxConcurrentDownloads;
+
+            // Save GBE settings
+            Settings.GBETokenOutputPath = GBETokenOutputPath;
+            Settings.GBESteamWebApiKey = GBESteamWebApiKey;
 
             try
             {
@@ -1007,6 +1024,22 @@ namespace SolusManifestApp.ViewModels
                 DepotDownloaderOutputPath = dialog.FolderName;
                 Directory.CreateDirectory(DepotDownloaderOutputPath);
                 StatusMessage = "DepotDownloader output path updated";
+            }
+        }
+
+        [RelayCommand]
+        private void BrowseGBEOutputPath()
+        {
+            var dialog = new OpenFolderDialog
+            {
+                Title = "Select GBE Token Output Folder"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                GBETokenOutputPath = dialog.FolderName;
+                Directory.CreateDirectory(GBETokenOutputPath);
+                StatusMessage = "GBE output path updated";
             }
         }
 
