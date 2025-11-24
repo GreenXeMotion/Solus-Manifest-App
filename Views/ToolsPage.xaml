@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:depotDumper="clr-namespace:SolusManifestApp.Tools.DepotDumper"
              xmlns:configVdf="clr-namespace:SolusManifestApp.Tools.ConfigVdfKeyExtractor"
-             xmlns:steamAuth="clr-namespace:SolusManifestApp.Tools.SteamAuthPro">
+             xmlns:steamAuth="clr-namespace:SolusManifestApp.Tools.SteamAuthPro"
+             xmlns:views="clr-namespace:SolusManifestApp.Views">
     <Grid Margin="30">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -112,6 +113,12 @@
 
                     <TabItem Header="SteamAuth Pro">
                         <steamAuth:SteamAuthProControl HorizontalAlignment="Stretch"/>
+                    </TabItem>
+
+                    <TabItem Header="GBE Token Generator">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <views:GBEDenuvoControl HorizontalAlignment="Stretch" MaxWidth="800" Margin="0,20,0,0"/>
+                        </ScrollViewer>
                     </TabItem>
                 </TabControl>
             </TabItem>

@@ -1159,19 +1159,20 @@ namespace SolusManifestApp.Services
                     _logger.Info($"Removed {removedCount} AppList files for app {appId}");
                 }
 
-                // 2. Remove ACF manifest file
-                var acfPath = Path.Combine(steamPath, "steamapps", $"appmanifest_{appId}.acf");
+                // 2. Call steam://uninstall/{appId} to let Steam handle the uninstall
                 try
                 {
-                    if (File.Exists(acfPath))
+                    var uninstallUri = $"steam://uninstall/{appId}";
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                     {
-                        File.Delete(acfPath);
-                        _logger.Debug($"Deleted ACF file: appmanifest_{appId}.acf");
-                    }
+                        FileName = uninstallUri,
+                        UseShellExecute = true
+                    });
+                    _logger.Debug($"Triggered Steam uninstall for app {appId}");
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"Failed to delete ACF file: {ex.Message}");
+                    _logger.Error($"Failed to trigger Steam uninstall: {ex.Message}");
                 }
 
                 // 3. Remove depot manifest files ({depotId}_manifestgid.manifest) from depotcache

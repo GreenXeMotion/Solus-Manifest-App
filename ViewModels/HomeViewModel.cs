@@ -60,7 +60,7 @@ namespace SolusManifestApp.ViewModels
                 {
                     GreenLumaMode.Normal => "Current Mode: GreenLuma (Normal)",
                     GreenLumaMode.StealthAnyFolder => "Current Mode: GreenLuma (Stealth - Any Folder)",
-                    GreenLumaMode.StealthUser32 => "Current Mode: GreenLuma (Stealth - User32)",
+                    GreenLumaMode.StealthUser32 => "Current Mode: GreenLuma (Stealth)",
                     _ => "Current Mode: GreenLuma"
                 };
             }
@@ -80,7 +80,7 @@ namespace SolusManifestApp.ViewModels
                 {
                     GreenLumaMode.Normal => "GreenLuma (Normal): DLLInjector at {SteamPath}/DLLInjector.exe, AppList at {SteamPath}/AppList. Advanced depot control with language selection and DLLInjector launch.",
                     GreenLumaMode.StealthAnyFolder => "GreenLuma (Stealth - Any Folder): For best security - DLLInjector in custom location, AppList in same folder. Advanced depot control with custom paths and DLLInjector launch.",
-                    GreenLumaMode.StealthUser32 => "GreenLuma (Stealth - User32): Launches Steam normally. AppList entries are generated and depot keys stored in config.vdf.",
+                    GreenLumaMode.StealthUser32 => "GreenLuma (Stealth): Launches Steam normally. AppList entries are generated and depot keys stored in config.vdf.",
                     _ => "GreenLuma mode: Advanced depot control with language selection."
                 };
             }

@@ -163,6 +163,8 @@ namespace SolusManifestApp.ViewModels
 
             CurrentPage = GetOrCreateView("Store", () => new StorePage { DataContext = StoreViewModel });
             CurrentPageName = "Store";
+            // Check API key when navigating to Store
+            StoreViewModel.OnNavigatedTo();
         }
 
         [RelayCommand]

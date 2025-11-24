@@ -1,5 +1,78 @@
 # Changelog
 
+## [v2025.11.24.01] - 2025-11-24
+
+### 🎉 Major Release - UX Improvements & GBE Token Generator
+
+This release focuses on improving user experience, fixing annoying notification spam, and adding the complete GBE Token Generator tool.
+
+### ✨ New Features
+
+#### GBE Token Generator Integration
+- **NEW**: Complete GBE Token Generator tool integrated under Tools > Denuvo
+- Generate Goldberg Emulator tokens directly from the app
+- Automatic Steam ticket generation and configuration
+- Fetches achievements, depots, DLCs, and language data from Steam APIs
+- Creates complete token packages with all necessary files
+- Real-time logging and progress feedback
+- Credits: Detanup01, NotAndreh, Oureverday
+
+### 🔧 Improvements
+
+#### Store Tab Experience
+- API key validation now only shows when clicking the Store tab (not on app launch)
+- Much less annoying for users who don't use the API key feature
+- Status message still shows in the Store tab when API key is missing
+
+#### GreenLuma Mode
+- Updated "Stealth (User32)" to just "Stealth" (following 006's DLL rename)
+- Now uses Steam's `steam://uninstall/{appId}` protocol for uninstalling games
+- Removed manual ACF file deletion - Steam handles cleanup properly now
+
+#### Store Navigation
+- Store listing now automatically scrolls to the top when paging through games
+- No more staying stuck at the bottom when navigating pages
+
+### 🐛 Bug Fixes
+
+#### Auto-Update System
+- **FIXED**: Notification spam on slow internet connections during updates
+- Now shows only ONE notification when downloading updates
+- Changed message to: "Downloading the latest version... This may take a few minutes."
+- Removed progress reporting that was triggering hundreds of notifications on slow connections
+- Auto-update now only shows notifications when updates are actually available
+- No more "app is up to date" spam when auto-update is disabled
+
+### 📝 Files Changed
+
+**Modified:**
+- App.xaml.cs - Fixed notification spam during updates
+- ViewModels/StoreViewModel.cs - API key validation on navigation
+- ViewModels/MainViewModel.cs - Store navigation handler
+- ViewModels/SettingsViewModel.cs - Manual update check improvements
+- ViewModels/HomeViewModel.cs - Updated mode descriptions
+- Services/FileInstallService.cs - Steam uninstall protocol
+- Views/StorePage.xaml - Named ScrollViewer
+- Views/StorePage.xaml.cs - Scroll to top functionality
+- Views/SettingsPage.xaml - Stealth mode rename
+- Views/ToolsPage.xaml - Added GBE Token Generator tab
+
+**Added:**
+- Services/GBE/SteamApi.cs
+- Services/GBE/GoldbergLogic.cs
+- ViewModels/GBEDenuvoViewModel.cs
+- Views/GBEDenuvoControl.xaml
+- Views/GBEDenuvoControl.xaml.cs
+- lib/gbe/ (Steam API DLLs)
+- Resources/GBE/ (embedded resources)
+- TODO.md
+
+### 🙏 Credits
+
+Special thanks to Detanup01, NotAndreh, and Oureverday for the GBE Token Generator implementation.
+
+---
+
 ## [Unreleased]
 
 ### Added

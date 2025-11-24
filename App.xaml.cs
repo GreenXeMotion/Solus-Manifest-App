@@ -152,7 +152,6 @@ namespace SolusManifestApp
             try
             {
                 var updateService = _host.Services.GetRequiredService<UpdateService>();
-                var notificationService = _host.Services.GetRequiredService<NotificationService>();
 
                 var (hasUpdate, updateInfo) = await updateService.CheckForUpdatesAsync();
 
@@ -181,6 +180,7 @@ namespace SolusManifestApp
                         });
                     }
                 }
+                // No notification shown when app is up to date - only show when update is available
             }
             catch
             {
@@ -195,9 +195,11 @@ namespace SolusManifestApp
                 var updateService = _host.Services.GetRequiredService<UpdateService>();
                 var notificationService = _host.Services.GetRequiredService<NotificationService>();
 
-                notificationService.ShowNotification("Downloading Update", "Downloading the latest version...", NotificationType.Info);
+                // Show ONE notification at the start - no progress updates to avoid spam on slow connections
+                notificationService.ShowNotification("Downloading Update", "Downloading the latest version... This may take a few minutes.", NotificationType.Info);
 
-                var updatePath = await updateService.DownloadUpdateAsync(updateInfo);
+                // Download without progress reporting to avoid notification spam
+                var updatePath = await updateService.DownloadUpdateAsync(updateInfo, null);
 
                 if (!string.IsNullOrEmpty(updatePath))
                 {

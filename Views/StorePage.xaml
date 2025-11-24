@@ -97,7 +97,8 @@
         </StackPanel>
 
         <!-- Games Grid/List -->
-        <ScrollViewer Grid.Row="3"
+        <ScrollViewer x:Name="StoreScrollViewer"
+                      Grid.Row="3"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <ItemsControl ItemsSource="{Binding Games}">

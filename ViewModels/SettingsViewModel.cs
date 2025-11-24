@@ -1047,9 +1047,11 @@ namespace SolusManifestApp.ViewModels
                     if (result == MessageBoxResult.Yes)
                     {
                         StatusMessage = "Downloading update...";
-                        _notificationService.ShowNotification("Downloading Update", "Downloading the latest version...", NotificationType.Info);
+                        // Show ONE notification - no progress updates to avoid spam on slow connections
+                        _notificationService.ShowNotification("Downloading Update", "Downloading the latest version... This may take a few minutes.", NotificationType.Info);
 
-                        var updatePath = await _updateService.DownloadUpdateAsync(updateInfo);
+                        // Download without progress reporting to avoid notification spam
+                        var updatePath = await _updateService.DownloadUpdateAsync(updateInfo, null);
 
                         if (!string.IsNullOrEmpty(updatePath))
                         {

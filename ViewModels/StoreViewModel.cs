@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SolusManifestApp.Models;
 using SolusManifestApp.Services;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -62,6 +63,8 @@ namespace SolusManifestApp.ViewModels
 
         private int PageSize => _settingsService.LoadSettings().StorePageSize;
 
+        public Action? ScrollToTopAction { get; set; }
+
         public StoreViewModel(
             ManifestApiService manifestApiService,
             DownloadService downloadService,
@@ -90,7 +93,15 @@ namespace SolusManifestApp.ViewModels
             else
             {
                 StatusMessage = "API key required - Please configure in Settings";
-                // Show warning popup when user first opens Store without API key
+            }
+        }
+
+        public void OnNavigatedTo()
+        {
+            var settings = _settingsService.LoadSettings();
+            if (string.IsNullOrEmpty(settings.ApiKey))
+            {
+                // Show warning popup when user navigates to Store without API key
                 Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     MessageBoxHelper.Show(
@@ -153,6 +164,7 @@ namespace SolusManifestApp.ViewModels
             CurrentOffset = (CurrentPage - 1) * PageSize;
             Games.Clear();
             await LoadGamesAsync();
+            ScrollToTopAction?.Invoke();
         }
 
         [RelayCommand]
@@ -164,6 +176,7 @@ namespace SolusManifestApp.ViewModels
             CurrentOffset = (CurrentPage - 1) * PageSize;
             Games.Clear();
             await LoadGamesAsync();
+            ScrollToTopAction?.Invoke();
         }
 
         [RelayCommand]
