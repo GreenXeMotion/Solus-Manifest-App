@@ -71,6 +71,9 @@ namespace SolusManifestApp.ViewModels
         private bool _autoUploadConfigKeys;
 
         [ObservableProperty]
+        private bool _disableAllNotifications;
+
+        [ObservableProperty]
         private bool _showGameAddedNotification;
 
         [ObservableProperty]
@@ -202,6 +205,7 @@ namespace SolusManifestApp.ViewModels
         partial void OnMinimizeToTrayChanged(bool value) => MarkAsUnsaved();
         partial void OnAutoInstallAfterDownloadChanged(bool value) => MarkAsUnsaved();
         partial void OnShowNotificationsChanged(bool value) => MarkAsUnsaved();
+        partial void OnDisableAllNotificationsChanged(bool value) => MarkAsUnsaved();
         partial void OnShowGameAddedNotificationChanged(bool value) => MarkAsUnsaved();
         partial void OnStartMinimizedChanged(bool value) => MarkAsUnsaved();
         partial void OnAlwaysShowTrayIconChanged(bool value) => MarkAsUnsaved();
@@ -380,6 +384,7 @@ namespace SolusManifestApp.ViewModels
             MinimizeToTray = Settings.MinimizeToTray;
             AutoInstallAfterDownload = Settings.AutoInstallAfterDownload;
             ShowNotifications = Settings.ShowNotifications;
+            DisableAllNotifications = Settings.DisableAllNotifications;
             ShowGameAddedNotification = Settings.ShowGameAddedNotification;
             StartMinimized = Settings.StartMinimized;
             AlwaysShowTrayIcon = Settings.AlwaysShowTrayIcon;
@@ -495,6 +500,7 @@ namespace SolusManifestApp.ViewModels
             Settings.MinimizeToTray = MinimizeToTray;
             Settings.AutoInstallAfterDownload = AutoInstallAfterDownload;
             Settings.ShowNotifications = ShowNotifications;
+            Settings.DisableAllNotifications = DisableAllNotifications;
             Settings.ShowGameAddedNotification = ShowGameAddedNotification;
             Settings.StartMinimized = StartMinimized;
             Settings.AlwaysShowTrayIcon = AlwaysShowTrayIcon;
@@ -1075,7 +1081,8 @@ namespace SolusManifestApp.ViewModels
                         $"A new version ({updateInfo.TagName}) is available!\n\nWould you like to download and install it now?\n\nCurrent version: {_updateService.GetCurrentVersion()}",
                         "Update Available",
                         MessageBoxButton.YesNo,
-                        MessageBoxImage.Information);
+                        MessageBoxImage.Information,
+                        forceShow: true);
 
                     if (result == MessageBoxResult.Yes)
                     {
@@ -1088,11 +1095,12 @@ namespace SolusManifestApp.ViewModels
 
                         if (!string.IsNullOrEmpty(updatePath))
                         {
-                            var installResult = MessageBoxHelper.Show(
+                            MessageBoxHelper.Show(
                                 "Update downloaded successfully!\n\nThe app will now restart to install the update.",
                                 "Update Ready",
                                 MessageBoxButton.OK,
-                                MessageBoxImage.Information);
+                                MessageBoxImage.Information,
+                                forceShow: true);
 
                             _updateService.InstallUpdate(updatePath);
                         }

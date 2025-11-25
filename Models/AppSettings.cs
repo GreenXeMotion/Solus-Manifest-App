@@ -98,6 +98,7 @@ namespace SolusManifestApp.Models
         public string GBESteamWebApiKey { get; set; } = string.Empty;
 
         // Notification Preferences
+        public bool DisableAllNotifications { get; set; } = false;
         public bool ShowGameAddedNotification { get; set; } = true;
 
         // View Mode Preferences

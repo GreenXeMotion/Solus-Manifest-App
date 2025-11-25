@@ -193,7 +193,8 @@ namespace SolusManifestApp
                                 $"A new version ({updateInfo.TagName}) is available!\n\nWould you like to download and install it now?\n\nCurrent version: {updateService.GetCurrentVersion()}",
                                 "Update Available",
                                 System.Windows.MessageBoxButton.YesNo,
-                                System.Windows.MessageBoxImage.Information);
+                                System.Windows.MessageBoxImage.Information,
+                                forceShow: true);
 
                             if (result == System.Windows.MessageBoxResult.Yes)
                             {
@@ -227,11 +228,12 @@ namespace SolusManifestApp
                 {
                     await Dispatcher.InvokeAsync(() =>
                     {
-                        var result = MessageBoxHelper.Show(
+                        MessageBoxHelper.Show(
                             "Update downloaded successfully!\n\nThe app will now restart to install the update.",
                             "Update Ready",
                             System.Windows.MessageBoxButton.OK,
-                            System.Windows.MessageBoxImage.Information);
+                            System.Windows.MessageBoxImage.Information,
+                            forceShow: true);
 
                         updateService.InstallUpdate(updatePath);
                     });

@@ -29,6 +29,12 @@ namespace SolusManifestApp.Services
         {
             var settings = _settingsService.LoadSettings();
 
+            // If all notifications are disabled, skip completely
+            if (settings.DisableAllNotifications)
+            {
+                return;
+            }
+
             // If toast notifications are enabled, use them
             if (settings.ShowNotifications)
             {
