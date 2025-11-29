@@ -26,6 +26,7 @@ namespace SolusManifestApp.ViewModels
         private readonly NotificationService _notificationService;
         private readonly LibraryRefreshService _libraryRefreshService;
         private readonly LoggerService _logger;
+        private readonly ProfileService _profileService;
 
         [ObservableProperty]
         private ObservableCollection<DownloadItem> _activeDownloads;
@@ -47,7 +48,8 @@ namespace SolusManifestApp.ViewModels
             SteamService steamService,
             SteamApiService steamApiService,
             NotificationService notificationService,
-            LibraryRefreshService libraryRefreshService)
+            LibraryRefreshService libraryRefreshService,
+            ProfileService profileService)
         {
             _downloadService = downloadService;
             _fileInstallService = fileInstallService;
@@ -57,6 +59,7 @@ namespace SolusManifestApp.ViewModels
             _steamApiService = steamApiService;
             _notificationService = notificationService;
             _libraryRefreshService = libraryRefreshService;
+            _profileService = profileService;
             _logger = new LoggerService("DownloadsView");
 
             ActiveDownloads = _downloadService.ActiveDownloads;
@@ -468,6 +471,7 @@ namespace SolusManifestApp.ViewModels
                 }
 
                 List<string>? selectedDepotIds = null;
+                List<DepotInfo>? selectedDepotInfo = null;
 
                 // For GreenLuma mode, show depot selection dialog
                 if (settings.Mode == ToolMode.GreenLuma)
@@ -538,6 +542,7 @@ namespace SolusManifestApp.ViewModels
                         if (dialogResult == true && depotDialog.SelectedDepotIds.Count > 0)
                         {
                             selectedDepotIds = depotDialog.SelectedDepotIds;
+                            selectedDepotInfo = depots.Where(d => selectedDepotIds.Contains(d.DepotId)).ToList();
                         }
                         else
                         {
@@ -570,7 +575,6 @@ namespace SolusManifestApp.ViewModels
                     message => StatusMessage = message,
                     selectedDepotIds);
 
-                // If GreenLuma mode, update Config.VDF with depot keys
                 if (settings.Mode == ToolMode.GreenLuma && depotKeys.Count > 0)
                 {
                     StatusMessage = $"Updating Config.VDF with {depotKeys.Count} depot keys...";
@@ -582,6 +586,56 @@ namespace SolusManifestApp.ViewModels
                             "Warning",
                             MessageBoxButton.OK,
                             MessageBoxImage.Warning);
+                    }
+                }
+
+                if (settings.Mode == ToolMode.GreenLuma)
+                {
+                    try
+                    {
+                        var activeProfile = _profileService.GetActiveProfile();
+                        if (activeProfile != null)
+                        {
+                            var steamAppList = await _steamApiService.GetAppListAsync();
+                            var profileGameName = _steamApiService.GetGameName(appId, steamAppList);
+
+                            var selectedDepots = selectedDepotInfo?.Where(di => selectedDepotIds?.Contains(di.DepotId) == true).ToList() ?? new List<DepotInfo>();
+
+                            var baseDepots = selectedDepots.Where(d => string.IsNullOrEmpty(d.DlcAppId)).ToList();
+                            var dlcDepots = selectedDepots.Where(d => !string.IsNullOrEmpty(d.DlcAppId)).GroupBy(d => d.DlcAppId).ToList();
+
+                            var profileGame = new ProfileGame
+                            {
+                                AppId = appId,
+                                Name = profileGameName ?? appId,
+                                Depots = baseDepots.Select(d => new ProfileDepot
+                                {
+                                    DepotId = d.DepotId,
+                                    Name = d.Name,
+                                    ManifestId = GetManifestIdForDepot(d.DepotId),
+                                    DecryptionKey = depotKeys.GetValueOrDefault(d.DepotId, "")
+                                }).ToList(),
+                                DLCs = dlcDepots.Select(g => new ProfileDLC
+                                {
+                                    AppId = g.Key!,
+                                    Name = g.First().DlcName ?? g.Key!,
+                                    Depots = g.Select(d => new ProfileDepot
+                                    {
+                                        DepotId = d.DepotId,
+                                        Name = d.Name,
+                                        ManifestId = GetManifestIdForDepot(d.DepotId),
+                                        DecryptionKey = depotKeys.GetValueOrDefault(d.DepotId, "")
+                                    }).ToList()
+                                }).ToList()
+                            };
+
+                            _profileService.AddGameToProfile(activeProfile.Id, profileGame);
+                            _logger.Info($"Added game {appId} to profile '{activeProfile.Name}' with {profileGame.Depots.Count} depots and {profileGame.DLCs.Count} DLCs");
+                        }
+                    }
+                    catch (System.Exception ex)
+                    {
+                        _logger.Error($"Failed to add game to profile: {ex.Message}");
                     }
                 }
 
@@ -673,6 +727,34 @@ namespace SolusManifestApp.ViewModels
             }
         }
 
+        private string GetManifestIdForDepot(string depotId)
+        {
+            try
+            {
+                var steamPath = _steamService.GetSteamPath();
+                if (string.IsNullOrEmpty(steamPath))
+                    return string.Empty;
+
+                var depotcachePath = Path.Combine(steamPath, "depotcache");
+                if (!Directory.Exists(depotcachePath))
+                    return string.Empty;
+
+                var manifestFiles = Directory.GetFiles(depotcachePath, $"{depotId}_*.manifest");
+                if (manifestFiles.Length > 0)
+                {
+                    var fileName = Path.GetFileNameWithoutExtension(manifestFiles[0]);
+                    var parts = fileName.Split('_');
+                    if (parts.Length >= 2)
+                    {
+                        return parts[1];
+                    }
+                }
+            }
+            catch { }
+
+            return string.Empty;
+        }
+
         public void Dispose()
         {
             Dispose(true);
@@ -685,7 +767,6 @@ namespace SolusManifestApp.ViewModels
 
             if (disposing)
             {
-                // Unsubscribe from events to prevent memory leaks
                 _downloadService.DownloadCompleted -= OnDownloadCompleted;
             }
 

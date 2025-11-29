@@ -6,10 +6,11 @@
     <Color x:Key="SecondaryDark">#2a475e</Color>
     <Color x:Key="CardBackground">#16202d</Color>
     <Color x:Key="CardHover">#1b2838</Color>
-    <Color x:Key="Accent">#66c0f4</Color>
-    <Color x:Key="AccentHover">#4db8f5</Color>
+    <Color x:Key="Accent">#3d8ec9</Color>
+    <Color x:Key="AccentHover">#4a9edd</Color>
     <Color x:Key="TextPrimary">#c7d5e0</Color>
     <Color x:Key="TextSecondary">#8f98a0</Color>
+    <Color x:Key="BorderColor">#3d5a73</Color>
     <Color x:Key="Success">#5cb85c</Color>
     <Color x:Key="Warning">#f0ad4e</Color>
     <Color x:Key="Danger">#d9534f</Color>
@@ -26,11 +27,12 @@
     <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource Success}"/>
     <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource Warning}"/>
     <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource Danger}"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
 
     <!-- Gradient Brushes -->
     <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#66c0f4" Offset="0"/>
-        <GradientStop Color="#4db8f5" Offset="1"/>
+        <GradientStop Color="#3d8ec9" Offset="0"/>
+        <GradientStop Color="#4a9edd" Offset="1"/>
     </LinearGradientBrush>
 
 </ResourceDictionary>

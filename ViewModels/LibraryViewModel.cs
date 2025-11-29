@@ -33,6 +33,7 @@ namespace SolusManifestApp.ViewModels
         private readonly LibraryRefreshService _refreshService;
         private readonly RecentGamesService _recentGamesService;
         private readonly ImageCacheService _imageCacheService;
+        private readonly ProfileService _profileService;
 
         private List<LibraryItem> _allItems = new();
 
@@ -103,6 +104,15 @@ namespace SolusManifestApp.ViewModels
         [ObservableProperty]
         private bool _canGoNext;
 
+        [ObservableProperty]
+        private ObservableCollection<GreenLumaProfile> _profiles = new();
+
+        [ObservableProperty]
+        private GreenLumaProfile? _activeProfile;
+
+        [ObservableProperty]
+        private bool _hasUnappliedChanges;
+
         public List<string> SortOptions { get; } = new() { "Name", "Size", "Install Date", "Last Updated" };
 
         public LibraryViewModel(
@@ -116,7 +126,8 @@ namespace SolusManifestApp.ViewModels
             LoggerService logger,
             LibraryDatabaseService dbService,
             LibraryRefreshService refreshService,
-            RecentGamesService recentGamesService)
+            RecentGamesService recentGamesService,
+            ProfileService profileService)
         {
             _fileInstallService = fileInstallService;
             _steamService = steamService;
@@ -129,20 +140,18 @@ namespace SolusManifestApp.ViewModels
             _dbService = dbService;
             _refreshService = refreshService;
             _recentGamesService = recentGamesService;
+            _profileService = profileService;
 
-            // Initialize new services
             var stpluginPath = _steamService.GetStPluginPath() ?? "";
             _luaFileManager = new LuaFileManager(stpluginPath);
             _archiveExtractor = new ArchiveExtractionService();
             _imageCacheService = new ImageCacheService(logger);
 
-            // Initialize Steam API service
             var settings = _settingsService.LoadSettings();
             _steamApiService = new SteamApiService(_cacheService);
             IsListView = settings.LibraryListView;
             ItemsPerPage = settings.LibraryPageSize;
 
-            // Subscribe to library refresh events
             _refreshService.GameInstalled += OnGameInstalled;
             _refreshService.GreenLumaGameInstalled += OnGreenLumaGameInstalled;
         }
@@ -188,17 +197,14 @@ namespace SolusManifestApp.ViewModels
             ShowSteamGames = SelectedFilter is "All" or "Steam Games Only";
         }
 
-        /// <summary>
-        /// Loads library from cache only (fast, instant load)
-        /// </summary>
         public async Task LoadFromCache()
         {
-            // Check mode for UI visibility
             var settings = _settingsService.LoadSettings();
             IsSteamToolsMode = settings.Mode == ToolMode.SteamTools;
             IsGreenLumaMode = settings.Mode == ToolMode.GreenLuma;
 
-            // Update filter options based on mode
+            LoadProfiles();
+
             FilterOptions.Clear();
             FilterOptions.Add("All");
             if (IsGreenLumaMode)
@@ -258,12 +264,12 @@ namespace SolusManifestApp.ViewModels
             IsLoading = true;
             StatusMessage = "Loading library...";
 
-            // Check mode for UI visibility
             var settings = _settingsService.LoadSettings();
             IsSteamToolsMode = settings.Mode == ToolMode.SteamTools;
             IsGreenLumaMode = settings.Mode == ToolMode.GreenLuma;
 
-            // Update filter options based on mode
+            LoadProfiles();
+
             FilterOptions.Clear();
             FilterOptions.Add("All");
             if (IsGreenLumaMode)
@@ -1732,6 +1738,64 @@ namespace SolusManifestApp.ViewModels
             catch (Exception ex)
             {
                 _logger.Error($"Error caching images: {ex.Message}");
+            }
+        }
+
+        private void LoadProfiles()
+        {
+            if (!IsGreenLumaMode)
+            {
+                Profiles.Clear();
+                ActiveProfile = null;
+                HasUnappliedChanges = false;
+                return;
+            }
+
+            try
+            {
+                var allProfiles = _profileService.GetAllProfiles();
+                Profiles = new ObservableCollection<GreenLumaProfile>(allProfiles);
+
+                var active = _profileService.GetActiveProfile();
+                ActiveProfile = Profiles.FirstOrDefault(p => p.Id == active?.Id);
+
+                UpdateHasUnappliedChanges();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Error loading profiles: {ex.Message}");
+            }
+        }
+
+        private void UpdateHasUnappliedChanges()
+        {
+            if (!IsGreenLumaMode || ActiveProfile == null)
+            {
+                HasUnappliedChanges = false;
+                return;
+            }
+
+            HasUnappliedChanges = !_profileService.IsProfileApplied(ActiveProfile.Id);
+        }
+
+        partial void OnActiveProfileChanged(GreenLumaProfile? value)
+        {
+            if (value != null && IsGreenLumaMode)
+            {
+                _profileService.SetActiveProfile(value.Id);
+                UpdateHasUnappliedChanges();
+            }
+        }
+
+        [RelayCommand]
+        private void OpenProfileManager()
+        {
+            var dialog = new ProfileManagerDialog(_profileService, _steamApiService);
+            dialog.Owner = Application.Current.MainWindow;
+
+            if (dialog.ShowDialog() == true && dialog.ProfilesChanged)
+            {
+                LoadProfiles();
             }
         }
 

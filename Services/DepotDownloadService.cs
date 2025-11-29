@@ -15,8 +15,10 @@ namespace SolusManifestApp.Services
         public long Size { get; set; }
         public bool IsLanguageSpecific { get; set; }
         public string? DecryptionKey { get; set; }
-        public bool IsSelected { get; set; } = true; // For depot selection dialog
-        public bool IsTokenBased { get; set; } // For token-based DLC indicator
+        public bool IsSelected { get; set; } = true;
+        public bool IsTokenBased { get; set; }
+        public string? DlcAppId { get; set; }
+        public string? DlcName { get; set; }
     }
 
     public class LanguageOption
@@ -193,11 +195,13 @@ namespace SolusManifestApp.Services
                 {
                     DepotId = luaDepot.DepotId,
                     Name = luaDepot.Name,
-                    Size = luaDepot.Size, // Prefer lua size as it's more accurate
+                    Size = luaDepot.Size,
                     Language = steamDepot?.Language ?? "Unknown",
                     IsLanguageSpecific = steamDepot?.IsLanguageSpecific ?? false,
-                    IsSelected = true, // Default to selected
-                    IsTokenBased = luaDepot.IsTokenBased
+                    IsSelected = true,
+                    IsTokenBased = luaDepot.IsTokenBased,
+                    DlcAppId = luaDepot.DlcAppId,
+                    DlcName = luaDepot.DlcName
                 };
 
                 combinedDepots.Add(depotInfo);

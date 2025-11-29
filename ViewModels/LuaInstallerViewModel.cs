@@ -22,6 +22,7 @@ namespace SolusManifestApp.ViewModels
         private readonly DownloadService _downloadService;
         private readonly SteamApiService _steamApiService;
         private readonly LibraryRefreshService _libraryRefreshService;
+        private readonly ProfileService _profileService;
         private readonly LoggerService _logger;
 
         [ObservableProperty]
@@ -42,6 +43,12 @@ namespace SolusManifestApp.ViewModels
         [ObservableProperty]
         private bool _isGreenLumaMode;
 
+        [ObservableProperty]
+        private List<GreenLumaProfile> _profiles = new();
+
+        [ObservableProperty]
+        private GreenLumaProfile? _selectedProfile;
+
         public LuaInstallerViewModel(
             FileInstallService fileInstallService,
             NotificationService notificationService,
@@ -51,6 +58,7 @@ namespace SolusManifestApp.ViewModels
             DownloadService downloadService,
             SteamApiService steamApiService,
             LibraryRefreshService libraryRefreshService,
+            ProfileService profileService,
             LoggerService logger)
         {
             _fileInstallService = fileInstallService;
@@ -61,17 +69,26 @@ namespace SolusManifestApp.ViewModels
             _downloadService = downloadService;
             _steamApiService = steamApiService;
             _libraryRefreshService = libraryRefreshService;
+            _profileService = profileService;
             _logger = logger;
 
-            // Load initial mode
             var settings = _settingsService.LoadSettings();
             IsGreenLumaMode = settings.Mode == ToolMode.GreenLuma;
+            LoadProfiles();
         }
 
         public void RefreshMode()
         {
             var settings = _settingsService.LoadSettings();
             IsGreenLumaMode = settings.Mode == ToolMode.GreenLuma;
+            LoadProfiles();
+        }
+
+        private void LoadProfiles()
+        {
+            Profiles = _profileService.GetAllProfiles();
+            var active = _profileService.GetActiveProfile();
+            SelectedProfile = Profiles.FirstOrDefault(p => p.Id == active?.Id) ?? Profiles.FirstOrDefault();
         }
 
         [ObservableProperty]
@@ -263,6 +280,7 @@ namespace SolusManifestApp.ViewModels
                     }
 
                     List<string>? selectedDepotIds = null;
+                    List<DepotInfo>? selectedDepotInfos = null;
 
                     // Follow GreenLuma flow if mode is enabled
                     if (settings.Mode == ToolMode.GreenLuma)
@@ -321,6 +339,7 @@ namespace SolusManifestApp.ViewModels
                             if (result == true && depotDialog.SelectedDepotIds.Count > 0)
                             {
                                 selectedDepotIds = depotDialog.SelectedDepotIds;
+                                selectedDepotInfos = depots.Where(d => selectedDepotIds.Contains(d.DepotId)).ToList();
                             }
                             else
                             {
@@ -581,6 +600,45 @@ namespace SolusManifestApp.ViewModels
 
                     // Notify library that game was installed
                     _libraryRefreshService.NotifyGameInstalled(appId, settings.Mode == ToolMode.GreenLuma);
+
+                    // Add to selected profile if GreenLuma mode
+                    if (settings.Mode == ToolMode.GreenLuma && SelectedProfile != null)
+                    {
+                        var steamAppList = await _steamApiService.GetAppListAsync();
+                        var gameName = _steamApiService.GetGameName(appId, steamAppList);
+
+                        var allDepots = selectedDepotInfos ?? new List<DepotInfo>();
+                        var baseDepots = allDepots.Where(d => string.IsNullOrEmpty(d.DlcAppId)).ToList();
+                        var dlcDepots = allDepots.Where(d => !string.IsNullOrEmpty(d.DlcAppId)).GroupBy(d => d.DlcAppId).ToList();
+
+                        var profileGame = new ProfileGame
+                        {
+                            AppId = appId,
+                            Name = gameName,
+                            Depots = baseDepots.Select(d => new ProfileDepot
+                            {
+                                DepotId = d.DepotId,
+                                Name = d.Name,
+                                ManifestId = GetManifestIdForDepot(d.DepotId),
+                                DecryptionKey = depotKeys.TryGetValue(d.DepotId, out var key) ? key : string.Empty
+                            }).ToList(),
+                            DLCs = dlcDepots.Select(g => new ProfileDLC
+                            {
+                                AppId = g.Key!,
+                                Name = g.First().DlcName ?? g.Key!,
+                                Depots = g.Select(d => new ProfileDepot
+                                {
+                                    DepotId = d.DepotId,
+                                    Name = d.Name,
+                                    ManifestId = GetManifestIdForDepot(d.DepotId),
+                                    DecryptionKey = depotKeys.TryGetValue(d.DepotId, out var dk) ? dk : string.Empty
+                                }).ToList()
+                            }).ToList()
+                        };
+
+                        _profileService.AddGameToProfile(SelectedProfile.Id, profileGame);
+                        _logger.Info($"Added game {appId} to profile {SelectedProfile.Name} with {profileGame.Depots.Count} depots and {profileGame.DLCs.Count} DLCs");
+                    }
                 }
                 else if (SelectedFilePath.EndsWith(".lua", StringComparison.OrdinalIgnoreCase))
                 {
@@ -713,6 +771,31 @@ namespace SolusManifestApp.ViewModels
             SelectedFiles.Clear();
             HasFileSelected = false;
             StatusMessage = "Drop a .zip, .lua, or .manifest file here to install";
+        }
+
+        private string GetManifestIdForDepot(string depotId)
+        {
+            try
+            {
+                var steamPath = _steamService.GetSteamPath();
+                var depotCachePath = Path.Combine(steamPath, "depotcache");
+
+                if (Directory.Exists(depotCachePath))
+                {
+                    var manifestFiles = Directory.GetFiles(depotCachePath, $"{depotId}_*.manifest");
+                    if (manifestFiles.Length > 0)
+                    {
+                        var fileName = Path.GetFileNameWithoutExtension(manifestFiles[0]);
+                        var parts = fileName.Split('_');
+                        if (parts.Length == 2)
+                        {
+                            return parts[1];
+                        }
+                    }
+                }
+            }
+            catch { }
+            return string.Empty;
         }
     }
 }

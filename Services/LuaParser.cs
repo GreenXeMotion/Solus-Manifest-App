@@ -11,6 +11,8 @@ namespace SolusManifestApp.Services
         public string Name { get; set; } = "";
         public long Size { get; set; }
         public bool IsTokenBased { get; set; }
+        public string? DlcAppId { get; set; }
+        public string? DlcName { get; set; }
     }
 
     public class LuaParser
@@ -50,6 +52,7 @@ namespace SolusManifestApp.Services
 
             // Track current DLC context by looking for DLC section comments
             string? currentDlcId = null;
+            string? currentDlcName = null;
 
             // First pass: Parse addappid lines to get depot IDs and names
             for (int i = 0; i < lines.Length; i++)
@@ -57,20 +60,20 @@ namespace SolusManifestApp.Services
                 var trimmedLine = lines[i].Trim();
 
                 // Check for DLC section comments like "-- SILENT HILL f - Bonus Content (AppID: 3282720)"
-                var dlcCommentMatch = Regex.Match(trimmedLine, @"--.*\(AppID:\s*(\d+)\)");
+                var dlcCommentMatch = Regex.Match(trimmedLine, @"--\s*(.+?)\s*\(AppID:\s*(\d+)\)");
                 if (dlcCommentMatch.Success)
                 {
-                    var dlcId = dlcCommentMatch.Groups[1].Value;
-                    // Check if this DLC has a token in the next few lines
+                    currentDlcName = dlcCommentMatch.Groups[1].Value.Trim();
+                    var dlcId = dlcCommentMatch.Groups[2].Value;
+                    currentDlcId = dlcId;
+                    continue;
+                }
+
+                // Reset DLC context when we see a main section (base game)
+                if (trimmedLine.StartsWith("-- Base") || trimmedLine.Contains("(Base Game)"))
+                {
                     currentDlcId = null;
-                    for (int j = i + 1; j < Math.Min(i + 5, lines.Length); j++)
-                    {
-                        if (lines[j].Contains($"addtoken({dlcId}"))
-                        {
-                            currentDlcId = dlcId; // This DLC section has a token
-                            break;
-                        }
-                    }
+                    currentDlcName = null;
                     continue;
                 }
 
@@ -92,7 +95,9 @@ namespace SolusManifestApp.Services
                             DepotId = depotId,
                             Name = depotName,
                             Size = 0,
-                            IsTokenBased = isTokenBased
+                            IsTokenBased = isTokenBased,
+                            DlcAppId = currentDlcId,
+                            DlcName = currentDlcName
                         };
                     }
                 }

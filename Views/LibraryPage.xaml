@@ -145,6 +145,9 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <!-- Search Box -->
@@ -221,7 +224,41 @@
                     Style="{StaticResource SecondaryButtonStyle}"
                     Command="{Binding ToggleSelectModeCommand}"
                     Height="28"
-                    Padding="10,3"/>
+                    Padding="10,3"
+                    Margin="0,0,10,0"/>
+
+            <!-- Profile Selector (GreenLuma mode only) -->
+            <ComboBox Grid.Column="5"
+                      ItemsSource="{Binding Profiles}"
+                      SelectedItem="{Binding ActiveProfile}"
+                      DisplayMemberPath="Name"
+                      Width="140"
+                      Height="28"
+                      Margin="0,0,5,0"
+                      Padding="8,3"
+                      FontSize="12"
+                      ToolTip="Select active profile"
+                      Visibility="{Binding IsGreenLumaMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            <Button Grid.Column="6"
+                    Content="Profiles"
+                    Command="{Binding OpenProfileManagerCommand}"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Height="28"
+                    Padding="10,3"
+                    Margin="0,0,5,0"
+                    ToolTip="Manage GreenLuma profiles"
+                    Visibility="{Binding IsGreenLumaMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            <TextBlock Grid.Column="7"
+                       Text="●"
+                       Foreground="Orange"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"
+                       Margin="0,0,0,0"
+                       ToolTip="Profile not applied to AppList - click Profiles to apply"
+                       Visibility="{Binding HasUnappliedChanges, Converter={StaticResource BooleanToVisibilityConverter}}"/>
         </Grid>
 
         <!-- Batch Actions Bar (Visible in Select Mode) -->
