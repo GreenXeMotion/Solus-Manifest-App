@@ -472,6 +472,8 @@ namespace SolusManifestApp.ViewModels
 
                 List<string>? selectedDepotIds = null;
                 List<DepotInfo>? selectedDepotInfo = null;
+                bool includeMainAppId = true;
+                List<string>? selectedProfileIds = null;
 
                 // For GreenLuma mode, show depot selection dialog
                 if (settings.Mode == ToolMode.GreenLuma)
@@ -509,10 +511,24 @@ namespace SolusManifestApp.ViewModels
                     // Get combined depot info (lua names/sizes + steamcmd languages)
                     var depots = await _depotDownloadService.GetCombinedDepotInfo(appId, luaContent);
 
-                    if (depots.Count > 0)
+                    // Get game name for main AppId display
+                    var steamAppList = await _steamApiService.GetAppListAsync();
+                    var gameName = _steamApiService.GetGameName(appId, steamAppList);
+
+                    // Add main AppId as first item in depot list (highlighted, deselectable)
+                    var mainAppDepot = new DepotInfo
+                    {
+                        DepotId = appId,
+                        Name = gameName ?? $"Main Game ({appId})",
+                        IsMainAppId = true,
+                        IsSelected = true
+                    };
+                    depots.Insert(0, mainAppDepot);
+
+                    if (depots.Count > 1)
                     {
                         // Calculate max depots that can be selected
-                        var maxDepotsAllowed = 128 - currentCount - 1; // -1 for main app ID
+                        var maxDepotsAllowed = 128 - currentCount;
 
                         if (maxDepotsAllowed <= 0)
                         {
@@ -530,7 +546,7 @@ namespace SolusManifestApp.ViewModels
                         if (maxDepotsAllowed < depots.Count)
                         {
                             MessageBoxHelper.Show(
-                                $"AppList has limited space. You can only select up to {maxDepotsAllowed} depots (currently {currentCount}/128 files).",
+                                $"AppList has limited space. You can only select up to {maxDepotsAllowed} items (currently {currentCount}/128 files).",
                                 "Limited AppList Space",
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Warning);
@@ -539,10 +555,11 @@ namespace SolusManifestApp.ViewModels
                         var depotDialog = new DepotSelectionDialog(depots);
                         var dialogResult = depotDialog.ShowDialog();
 
-                        if (dialogResult == true && depotDialog.SelectedDepotIds.Count > 0)
+                        if (dialogResult == true && (depotDialog.SelectedDepotIds.Count > 0 || depotDialog.IncludeMainAppId))
                         {
                             selectedDepotIds = depotDialog.SelectedDepotIds;
-                            selectedDepotInfo = depots.Where(d => selectedDepotIds.Contains(d.DepotId)).ToList();
+                            selectedDepotInfo = depots.Where(d => selectedDepotIds.Contains(d.DepotId) && !d.IsMainAppId).ToList();
+                            includeMainAppId = depotDialog.IncludeMainAppId;
                         }
                         else
                         {
@@ -551,18 +568,42 @@ namespace SolusManifestApp.ViewModels
                             return;
                         }
 
-                        // Generate AppList with main appid + selected depot IDs
+                        // Show profile selection dialog
+                        var profiles = _profileService.GetAllProfiles();
+                        var activeProfile = _profileService.GetActiveProfile();
+                        var profileDialog = new ProfileSelectionDialog(profiles, activeProfile?.Id ?? "");
+                        var profileResult = profileDialog.ShowDialog();
+
+                        if (profileResult == true && profileDialog.SelectedProfileIds.Count > 0)
+                        {
+                            selectedProfileIds = profileDialog.SelectedProfileIds;
+                        }
+                        else
+                        {
+                            StatusMessage = "Installation cancelled";
+                            IsInstalling = false;
+                            return;
+                        }
+
+                        // Generate AppList with optional main appid + selected depot IDs
                         StatusMessage = $"Generating AppList for selected depots...";
-                        var appListIds = new List<string> { appId };
+                        var appListIds = new List<string>();
+                        if (includeMainAppId)
+                        {
+                            appListIds.Add(appId);
+                        }
                         appListIds.AddRange(selectedDepotIds);
 
                         // Reuse customPath from earlier check
                         _fileInstallService.GenerateAppList(appListIds, customPath);
 
-                        // Generate ACF file for the game
-                        StatusMessage = $"Generating ACF file...";
-                        string? libraryFolder = settings.UseDefaultInstallLocation ? null : settings.SelectedLibraryFolder;
-                        _fileInstallService.GenerateACF(appId, appId, appId, libraryFolder);
+                        // Generate ACF file for the game (only if main AppId is included)
+                        if (includeMainAppId)
+                        {
+                            StatusMessage = $"Generating ACF file...";
+                            string? libraryFolder = settings.UseDefaultInstallLocation ? null : settings.SelectedLibraryFolder;
+                            _fileInstallService.GenerateACF(appId, appId, appId, libraryFolder);
+                        }
                     }
                 }
 
@@ -589,48 +630,51 @@ namespace SolusManifestApp.ViewModels
                     }
                 }
 
-                if (settings.Mode == ToolMode.GreenLuma)
+                if (settings.Mode == ToolMode.GreenLuma && selectedProfileIds != null && selectedProfileIds.Count > 0)
                 {
                     try
                     {
-                        var activeProfile = _profileService.GetActiveProfile();
-                        if (activeProfile != null)
+                        var steamAppList = await _steamApiService.GetAppListAsync();
+                        var profileGameName = _steamApiService.GetGameName(appId, steamAppList);
+
+                        var selectedDepots = selectedDepotInfo?.Where(di => selectedDepotIds?.Contains(di.DepotId) == true).ToList() ?? new List<DepotInfo>();
+
+                        var baseDepots = selectedDepots.Where(d => string.IsNullOrEmpty(d.DlcAppId)).ToList();
+                        var dlcDepots = selectedDepots.Where(d => !string.IsNullOrEmpty(d.DlcAppId)).GroupBy(d => d.DlcAppId).ToList();
+
+                        var profileGame = new ProfileGame
                         {
-                            var steamAppList = await _steamApiService.GetAppListAsync();
-                            var profileGameName = _steamApiService.GetGameName(appId, steamAppList);
-
-                            var selectedDepots = selectedDepotInfo?.Where(di => selectedDepotIds?.Contains(di.DepotId) == true).ToList() ?? new List<DepotInfo>();
-
-                            var baseDepots = selectedDepots.Where(d => string.IsNullOrEmpty(d.DlcAppId)).ToList();
-                            var dlcDepots = selectedDepots.Where(d => !string.IsNullOrEmpty(d.DlcAppId)).GroupBy(d => d.DlcAppId).ToList();
-
-                            var profileGame = new ProfileGame
+                            AppId = includeMainAppId ? appId : $"DLC-{appId}",
+                            Name = includeMainAppId ? (profileGameName ?? appId) : $"{profileGameName ?? appId} (DLC Only)",
+                            Depots = baseDepots.Select(d => new ProfileDepot
                             {
-                                AppId = appId,
-                                Name = profileGameName ?? appId,
-                                Depots = baseDepots.Select(d => new ProfileDepot
+                                DepotId = d.DepotId,
+                                Name = d.Name,
+                                ManifestId = GetManifestIdForDepot(d.DepotId),
+                                DecryptionKey = depotKeys.GetValueOrDefault(d.DepotId, "")
+                            }).ToList(),
+                            DLCs = dlcDepots.Select(g => new ProfileDLC
+                            {
+                                AppId = g.Key!,
+                                Name = g.First().DlcName ?? g.Key!,
+                                Depots = g.Select(d => new ProfileDepot
                                 {
                                     DepotId = d.DepotId,
                                     Name = d.Name,
                                     ManifestId = GetManifestIdForDepot(d.DepotId),
                                     DecryptionKey = depotKeys.GetValueOrDefault(d.DepotId, "")
-                                }).ToList(),
-                                DLCs = dlcDepots.Select(g => new ProfileDLC
-                                {
-                                    AppId = g.Key!,
-                                    Name = g.First().DlcName ?? g.Key!,
-                                    Depots = g.Select(d => new ProfileDepot
-                                    {
-                                        DepotId = d.DepotId,
-                                        Name = d.Name,
-                                        ManifestId = GetManifestIdForDepot(d.DepotId),
-                                        DecryptionKey = depotKeys.GetValueOrDefault(d.DepotId, "")
-                                    }).ToList()
                                 }).ToList()
-                            };
+                            }).ToList()
+                        };
 
-                            _profileService.AddGameToProfile(activeProfile.Id, profileGame);
-                            _logger.Info($"Added game {appId} to profile '{activeProfile.Name}' with {profileGame.Depots.Count} depots and {profileGame.DLCs.Count} DLCs");
+                        foreach (var profileId in selectedProfileIds)
+                        {
+                            var profile = _profileService.GetProfileById(profileId);
+                            if (profile != null)
+                            {
+                                _profileService.AddGameToProfile(profileId, profileGame);
+                                _logger.Info($"Added game {appId} to profile '{profile.Name}' with {profileGame.Depots.Count} depots and {profileGame.DLCs.Count} DLCs");
+                            }
                         }
                     }
                     catch (System.Exception ex)
@@ -639,12 +683,18 @@ namespace SolusManifestApp.ViewModels
                     }
                 }
 
-                _notificationService.ShowSuccess($"{fileName} has been installed successfully! Restart Steam for changes to take effect.", "Installation Complete");
+                var installMessage = includeMainAppId
+                    ? $"{fileName} has been installed successfully! Restart Steam for changes to take effect."
+                    : $"{fileName} DLC has been installed (DLC only mode). Restart Steam for changes to take effect.";
+                _notificationService.ShowSuccess(installMessage, "Installation Complete");
 
-                StatusMessage = $"{fileName} installed successfully";
+                StatusMessage = includeMainAppId ? $"{fileName} installed successfully" : $"{fileName} DLC installed (DLC only)";
 
-                // Notify library to add the game instantly
-                _libraryRefreshService.NotifyGameInstalled(appId, settings.Mode == ToolMode.GreenLuma);
+                // Notify library to add the game instantly (only if main AppId was included)
+                if (includeMainAppId)
+                {
+                    _libraryRefreshService.NotifyGameInstalled(appId, settings.Mode == ToolMode.GreenLuma);
+                }
 
                 // Auto-delete the ZIP file
                 File.Delete(filePath);

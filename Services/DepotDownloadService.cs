@@ -19,6 +19,7 @@ namespace SolusManifestApp.Services
         public bool IsTokenBased { get; set; }
         public string? DlcAppId { get; set; }
         public string? DlcName { get; set; }
+        public bool IsMainAppId { get; set; }
     }
 
     public class LanguageOption

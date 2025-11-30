@@ -16,6 +16,7 @@ namespace SolusManifestApp.Views.Dialogs
         public string Language => _depotInfo.Language ?? "Unknown";
         public string SizeFormatted => FormatSize(_depotInfo.Size);
         public bool IsTokenBased => _depotInfo.IsTokenBased;
+        public bool IsMainAppId => _depotInfo.IsMainAppId;
 
         private bool _isSelected;
         public bool IsSelected
@@ -59,13 +60,16 @@ namespace SolusManifestApp.Views.Dialogs
             InitializeComponent();
 
             _viewModels = depots
-                .OrderBy(d => d.DepotId)
+                .OrderByDescending(d => d.IsMainAppId)
+                .ThenBy(d => d.DepotId)
                 .Select(d => new DepotSelectionViewModel(d))
                 .ToList();
 
             DepotListBox.ItemsSource = _viewModels;
             SelectedDepotIds = new List<string>();
         }
+
+        public bool IncludeMainAppId { get; private set; } = true;
 
         private void SelectAll_Click(object sender, RoutedEventArgs e)
         {
@@ -85,26 +89,30 @@ namespace SolusManifestApp.Views.Dialogs
 
         private void Continue_Click(object sender, RoutedEventArgs e)
         {
+            var mainAppVm = _viewModels.FirstOrDefault(vm => vm.IsMainAppId);
+            IncludeMainAppId = mainAppVm?.IsSelected ?? true;
+
             SelectedDepotIds = _viewModels
-                .Where(vm => vm.IsSelected)
+                .Where(vm => vm.IsSelected && !vm.IsMainAppId)
                 .Select(vm => vm.DepotId)
                 .ToList();
 
-            if (SelectedDepotIds.Count == 0)
+            if (SelectedDepotIds.Count == 0 && !IncludeMainAppId)
             {
                 MessageBoxHelper.Show(
-                    "Please select at least one depot to continue.",
-                    "No Depots Selected",
+                    "Please select at least one depot or the main game to continue.",
+                    "Nothing Selected",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 return;
             }
 
-            if (SelectedDepotIds.Count > 128)
+            var totalCount = SelectedDepotIds.Count + (IncludeMainAppId ? 1 : 0);
+            if (totalCount > 128)
             {
                 MessageBoxHelper.Show(
-                    $"You have selected {SelectedDepotIds.Count} depots, which exceeds GreenLuma's limit of 128 depots. Please deselect some depots to continue.",
-                    "GreenLuma Depot Limit Exceeded",
+                    $"You have selected {totalCount} items, which exceeds GreenLuma's limit of 128. Please deselect some to continue.",
+                    "GreenLuma Limit Exceeded",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
