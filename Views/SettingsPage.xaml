@@ -606,6 +606,11 @@
                                           IsChecked="{Binding AutoInstallAfterDownload}"
                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                           ToolTip="Automatically install games after they finish downloading"/>
+
+                                <CheckBox Content="Delete ZIP file after installation"
+                                          IsChecked="{Binding DeleteZipAfterInstall}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"
+                                          ToolTip="Automatically delete the downloaded ZIP file after successful installation"/>
                             </StackPanel>
                         </Border>
 

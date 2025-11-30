@@ -49,6 +49,7 @@ namespace SolusManifestApp.Models
         // Downloads & Installation
         public string DownloadsPath { get; set; } = string.Empty;
         public bool AutoInstallAfterDownload { get; set; } = false;
+        public bool DeleteZipAfterInstall { get; set; } = true;
 
         // Key Upload
         public bool AutoUploadConfigKeys { get; set; } = true;

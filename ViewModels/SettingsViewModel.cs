@@ -53,6 +53,9 @@ namespace SolusManifestApp.ViewModels
         private bool _autoInstallAfterDownload;
 
         [ObservableProperty]
+        private bool _deleteZipAfterInstall;
+
+        [ObservableProperty]
         private bool _showNotifications;
 
         [ObservableProperty]
@@ -204,6 +207,7 @@ namespace SolusManifestApp.ViewModels
         partial void OnSelectedAutoUpdateModeChanged(string value) => MarkAsUnsaved();
         partial void OnMinimizeToTrayChanged(bool value) => MarkAsUnsaved();
         partial void OnAutoInstallAfterDownloadChanged(bool value) => MarkAsUnsaved();
+        partial void OnDeleteZipAfterInstallChanged(bool value) => MarkAsUnsaved();
         partial void OnShowNotificationsChanged(bool value) => MarkAsUnsaved();
         partial void OnDisableAllNotificationsChanged(bool value) => MarkAsUnsaved();
         partial void OnShowGameAddedNotificationChanged(bool value) => MarkAsUnsaved();
@@ -383,6 +387,7 @@ namespace SolusManifestApp.ViewModels
             SelectedAutoUpdateMode = Settings.AutoUpdate.ToString();
             MinimizeToTray = Settings.MinimizeToTray;
             AutoInstallAfterDownload = Settings.AutoInstallAfterDownload;
+            DeleteZipAfterInstall = Settings.DeleteZipAfterInstall;
             ShowNotifications = Settings.ShowNotifications;
             DisableAllNotifications = Settings.DisableAllNotifications;
             ShowGameAddedNotification = Settings.ShowGameAddedNotification;
@@ -499,6 +504,7 @@ namespace SolusManifestApp.ViewModels
 
             Settings.MinimizeToTray = MinimizeToTray;
             Settings.AutoInstallAfterDownload = AutoInstallAfterDownload;
+            Settings.DeleteZipAfterInstall = DeleteZipAfterInstall;
             Settings.ShowNotifications = ShowNotifications;
             Settings.DisableAllNotifications = DisableAllNotifications;
             Settings.ShowGameAddedNotification = ShowGameAddedNotification;

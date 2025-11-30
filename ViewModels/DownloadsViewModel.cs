@@ -417,10 +417,13 @@ namespace SolusManifestApp.ViewModels
 
                     StatusMessage = "Download started - check progress below";
 
-                    // Auto-delete the ZIP file after starting download
-                    _logger.Info($"Deleting zip file: {fileName}");
-                    File.Delete(filePath);
-                    RefreshDownloadedFiles();
+                    // Auto-delete the ZIP file after starting download (if enabled)
+                    if (settings.DeleteZipAfterInstall)
+                    {
+                        _logger.Info($"Deleting zip file: {fileName}");
+                        File.Delete(filePath);
+                        RefreshDownloadedFiles();
+                    }
 
                     IsInstalling = false;
                     return; // Skip the regular file installation flow
@@ -705,9 +708,12 @@ namespace SolusManifestApp.ViewModels
                     _libraryRefreshService.NotifyGameInstalled(appId, settings.Mode == ToolMode.GreenLuma);
                 }
 
-                // Auto-delete the ZIP file
-                File.Delete(filePath);
-                RefreshDownloadedFiles();
+                // Auto-delete the ZIP file (if enabled)
+                if (settings.DeleteZipAfterInstall)
+                {
+                    File.Delete(filePath);
+                    RefreshDownloadedFiles();
+                }
             }
             catch (System.Exception ex)
             {
