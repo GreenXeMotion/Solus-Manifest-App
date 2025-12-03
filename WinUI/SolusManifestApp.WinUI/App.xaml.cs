@@ -83,6 +83,9 @@ public partial class App : Application
         services.AddSingleton<BackupService>();
         services.AddSingleton<ArchiveExtractionService>();
         services.AddSingleton<RecentGamesService>();
+        services.AddSingleton<SteamApiService>();
+        services.AddSingleton<SteamCmdApiService>();
+        services.AddSingleton<ProtocolHandlerService>();
 
         // WinUI-Specific Services
         services.AddSingleton<IDialogService, WinUIDialogService>();
