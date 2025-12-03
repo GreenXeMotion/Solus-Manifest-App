@@ -33,6 +33,12 @@ public enum AutoUpdateMode
     AutoDownloadAndInstall
 }
 
+public enum WindowSizeProfile
+{
+    Normal,      // 1280x800
+    Small        // 1024x640
+}
+
 public class AppSettings
 {
     // API & Authentication
@@ -62,13 +68,20 @@ public class AppSettings
 
     // Display & Interface
     public AppTheme Theme { get; set; } = AppTheme.Default;
-    public double WindowWidth { get; set; } = 1200;
+    public double WindowWidth { get; set; } = 1280;
     public double WindowHeight { get; set; } = 800;
+    public WindowSizeProfile WindowSize { get; set; } = WindowSizeProfile.Normal;
+    public bool UseAcrylicBlur { get; set; } = true;
     public int StorePageSize { get; set; } = 20;
     public int LibraryPageSize { get; set; } = 20;
     public bool RememberWindowPosition { get; set; } = true;
     public double? WindowLeft { get; set; } = null;
     public double? WindowTop { get; set; } = null;
+
+    // Discord Rich Presence
+    public bool EnableDiscordRichPresence { get; set; } = true;
+    public bool ShowGameStatusInDiscord { get; set; } = true;
+    public bool ShowIdleStatusInDiscord { get; set; } = true;
 
     // Auto-Update
     public bool AutoCheckUpdates { get; set; } = true; // Legacy - kept for compatibility

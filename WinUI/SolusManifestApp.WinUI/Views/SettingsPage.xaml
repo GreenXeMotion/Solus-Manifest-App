@@ -85,6 +85,87 @@
                     </Border>
                 </StackPanel>
 
+                <!-- Appearance & Behavior -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Appearance &amp; Behavior" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <Border
+                        Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+                        <Border.Shadow>
+                            <ThemeShadow />
+                        </Border.Shadow>
+                        <Border.Translation>0,0,8</Border.Translation>
+                        <StackPanel Spacing="16">
+                            <!-- App Theme -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="App Theme" FontWeight="SemiBold"/>
+                                <ComboBox
+                                    x:Name="ThemeSelector"
+                                    MinWidth="256"
+                                    SelectedIndex="0">
+                                    <ComboBoxItem Content="Default (System)"/>
+                                    <ComboBoxItem Content="Dark"/>
+                                    <ComboBoxItem Content="Light"/>
+                                    <ComboBoxItem Content="Cherry"/>
+                                    <ComboBoxItem Content="Sunset"/>
+                                    <ComboBoxItem Content="Forest"/>
+                                    <ComboBoxItem Content="Grape"/>
+                                    <ComboBoxItem Content="Cyberpunk"/>
+                                </ComboBox>
+                                <TextBlock
+                                    Text="Restart required to apply theme changes"
+                                    FontSize="11"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+
+                            <!-- Window Size -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Window Size" FontWeight="SemiBold"/>
+                                <RadioButtons x:Name="WindowSizeSelector" MaxColumns="2">
+                                    <RadioButton Content="Normal (1280 × 800)" IsChecked="True"/>
+                                    <RadioButton Content="Small (1024 × 640)"/>
+                                </RadioButtons>
+                            </StackPanel>
+
+                            <!-- Acrylic Blur Effect -->
+                            <ToggleSwitch
+                                x:Name="AcrylicBlurToggle"
+                                Header="Enable Acrylic Blur Effect"
+                                IsOn="True"
+                                OnContent="Enabled"
+                                OffContent="Disabled"/>
+
+                            <!-- Discord Rich Presence -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Discord Rich Presence" FontWeight="SemiBold"/>
+                                <ToggleSwitch
+                                    x:Name="DiscordRpcToggle"
+                                    Header="Enable Discord Rich Presence"
+                                    IsOn="True"
+                                    OnContent="Enabled"
+                                    OffContent="Disabled"/>
+                                <ToggleSwitch
+                                    x:Name="DiscordGameStatusToggle"
+                                    Header="Show Game Status"
+                                    IsOn="True"
+                                    OnContent="Enabled"
+                                    OffContent="Disabled"
+                                    Margin="32,0,0,0"/>
+                                <ToggleSwitch
+                                    x:Name="DiscordIdleStatusToggle"
+                                    Header="Show Idle Status"
+                                    IsOn="True"
+                                    OnContent="Enabled"
+                                    OffContent="Disabled"
+                                    Margin="32,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
                 <!-- Paths Configuration -->
                 <StackPanel Spacing="12">
                     <TextBlock Text="Paths" Style="{StaticResource SubtitleTextBlockStyle}"/>
