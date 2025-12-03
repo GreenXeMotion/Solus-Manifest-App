@@ -1,0 +1,90 @@
+<Page
+    x:Class="SolusManifestApp.WinUI.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer>
+        <StackPanel Padding="40" Spacing="24" MaxWidth="800">
+            <TextBlock
+                Text="Settings"
+                Style="{StaticResource TitleTextBlockStyle}"/>
+
+            <TextBlock
+                Text="Configure application preferences and behavior"
+                Style="{StaticResource SubtitleTextBlockStyle}"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+            <!-- API Settings -->
+            <StackPanel Spacing="12">
+                <TextBlock Text="API Configuration" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                <Border
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="API Key" FontWeight="SemiBold"/>
+                        <TextBox PlaceholderText="Enter your Morrenus API key" />
+                        <TextBlock
+                            Text="Get your API key from manifest.morrenus.xyz"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Theme Settings -->
+            <StackPanel Spacing="12">
+                <TextBlock Text="Appearance" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                <Border
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Theme" FontWeight="SemiBold"/>
+                        <ComboBox PlaceholderText="Select theme" MinWidth="200">
+                            <ComboBoxItem Content="Default"/>
+                            <ComboBoxItem Content="Dark"/>
+                            <ComboBoxItem Content="Light"/>
+                            <ComboBoxItem Content="Cherry"/>
+                            <ComboBoxItem Content="Sunset"/>
+                            <ComboBoxItem Content="Forest"/>
+                            <ComboBoxItem Content="Grape"/>
+                            <ComboBoxItem Content="Cyberpunk"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Application Settings -->
+            <StackPanel Spacing="12">
+                <TextBlock Text="Application Behavior" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                <Border
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="20">
+                    <StackPanel Spacing="12">
+                        <ToggleSwitch Header="Minimize to system tray"/>
+                        <ToggleSwitch Header="Start minimized"/>
+                        <ToggleSwitch Header="Show notifications"/>
+                        <ToggleSwitch Header="Confirm before delete"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Actions -->
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button Content="Save Settings" Style="{StaticResource AccentButtonStyle}"/>
+                <Button Content="Reset to Defaults"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

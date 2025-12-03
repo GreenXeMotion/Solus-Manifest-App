@@ -1,0 +1,47 @@
+<Page
+    x:Class="SolusManifestApp.WinUI.Views.DownloadsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer>
+        <StackPanel Padding="40" Spacing="24" MaxWidth="1200">
+            <TextBlock
+                Text="Downloads Page"
+                Style="{StaticResource TitleTextBlockStyle}"/>
+
+            <TextBlock
+                Text="Monitor active downloads and queue"
+                Style="{StaticResource SubtitleTextBlockStyle}"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+            <Border
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="40"
+                MinHeight="300">
+                <StackPanel Spacing="16" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <FontIcon
+                        Glyph="&#xE896;"
+                        FontSize="64"
+                        Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                    <TextBlock
+                        Text="Downloads Page - Coming Soon"
+                        Style="{StaticResource TitleTextBlockStyle}"
+                        TextAlignment="Center"/>
+                    <TextBlock
+                        Text="This page will show download progress and queue management"
+                        Style="{StaticResource BodyTextBlockStyle}"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        TextAlignment="Center"
+                        TextWrapping="Wrap"
+                        MaxWidth="400"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

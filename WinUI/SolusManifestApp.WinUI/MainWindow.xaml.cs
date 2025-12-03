@@ -69,22 +69,22 @@ public sealed partial class MainWindow : Window
                     ContentFrame.Navigate(typeof(HomePage));
                     break;
                 case "Store":
-                    // TODO: Navigate to StorePage
+                    ContentFrame.Navigate(typeof(StorePage));
                     break;
                 case "Library":
-                    // TODO: Navigate to LibraryPage
+                    ContentFrame.Navigate(typeof(LibraryPage));
                     break;
                 case "Downloads":
-                    // TODO: Navigate to DownloadsPage
+                    ContentFrame.Navigate(typeof(DownloadsPage));
                     break;
                 case "Tools":
-                    // TODO: Navigate to ToolsPage
+                    ContentFrame.Navigate(typeof(ToolsPage));
                     break;
             }
         }
         else if (args.IsSettingsSelected)
         {
-            // TODO: Navigate to SettingsPage
+            ContentFrame.Navigate(typeof(SettingsPage));
         }
     }
 }
