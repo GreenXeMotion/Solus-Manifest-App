@@ -1,5 +1,6 @@
 <Page
     x:Class="SolusManifestApp.WinUI.Views.SettingsPage"
+    x:Name="Root"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,80 +8,406 @@
     xmlns:viewmodels="using:SolusManifestApp.ViewModels"
     mc:Ignorable="d">
 
-    <ScrollViewer>
-        <StackPanel Padding="40" Spacing="24" MaxWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Padding="40,40,40,20" Spacing="12">
             <TextBlock
                 Text="Settings"
                 Style="{StaticResource TitleTextBlockStyle}"/>
 
             <TextBlock
                 Text="Configure application preferences and behavior"
-                Style="{StaticResource SubtitleTextBlockStyle}"
+                Style="{StaticResource BodyTextBlockStyle}"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
-            <!-- API Settings -->
-            <StackPanel Spacing="12">
-                <TextBlock Text="API Configuration" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                <Border
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    Padding="20">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="API Key" FontWeight="SemiBold"/>
-                        <TextBox Text="{x:Bind ViewModel.Settings.ApiKey, Mode=TwoWay}" PlaceholderText="Enter your Morrenus API key" />
-                        <TextBlock
-                            Text="Get your API key from manifest.morrenus.xyz"
-                            Style="{StaticResource CaptionTextBlockStyle}"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
+            <!-- Status Message -->
+<InfoBar
+                IsOpen="{x:Bind ViewModel.HasUnsavedChanges, Mode=OneWay}"
+                Severity="Warning"
+                Title="Unsaved Changes"
+                Message="You have unsaved changes. Don't forget to save before leaving."/>
+</StackPanel>
 
-            <!-- Theme Settings -->
-            <StackPanel Spacing="12">
-                <TextBlock Text="Appearance" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                <Border
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    Padding="20">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Theme" FontWeight="SemiBold"/>
-                        <ComboBox
-                            ItemsSource="{x:Bind ViewModel.AvailableThemes, Mode=OneWay}"
-                            SelectedItem="{x:Bind ViewModel.SelectedTheme, Mode=TwoWay}"
-                            PlaceholderText="Select theme"
-                            MinWidth="200"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
+        <!-- Settings Scroll -->
+        <ScrollViewer Grid.Row="1" Padding="40,0,40,20">
+            <StackPanel Spacing="24" MaxWidth="900">
 
-            <!-- Application Settings -->
-            <StackPanel Spacing="12">
-                <TextBlock Text="Application Behavior" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                <Border
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    Padding="20">
-                    <StackPanel Spacing="12">
-                        <ToggleSwitch Header="Minimize to system tray" IsOn="{x:Bind ViewModel.Settings.MinimizeToTray, Mode=TwoWay}"/>
-                        <ToggleSwitch Header="Start minimized" IsOn="{x:Bind ViewModel.Settings.StartMinimized, Mode=TwoWay}"/>
-                        <ToggleSwitch Header="Show notifications" IsOn="{x:Bind ViewModel.Settings.ShowNotifications, Mode=TwoWay}"/>
-                        <ToggleSwitch Header="Confirm before delete" IsOn="{x:Bind ViewModel.Settings.ConfirmBeforeDelete, Mode=TwoWay}"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
+                <!-- API Configuration -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="API Configuration" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <Border
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+                        <StackPanel Spacing="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="API Key" FontWeight="SemiBold"/>
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Text="{x:Bind ViewModel.ApiKey, Mode=TwoWay}"
+                                        PlaceholderText="Enter your Morrenus API key (starts with 'smm')"/>
+                                    <Button
+                                        Grid.Column="1"
+                                        Command="{x:Bind ViewModel.ValidateApiKeyCommand}"
+                                        ToolTipService.ToolTip="Validate API key">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE73E;" FontSize="14"/>
+                                            <TextBlock Text="Validate"/>
+</StackPanel>
+                                    </Button>
+                                </Grid>
+                                <TextBlock
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    FontSize="12"
+                                    TextWrapping="Wrap">
+                                    <Run Text="Status:"/>
+                                    <Run Text="{x:Bind ViewModel.ApiKeyStatus, Mode=OneWay}"/>
+                                </TextBlock>
+                                <TextBlock
+                                    Text="Get your API key from manifest.morrenus.xyz"
+                                    FontSize="12"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
 
-            <!-- Actions -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
-                <Button Content="Save Settings" Style="{StaticResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveSettingsCommand}"/>
-                <Button Content="Reset to Defaults" Command="{x:Bind ViewModel.ResetToDefaultsCommand}"/>
+                <!-- Paths Configuration -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Paths" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <Border
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+                        <StackPanel Spacing="16">
+                            <!-- Steam Path -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Steam Installation Path" FontWeight="SemiBold"/>
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Text="{x:Bind ViewModel.SteamPath, Mode=TwoWay}"
+                                        PlaceholderText="C:\Program Files (x86)\Steam"/>
+                                    <Button
+                                        Grid.Column="1"
+                                        Command="{x:Bind ViewModel.DetectSteamPathCommand}"
+                                        ToolTipService.ToolTip="Auto-detect Steam path">
+                                        <FontIcon Glyph="&#xE71C;" FontSize="14"/>
+                                    </Button>
+                                    <Button
+                                        Grid.Column="2"
+                                        Command="{x:Bind ViewModel.BrowseSteamPathCommand}"
+                                        ToolTipService.ToolTip="Browse for folder">
+                                        <FontIcon Glyph="&#xE8DA;" FontSize="14"/>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- Downloads Path -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Downloads Folder" FontWeight="SemiBold"/>
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Text="{x:Bind ViewModel.DownloadsPath, Mode=TwoWay}"
+                                        PlaceholderText="Select downloads folder"/>
+                                    <Button
+                                        Grid.Column="1"
+                                        Command="{x:Bind ViewModel.BrowseDownloadsPathCommand}"
+                                        ToolTipService.ToolTip="Browse for folder">
+                                        <FontIcon Glyph="&#xE8DA;" FontSize="14"/>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- AppList Path (GreenLuma) -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="GreenLuma AppList.txt Path" FontWeight="SemiBold"/>
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Text="{x:Bind ViewModel.AppListPath, Mode=TwoWay}"
+                                        PlaceholderText="Path to AppList.txt"/>
+                                    <Button
+                                        Grid.Column="1"
+                                        Command="{x:Bind ViewModel.BrowseAppListPathCommand}"
+                                        ToolTipService.ToolTip="Browse for file">
+                                        <FontIcon Glyph="&#xE8E5;" FontSize="14"/>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- DLL Injector Path -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="DLL Injector Path (Optional)" FontWeight="SemiBold"/>
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Text="{x:Bind ViewModel.DllInjectorPath, Mode=TwoWay}"
+                                        PlaceholderText="Path to DLL injector"/>
+                                    <Button
+                                        Grid.Column="1"
+                                        Command="{x:Bind ViewModel.BrowseDllInjectorPathCommand}"
+                                        ToolTipService.ToolTip="Browse for file">
+                                        <FontIcon Glyph="&#xE8E5;" FontSize="14"/>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Tool Mode Configuration -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Tool Mode" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <Border
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+                        <StackPanel Spacing="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Operation Mode" FontWeight="SemiBold"/>
+                                <ComboBox
+                                    ItemsSource="{x:Bind ViewModel.ToolModes, Mode=OneWay}"
+                                    SelectedItem="{x:Bind ViewModel.SelectedToolMode, Mode=TwoWay, Converter={StaticResource EnumToStringConverter}}"
+                                    MinWidth="250"/>
+                                <TextBlock
+                                    Text="SteamTools: Depot cache only • GreenLuma: AppList.txt • DepotDownloader: Full downloads"
+                                    FontSize="12"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="GreenLuma Mode" FontWeight="SemiBold"/>
+                                <ComboBox
+                                    ItemsSource="{x:Bind ViewModel.GreenLumaModes, Mode=OneWay}"
+                                    SelectedItem="{x:Bind ViewModel.SelectedGreenLumaMode, Mode=TwoWay, Converter={StaticResource EnumToStringConverter}}"
+                                    MinWidth="250"/>
+                                <TextBlock
+                                    Text="Normal: Standard • StealthAnyFolder: Custom location • StealthUser32: System32 injection"
+                                    FontSize="12"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Download Settings -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Download Settings" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <Border
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+                        <StackPanel Spacing="16">
+                            <ToggleSwitch
+                                Header="Auto-install after download"
+                                IsOn="{x:Bind ViewModel.AutoInstallAfterDownload, Mode=TwoWay}"/>
+                            <ToggleSwitch
+                                Header="Delete ZIP files after installation"
+                                IsOn="{x:Bind ViewModel.DeleteZipAfterInstall, Mode=TwoWay}"/>
+                            <ToggleSwitch
+                                Header="Verify files after download"
+                                IsOn="{x:Bind ViewModel.VerifyFilesAfterDownload, Mode=TwoWay}"/>
+
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Maximum Concurrent Downloads" FontWeight="SemiBold"/>
+                                <NumberBox
+                                    Value="{x:Bind ViewModel.MaxConcurrentDownloads, Mode=TwoWay}"
+                                    Minimum="1"
+                                    Maximum="16"
+                                    SpinButtonPlacementMode="Inline"
+                                    MinWidth="150"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Appearance -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Appearance" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <Border
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+                        <StackPanel Spacing="16">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Theme" FontWeight="SemiBold"/>
+                                <ComboBox
+                                    ItemsSource="{x:Bind ViewModel.AvailableThemes, Mode=OneWay}"
+                                    SelectedItem="{x:Bind ViewModel.SelectedTheme, Mode=TwoWay}"
+                                    MinWidth="200"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Store Page Size" FontWeight="SemiBold"/>
+                                <NumberBox
+                                    Value="{x:Bind ViewModel.StorePageSize, Mode=TwoWay}"
+                                    Minimum="10"
+                                    Maximum="100"
+                                    SpinButtonPlacementMode="Inline"
+                                    MinWidth="150"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Library Page Size" FontWeight="SemiBold"/>
+                                <NumberBox
+                                    Value="{x:Bind ViewModel.LibraryPageSize, Mode=TwoWay}"
+                                    Minimum="10"
+                                    Maximum="100"
+                                    SpinButtonPlacementMode="Inline"
+                                    MinWidth="150"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Application Behavior -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Application Behavior" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <Border
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+                        <StackPanel Spacing="16">
+                            <ToggleSwitch
+                                Header="Minimize to system tray"
+                                IsOn="{x:Bind ViewModel.MinimizeToTray, Mode=TwoWay}"/>
+                            <ToggleSwitch
+                                Header="Start minimized"
+                                IsOn="{x:Bind ViewModel.StartMinimized, Mode=TwoWay}"/>
+                            <ToggleSwitch
+                                Header="Show notifications"
+                                IsOn="{x:Bind ViewModel.ShowNotifications, Mode=TwoWay}"/>
+                            <ToggleSwitch
+                                Header="Confirm before delete"
+                                IsOn="{x:Bind ViewModel.ConfirmBeforeDelete, Mode=TwoWay}"/>
+                            <ToggleSwitch
+                                Header="Confirm before uninstall"
+                                IsOn="{x:Bind ViewModel.ConfirmBeforeUninstall, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Update Settings -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Updates" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <Border
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Auto-Update Mode" FontWeight="SemiBold"/>
+                            <ComboBox
+                                ItemsSource="{x:Bind ViewModel.AutoUpdateModes, Mode=OneWay}"
+                                SelectedItem="{x:Bind ViewModel.SelectedAutoUpdateMode, Mode=TwoWay, Converter={StaticResource EnumToStringConverter}}"
+                                MinWidth="250"/>
+                            <TextBlock
+                                Text="Disabled: No checks • CheckOnly: Notify only • AutoDownloadAndInstall: Automatic"
+                                FontSize="12"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Quick Actions -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Quick Actions" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <Border
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Button Command="{x:Bind ViewModel.OpenSettingsFolderCommand}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
+                                    <TextBlock Text="Open Settings Folder"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{x:Bind ViewModel.OpenLogsFolderCommand}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE8A5;" FontSize="14"/>
+                                    <TextBlock Text="Open Logs Folder"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
             </StackPanel>
-        </StackPanel>
-    </ScrollViewer>
+        </ScrollViewer>
+
+        <!-- Action Bar -->
+        <Border
+            Grid.Row="2"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="40,20">
+            <Grid>
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Button
+                        Content="Save Settings"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.SaveSettingsCommand}"/>
+                    <Button
+                        Content="Reset to Defaults"
+                        Command="{x:Bind ViewModel.ResetToDefaultsCommand}"/>
+                </StackPanel>
+
+                <TextBlock
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </Grid>
+        </Border>
+    </Grid>
 </Page>

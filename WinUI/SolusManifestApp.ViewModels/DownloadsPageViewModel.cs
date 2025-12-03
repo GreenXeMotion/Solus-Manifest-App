@@ -50,6 +50,13 @@ public partial class DownloadsPageViewModel : ObservableObject
     public ObservableCollection<DownloadItem> CompletedDownloads => _downloadService.CompletedDownloads;
     public ObservableCollection<DownloadItem> FailedDownloads => _downloadService.FailedDownloads;
 
+    // Computed properties for UI visibility
+    public bool HasActiveDownloads => ActiveCount > 0;
+    public bool HasQueuedDownloads => QueuedCount > 0;
+    public bool HasCompletedDownloads => CompletedCount > 0;
+    public bool HasFailedDownloads => FailedCount > 0;
+    public bool HasAnyDownloads => ActiveCount > 0 || QueuedCount > 0 || CompletedCount > 0 || FailedCount > 0;
+
     public DownloadsPageViewModel(
         DownloadService downloadService,
         FileInstallService fileInstallService,
@@ -100,6 +107,13 @@ public partial class DownloadsPageViewModel : ObservableObject
         QueuedCount = QueuedDownloads.Count;
         CompletedCount = CompletedDownloads.Count;
         FailedCount = FailedDownloads.Count;
+
+        // Notify computed properties
+        OnPropertyChanged(nameof(HasActiveDownloads));
+        OnPropertyChanged(nameof(HasQueuedDownloads));
+        OnPropertyChanged(nameof(HasCompletedDownloads));
+        OnPropertyChanged(nameof(HasFailedDownloads));
+        OnPropertyChanged(nameof(HasAnyDownloads));
 
         if (ActiveCount > 0)
         {

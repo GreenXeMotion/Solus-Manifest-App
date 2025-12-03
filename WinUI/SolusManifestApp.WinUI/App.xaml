@@ -18,6 +18,7 @@
             <converters:NullToVisibilityInverseConverter x:Key="NullToVisibilityInverseConverter"/>
             <converters:BytesToStringConverter x:Key="BytesToStringConverter"/>
             <converters:PercentageConverter x:Key="PercentageConverter"/>
+            <converters:EnumToStringConverter x:Key="EnumToStringConverter"/>
 
             <!-- Missing resources that WinUI sometimes needs -->
             <CornerRadius x:Key="OverlayCornerRadius">8</CornerRadius>
