@@ -45,20 +45,45 @@
                           TintLuminosityOpacity="0.5"
                           TintOpacity="0.0" />
 
+            <AcrylicBrush x:Key="NavigationViewExpandedPaneBackground"
+                          FallbackColor="#AA222222"
+                          TintColor="#222222"
+                          TintLuminosityOpacity="0.5"
+                          TintOpacity="0.0" />
+
+            <LinearGradientBrush x:Key="NavigationViewContentGridBackground" StartPoint="0.15,0" EndPoint="0,0">
+                <GradientStop Offset="0" Color="#40000000" />
+                <GradientStop Offset="1" Color="#00000000" />
+            </LinearGradientBrush>
+
+            <!-- Navigation Button Brushes -->
+            <SolidColorBrush x:Key="NavigationViewButtonBackground" Color="#00000000" />
+            <SolidColorBrush x:Key="NavigationViewButtonBackgroundPointerOver" Color="#22000000" />
+            <SolidColorBrush x:Key="NavigationViewButtonBackgroundPressed" Color="#11000000" />
+            <SolidColorBrush x:Key="NavigationViewButtonBackgroundDisabled" Color="#0A000000" />
+
             <!-- Navigation Item Brushes -->
-            <SolidColorBrush x:Key="NavigationViewItemBackground" Color="Transparent" />
-            <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#22FFFFFF" />
-            <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#11FFFFFF" />
-            <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#44ffd52a" />
-            <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#55ffd52a" />
-            <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPressed" Color="#33ffd52a" />
+            <SolidColorBrush x:Key="NavigationViewItemBackground" Color="#00000000" />
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#22000000" />
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#11000000" />
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundDisabled" Color="#0A000000" />
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#44000000" />
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#55000000" />
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPressed" Color="#33000000" />
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedDisabled" Color="#22000000" />
 
             <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#FFFFFF" />
             <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="#ffd52a" />
+            <SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="#ffd52a" />
             <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="#ffd52a" />
             <SolidColorBrush x:Key="NavigationViewItemForegroundSelectedPointerOver" Color="#ffe15f" />
+            <SolidColorBrush x:Key="NavigationViewItemForegroundSelectedPressed" Color="#ffd52a" />
 
             <SolidColorBrush x:Key="NavigationViewSelectionIndicatorForeground" Color="#ffd52a" />
+
+            <!-- Navigation Border -->
+            <Thickness x:Key="NavigationViewBorderThickness">0</Thickness>
+            <Thickness x:Key="NavigationViewContentGridBorderThickness">0</Thickness>
 
             <!-- Card & Control Colors -->
             <SolidColorBrush x:Key="CardBackgroundFillColorDefaultBrush" Color="#33222222" />

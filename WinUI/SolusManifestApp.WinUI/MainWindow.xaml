@@ -7,6 +7,9 @@
     mc:Ignorable="d">
 
     <Grid Background="#242424">
+        <Grid.Resources>
+            <ThemeShadow x:Name="SharedShadow" />
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
@@ -25,15 +28,37 @@
             </Grid.Background>
         </Grid>
 
+        <!-- Custom Navigation Pane Background with Shadow -->
+        <Border
+            x:Name="NavPaneBackground"
+            Width="48"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Stretch"
+            CornerRadius="0,8,8,0"
+            Translation="0,0,16">
+            <Border.Background>
+                <AcrylicBrush
+                    FallbackColor="#AA222222"
+                    TintColor="#222222"
+                    TintLuminosityOpacity="0.5"
+                    TintOpacity="0.0" />
+            </Border.Background>
+            <Border.Shadow>
+                <ThemeShadow />
+            </Border.Shadow>
+        </Border>
+
         <!-- Main Content with Navigation -->
         <NavigationView
             Grid.Row="0"
             x:Name="NavView"
-            IsBackButtonVisible="Collapsed"
+            IsBackButtonVisible="Visible"
+            IsBackEnabled="False"
             IsSettingsVisible="True"
-            PaneDisplayMode="Left"
+            PaneDisplayMode="LeftCompact"
+            IsPaneOpen="False"
             Background="Transparent"
-            OpenPaneLength="240"
+            OpenPaneLength="300"
             CompactPaneLength="48"
             SelectionChanged="NavView_SelectionChanged">
 
