@@ -7,8 +7,54 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Collapse Launcher Inspired Theme -->
+            <Color x:Key="SystemAccentColor">#ffd52a</Color>
+            <Color x:Key="SystemAccentColorLight1">#ffe15f</Color>
+            <Color x:Key="SystemAccentColorDark1">#d4b023</Color>
+
+            <SolidColorBrush x:Key="WindowBackground" Color="#242424" />
+            <SolidColorBrush x:Key="AccentColor" Color="#ffd52a" />
+
+            <!-- Acrylic Brushes -->
+            <AcrylicBrush x:Key="CardBackgroundAcrylicBrush"
+                          FallbackColor="#EE303030"
+                          TintColor="#222222"
+                          TintLuminosityOpacity="0.75"
+                          TintOpacity="0.0" />
+
+            <AcrylicBrush x:Key="NavigationViewDefaultPaneBackground"
+                          FallbackColor="#AA222222"
+                          TintColor="#222222"
+                          TintLuminosityOpacity="0.5"
+                          TintOpacity="0.0" />
+
+            <!-- Navigation Item Brushes -->
+            <SolidColorBrush x:Key="NavigationViewItemBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#22FFFFFF" />
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#11FFFFFF" />
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#44ffd52a" />
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#55ffd52a" />
+            <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPressed" Color="#33ffd52a" />
+
+            <SolidColorBrush x:Key="NavigationViewItemForeground" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="#ffd52a" />
+            <SolidColorBrush x:Key="NavigationViewItemForegroundSelected" Color="#ffd52a" />
+            <SolidColorBrush x:Key="NavigationViewItemForegroundSelectedPointerOver" Color="#ffe15f" />
+
+            <SolidColorBrush x:Key="NavigationViewSelectionIndicatorForeground" Color="#ffd52a" />
+
+            <!-- Card & Control Colors -->
+            <SolidColorBrush x:Key="CardBackgroundFillColorDefaultBrush" Color="#33222222" />
+            <SolidColorBrush x:Key="CardBackgroundFillColorSecondaryBrush" Color="#44222222" />
+            <SolidColorBrush x:Key="CardStrokeColorDefaultBrush" Color="#22ffd52a" />
+            <SolidColorBrush x:Key="CardStrokeColorBrush" Color="#44ffd52a" />
+
+            <!-- Text Colors -->
+            <SolidColorBrush x:Key="TextFillColorPrimaryBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="TextFillColorSecondaryBrush" Color="#CCCCCC" />
+            <SolidColorBrush x:Key="TextFillColorTertiaryBrush" Color="#999999" />
 
             <!-- Value Converters -->
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -20,13 +66,11 @@
             <converters:PercentageConverter x:Key="PercentageConverter"/>
             <converters:EnumToStringConverter x:Key="EnumToStringConverter"/>
 
-            <!-- Missing resources that WinUI sometimes needs -->
+            <!-- Additional Resources -->
             <CornerRadius x:Key="OverlayCornerRadius">8</CornerRadius>
             <CornerRadius x:Key="ControlCornerRadius">4</CornerRadius>
             <x:Double x:Key="ContentDialogMinWidth">320</x:Double>
             <x:Double x:Key="ContentDialogMaxWidth">548</x:Double>
-
-            <!-- Other app resources here -->
         </ResourceDictionary>
     </Application.Resources>
 </Application>

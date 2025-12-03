@@ -220,8 +220,8 @@
 
                         <!-- SteamTools Card -->
                         <Border
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorBrush}"
                             BorderThickness="1"
                             CornerRadius="8"
                             Padding="24">
@@ -242,8 +242,8 @@
 
                         <!-- GreenLuma Card -->
                         <Border
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorBrush}"
                             BorderThickness="1"
                             CornerRadius="8"
                             Padding="24">
@@ -264,8 +264,8 @@
 
                         <!-- Manifest Website Card -->
                         <Border
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorBrush}"
                             BorderThickness="1"
                             CornerRadius="8"
                             Padding="24">
@@ -286,8 +286,8 @@
 
                         <!-- Discord Card -->
                         <Border
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorBrush}"
                             BorderThickness="1"
                             CornerRadius="8"
                             Padding="24">
@@ -313,3 +313,4 @@
         </TabView>
     </Grid>
 </Page>
+

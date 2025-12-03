@@ -42,8 +42,8 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="API Configuration" Style="{StaticResource SubtitleTextBlockStyle}"/>
                     <Border
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20">
@@ -89,11 +89,15 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="Paths" Style="{StaticResource SubtitleTextBlockStyle}"/>
                     <Border
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20">
+                        <Border.Shadow>
+                            <ThemeShadow />
+                        </Border.Shadow>
+                        <Border.Translation>0,0,8</Border.Translation>
                         <StackPanel Spacing="16">
                             <!-- Steam Path -->
                             <StackPanel Spacing="8">
@@ -193,8 +197,8 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="Tool Mode" Style="{StaticResource SubtitleTextBlockStyle}"/>
                     <Border
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20">
@@ -232,8 +236,8 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="Download Settings" Style="{StaticResource SubtitleTextBlockStyle}"/>
                     <Border
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20">
@@ -265,8 +269,8 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="Appearance" Style="{StaticResource SubtitleTextBlockStyle}"/>
                     <Border
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20">
@@ -306,8 +310,8 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="Application Behavior" Style="{StaticResource SubtitleTextBlockStyle}"/>
                     <Border
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20">
@@ -335,8 +339,8 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="Updates" Style="{StaticResource SubtitleTextBlockStyle}"/>
                     <Border
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20">
@@ -359,8 +363,8 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="Quick Actions" Style="{StaticResource SubtitleTextBlockStyle}"/>
                     <Border
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20">
@@ -387,8 +391,8 @@
         <!-- Action Bar -->
         <Border
             Grid.Row="2"
-            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            Background="{ThemeResource CardBackgroundAcrylicBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorBrush}"
             BorderThickness="0,1,0,0"
             Padding="40,20">
             <Grid>
@@ -411,3 +415,4 @@
         </Border>
     </Grid>
 </Page>
+

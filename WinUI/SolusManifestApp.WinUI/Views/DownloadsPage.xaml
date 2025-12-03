@@ -78,8 +78,8 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorBrush}"
                                     BorderThickness="1"
                                     CornerRadius="8"
                                     Padding="16"
@@ -177,8 +177,8 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorBrush}"
                                     BorderThickness="1"
                                     CornerRadius="8"
                                     Padding="16"
@@ -237,8 +237,8 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorBrush}"
                                     BorderThickness="1"
                                     CornerRadius="8"
                                     Padding="16"
@@ -316,7 +316,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    Background="{ThemeResource CardBackgroundAcrylicBrush}"
                                     BorderBrush="{ThemeResource SystemFillColorCriticalBrush}"
                                     BorderThickness="1"
                                     CornerRadius="8"
@@ -402,3 +402,4 @@
         </ScrollViewer>
     </Grid>
 </Page>
+

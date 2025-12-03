@@ -6,14 +6,26 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid>
+    <Grid Background="#242424">
         <Grid.RowDefinitions>
-            <RowDefinition Height="48"/>
+            <RowDefinition Height="56"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Custom Title Bar -->
-        <Grid x:Name="AppTitleBar" Grid.Row="0" Background="{ThemeResource SystemAccentColor}">
+        <!-- Custom Title Bar with Gradient Overlay -->
+        <Grid x:Name="AppTitleBar" Grid.Row="0">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Offset="0" Color="#ffd52a"/>
+                    <GradientStop Offset="1" Color="#d4b023"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+
+            <Grid.Shadow>
+                <ThemeShadow />
+            </Grid.Shadow>
+            <Grid.Translation>0,0,16</Grid.Translation>
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -21,12 +33,16 @@
             </Grid.ColumnDefinitions>
 
             <!-- App Icon & Title -->
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" Margin="16,0">
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" Margin="20,0">
+                <FontIcon
+                    Glyph="&#xE8B7;"
+                    FontSize="20"
+                    Foreground="#000000"/>
                 <TextBlock
                     Text="Solus Manifest App"
-                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Style="{StaticResource TitleTextBlockStyle}"
                     VerticalAlignment="Center"
-                    Foreground="White"
+                    Foreground="#000000"
                     FontWeight="SemiBold"/>
             </StackPanel>
 
@@ -40,6 +56,9 @@
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="True"
             PaneDisplayMode="Left"
+            Background="Transparent"
+            OpenPaneLength="240"
+            CompactPaneLength="48"
             SelectionChanged="NavView_SelectionChanged">
 
             <NavigationView.MenuItems>
@@ -74,7 +93,7 @@
                 </NavigationViewItem>
             </NavigationView.MenuItems>
 
-            <Frame x:Name="ContentFrame"/>
+            <Frame x:Name="ContentFrame" Background="Transparent"/>
         </NavigationView>
     </Grid>
 </Window>

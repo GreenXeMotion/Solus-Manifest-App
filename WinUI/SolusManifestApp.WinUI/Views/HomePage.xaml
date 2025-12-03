@@ -35,11 +35,15 @@
                     <!-- Launch Steam Card -->
                     <Border
                         Grid.Column="0"
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20">
+                        <Border.Shadow>
+                            <ThemeShadow />
+                        </Border.Shadow>
+                        <Border.Translation>0,0,8</Border.Translation>
                         <StackPanel Spacing="12">
                             <FontIcon
                                 Glyph="&#xE8FC;"
@@ -62,11 +66,15 @@
                     <!-- Refresh Library Card -->
                     <Border
                         Grid.Column="1"
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20">
+                        <Border.Shadow>
+                            <ThemeShadow />
+                        </Border.Shadow>
+                        <Border.Translation>0,0,8</Border.Translation>
                         <StackPanel Spacing="12">
                             <FontIcon
                                 Glyph="&#xE72C;"
@@ -89,11 +97,15 @@
                     <!-- Settings Card -->
                     <Border
                         Grid.Column="2"
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20">
+                        <Border.Shadow>
+                            <ThemeShadow />
+                        </Border.Shadow>
+                        <Border.Translation>0,0,8</Border.Translation>
                         <StackPanel Spacing="12">
                             <FontIcon
                                 Glyph="&#xE713;"
@@ -121,11 +133,15 @@
                     Style="{StaticResource SubtitleTextBlockStyle}"/>
 
                 <Border
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    Background="{ThemeResource CardBackgroundAcrylicBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorBrush}"
                     BorderThickness="1"
                     CornerRadius="8"
                     Padding="20">
+                    <Border.Shadow>
+                        <ThemeShadow />
+                    </Border.Shadow>
+                    <Border.Translation>0,0,8</Border.Translation>
                     <StackPanel Spacing="8">
                         <TextBlock>
                             <Run Text="Version:" FontWeight="SemiBold"/>
