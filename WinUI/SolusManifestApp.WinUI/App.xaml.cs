@@ -89,6 +89,8 @@ public partial class App : Application
         services.AddSingleton<DepotFilterService>();
         services.AddSingleton<LuaParser>();
         services.AddSingleton<ImageCacheService>();
+        services.AddSingleton<DepotDownloadService>();
+        services.AddSingleton<ConfigKeysUploadService>();
 
         // WinUI-Specific Services
         services.AddSingleton<IDialogService, WinUIDialogService>();
