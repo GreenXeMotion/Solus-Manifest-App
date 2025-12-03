@@ -55,7 +55,14 @@ public partial class LibraryPageViewModel : ObservableObject
     private int _greenLumaGamesCount;
 
     [ObservableProperty]
+    private int _luaScriptsCount;
+
+    [ObservableProperty]
     private LibraryItem? _selectedItem;
+
+    // Computed properties for UI
+    public bool HasGames => LibraryItems.Count > 0;
+    public bool CanDeleteProfile => ActiveProfile != null && Profiles.Count > 1;
 
     public ObservableCollection<string> FilterOptions { get; } = new()
     {
@@ -257,6 +264,11 @@ public partial class LibraryPageViewModel : ObservableObject
         TotalGames = LibraryItems.Count;
         SteamGamesCount = LibraryItems.Count(i => i.ItemType == LibraryItemType.SteamGame);
         GreenLumaGamesCount = LibraryItems.Count(i => i.ItemType == LibraryItemType.GreenLuma);
+        LuaScriptsCount = LibraryItems.Count(i => i.ItemType == LibraryItemType.Lua);
+
+        // Notify computed properties
+        OnPropertyChanged(nameof(HasGames));
+        OnPropertyChanged(nameof(CanDeleteProfile));
     }
 
     [RelayCommand]

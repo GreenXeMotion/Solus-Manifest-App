@@ -56,6 +56,11 @@ public partial class StorePageViewModel : ObservableObject
     [ObservableProperty]
     private LibraryGame? _selectedGame;
 
+    // Computed properties for UI
+    public bool HasGames => Games.Count > 0;
+    public bool CanGoPrevious => CurrentPage > 1;
+    public bool CanGoNext => CurrentPage < TotalPages;
+
     public ObservableCollection<string> SortOptions { get; } = new()
     {
         "updated",
@@ -140,6 +145,11 @@ public partial class StorePageViewModel : ObservableObject
                 TotalPages = (int)Math.Ceiling((double)TotalCount / PageSize);
                 StatusMessage = $"Showing {Games.Count} of {TotalCount} games (Page {CurrentPage}/{TotalPages})";
 
+                // Notify computed properties
+                OnPropertyChanged(nameof(HasGames));
+                OnPropertyChanged(nameof(CanGoPrevious));
+                OnPropertyChanged(nameof(CanGoNext));
+
                 _logger.Info($"Loaded {Games.Count} games from library API");
             }
             else
@@ -186,6 +196,8 @@ public partial class StorePageViewModel : ObservableObject
         if (CurrentPage < TotalPages)
         {
             CurrentPage++;
+            OnPropertyChanged(nameof(CanGoPrevious));
+            OnPropertyChanged(nameof(CanGoNext));
             await LoadGamesAsync();
         }
     }
@@ -196,14 +208,16 @@ public partial class StorePageViewModel : ObservableObject
         if (CurrentPage > 1)
         {
             CurrentPage--;
+            OnPropertyChanged(nameof(CanGoPrevious));
+            OnPropertyChanged(nameof(CanGoNext));
             await LoadGamesAsync();
         }
     }
 
     [RelayCommand]
-    private async Task GoToPage(string pageNumber)
+    private async Task GoToPage(int page)
     {
-        if (int.TryParse(pageNumber, out var page) && page > 0 && page <= TotalPages)
+        if (page > 0 && page <= TotalPages && page != CurrentPage)
         {
             CurrentPage = page;
             await LoadGamesAsync();
