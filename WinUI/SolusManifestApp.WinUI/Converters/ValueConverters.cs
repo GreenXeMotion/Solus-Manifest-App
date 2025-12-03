@@ -159,3 +159,88 @@ public class EnumToStringConverter : IValueConverter
         return Activator.CreateInstance(targetType);
     }
 }
+
+public class BoolToStatusColorConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is bool available)
+        {
+            return available ? Windows.UI.Color.FromArgb(255, 255, 213, 42) : Windows.UI.Color.FromArgb(204, 102, 102, 102);
+        }
+        return Windows.UI.Color.FromArgb(204, 102, 102, 102);
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class BoolToStatusTextConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is bool available)
+        {
+            return available ? "✓ Available" : "⏳ Pending";
+        }
+        return "⏳ Pending";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class DateToStringConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is DateTime date)
+        {
+            return date.ToString("MMM d");
+        }
+        return string.Empty;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class BoolToViewIconConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is bool isListView)
+        {
+            return isListView ? "📋" : "📊";
+        }
+        return "📊";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class BoolToViewTextConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is bool isListView)
+        {
+            return isListView ? "List" : "Grid";
+        }
+        return "Grid";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}

@@ -56,6 +56,9 @@ public partial class StorePageViewModel : ObservableObject
     [ObservableProperty]
     private LibraryGame? _selectedGame;
 
+    [ObservableProperty]
+    private bool _isListView = false;
+
     // Computed properties for UI
     public bool HasGames => Games.Count > 0;
     public bool CanGoPrevious => CurrentPage > 1;
@@ -233,6 +236,31 @@ public partial class StorePageViewModel : ObservableObject
             CurrentPage = 1; // Reset to first page on sort change
             await LoadGamesAsync();
         }
+    }
+
+    [RelayCommand]
+    private async Task SortByUpdated()
+    {
+        await ChangeSortBy("updated");
+    }
+
+    [RelayCommand]
+    private async Task SortByName()
+    {
+        await ChangeSortBy("name");
+    }
+
+    [RelayCommand]
+    private async Task SearchGames()
+    {
+        await SearchAsync();
+    }
+
+    [RelayCommand]
+    private void ToggleView()
+    {
+        IsListView = !IsListView;
+        _logger.Info($"Toggled view mode to: {(IsListView ? "List" : "Grid")}");
     }
 
     [RelayCommand]

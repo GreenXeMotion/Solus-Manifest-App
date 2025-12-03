@@ -125,6 +125,11 @@
             <converters:BytesToStringConverter x:Key="BytesToStringConverter"/>
             <converters:PercentageConverter x:Key="PercentageConverter"/>
             <converters:EnumToStringConverter x:Key="EnumToStringConverter"/>
+            <converters:BoolToStatusColorConverter x:Key="BoolToStatusColorConverter"/>
+            <converters:BoolToStatusTextConverter x:Key="BoolToStatusTextConverter"/>
+            <converters:DateToStringConverter x:Key="DateToStringConverter"/>
+            <converters:BoolToViewIconConverter x:Key="BoolToViewIconConverter"/>
+            <converters:BoolToViewTextConverter x:Key="BoolToViewTextConverter"/>
 
             <!-- Button Styles -->
             <Style x:Key="AccentButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
