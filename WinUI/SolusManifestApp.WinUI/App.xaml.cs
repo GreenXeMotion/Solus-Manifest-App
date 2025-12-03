@@ -92,6 +92,9 @@ public partial class App : Application
         services.AddSingleton<DepotDownloadService>();
         services.AddSingleton<ConfigKeysUploadService>();
         services.AddSingleton<DownloadService>();
+        services.AddSingleton<LibraryDatabaseService>();
+        services.AddSingleton<SteamKitAppInfoService>();
+        services.AddSingleton<DepotDownloaderWrapperService>();
 
         // WinUI-Specific Services
         services.AddSingleton<IDialogService, WinUIDialogService>();
