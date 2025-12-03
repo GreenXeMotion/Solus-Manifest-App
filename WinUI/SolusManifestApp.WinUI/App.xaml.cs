@@ -76,6 +76,7 @@ public partial class App : Application
         services.AddSingleton<SteamGamesService>();
         services.AddSingleton<SteamLibraryService>();
         services.AddSingleton<ProfileService>();
+        services.AddSingleton<UpdateService>();
 
         // WinUI-Specific Services
         services.AddSingleton<IDialogService, WinUIDialogService>();

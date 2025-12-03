@@ -1,10 +1,10 @@
-# Phase 1-2 Complete! ✅
+# Phase 1-2-3 In Progress! 🚀
 
-## Latest Update: December 3, 2025 - Theme System Complete
+## Latest Update: December 3, 2025 - Phase 3 Core Services Migration
 
 ## Summary
 
-Successfully completed Phase 1 (Week 1-2) AND Phase 2 (Theme System)! The WinUI 3 application now has full navigation, all pages, services, and a complete 8-theme dynamic theming system.
+Successfully completed Phase 1 (Week 1-2) and Phase 2 (Theme System)! Phase 3 now underway with core models and services being migrated from WPF. The WinUI 3 application has full navigation, all pages, 8 themes, and growing functionality.
 
 ---
 
@@ -54,6 +54,49 @@ Successfully completed Phase 1 (Week 1-2) AND Phase 2 (Theme System)! The WinUI 
 - [x] Instant theme switching (no restart required)
 
 **Status**: Phase 2 100% complete - ~500 lines of code, 8 theme files, dynamic theme switching working
+
+---
+
+## Phase 3: Core Models & Services Migration 🚧 IN PROGRESS
+
+### Models Migrated (9/9) ✅
+- [x] **DownloadItem** (108 lines) - Download queue with progress tracking
+- [x] **Game** (34 lines) - Basic game information
+- [x] **GameStatus** (48 lines) - API status responses
+- [x] **GreenLumaGame** (15 lines) - GreenLuma game tracking
+- [x] **GreenLumaProfile** (52 lines) - Profile system with 5 classes
+- [x] **LibraryItem** (121 lines) - Unified library view
+- [x] **LibraryResponse** (98 lines) - API responses
+- [x] **Manifest** (50 lines) - Manifest metadata
+- [x] **SteamGame** (32 lines) - Steam-installed games
+
+### Services Migrated (7/26+) 🔄
+- [x] **LoggerService** (115 lines) - App-wide logging with 8MB rotation
+- [x] **SteamGamesService** (160 lines) - Parse Steam appmanifest files
+- [x] **SteamLibraryService** (80 lines) - Detect library folders
+- [x] **ProfileService** (130 lines) - GreenLuma profile management
+- [x] **CacheService** (260 lines) - Icon & data caching (200MB managed)
+- [x] **ManifestApiService** (150 lines) - Morrenus API with 5-min cache
+- [x] **UpdateService** (220 lines) - GitHub auto-update with batch installer
+
+### Helpers & Interfaces (10) ✅
+- [x] **VdfParser** - Steam VDF/ACF file parser (already exists in Core/Helpers)
+- [x] **ILoggerService** - Logger interface
+- [x] **ICacheService** - Cache interface
+- [x] **IManifestApiService** - API interface
+- [x] IDialogService, INotificationService, ISettingsService, ISteamService (Phase 1)
+- [x] IThemeService (Phase 2)
+
+### Adaptations Made
+- ✅ Newtonsoft.Json → System.Text.Json throughout
+- ✅ WPF BitmapImage references removed
+- ✅ ObservableObject → INotifyPropertyChanged for framework-agnostic models
+- ✅ All services use constructor injection
+- ✅ IHttpClientFactory integration
+- ✅ Platform warnings expected (Registry APIs Windows-only)
+
+**Status**: Phase 3 ~25% complete - 9 models + 7 services operational
+**Next**: Continue service migration (19+ remaining services)
 
 ---
 
