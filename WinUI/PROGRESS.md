@@ -70,7 +70,7 @@ Successfully completed Phase 1 (Week 1-2) and Phase 2 (Theme System)! Phase 3 no
 - [x] **Manifest** (50 lines) - Manifest metadata
 - [x] **SteamGame** (32 lines) - Steam-installed games
 
-### Services Migrated (13/26+) 🔄
+### Services Migrated (19/26+) 🔄 ~73% Complete
 - [x] **LoggerService** (115 lines) - App-wide logging with 8MB rotation
 - [x] **SteamGamesService** (160 lines) - Parse Steam appmanifest files
 - [x] **SteamLibraryService** (80 lines) - Detect library folders
@@ -83,6 +83,13 @@ Successfully completed Phase 1 (Week 1-2) and Phase 2 (Theme System)! Phase 3 no
 - [x] **LuaFileManager** (140 lines) - GreenLuma AppList.txt manager
 - [x] **BackupService** (140 lines) - Settings & metadata backup/restore
 - [x] **ArchiveExtractionService** (110 lines) - ZIP extraction for manifests & Lua files
+- [x] **RecentGamesService** (100 lines) - Track recently accessed games
+- [x] **SteamApiService** (120 lines) - Steam Web API client for app list
+- [x] **SteamCmdApiService** (168 lines) - SteamCMD API for depot info (with extended models)
+- [x] **ProtocolHandlerService** (110 lines) - Custom solus:// protocol handler
+- [x] **DepotFilterService** (360 lines) - Depot filtering by language/platform (Python bot logic port)
+- [x] **LuaParser** (145 lines) - Parse Lua depot files for size/DLC info
+- [x] **ImageCacheService** (130 lines) - Image path caching for performance
 - [x] **RecentGamesService** (100 lines) - Recent games tracking (file-based)
 
 ### Helpers & Interfaces (10) ✅

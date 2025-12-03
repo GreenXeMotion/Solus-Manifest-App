@@ -43,12 +43,27 @@ public class DepotData
 
     [JsonPropertyName("dlcappid")]
     public string? DlcAppId { get; set; }
+
+    [JsonPropertyName("depotfromapp")]
+    public string? DepotFromApp { get; set; }
+
+    [JsonPropertyName("sharedinstall")]
+    public string? SharedInstall { get; set; }
 }
 
 public class DepotConfig
 {
     [JsonPropertyName("language")]
     public string? Language { get; set; }
+
+    [JsonPropertyName("oslist")]
+    public string? OsList { get; set; }
+
+    [JsonPropertyName("lowviolence")]
+    public string? LowViolence { get; set; }
+
+    [JsonPropertyName("realm")]
+    public string? Realm { get; set; }
 }
 
 public class ManifestData
@@ -58,6 +73,9 @@ public class ManifestData
 
     [JsonPropertyName("size")]
     public long Size { get; set; }
+
+    [JsonPropertyName("download")]
+    public long Download { get; set; }
 }
 
 /// <summary>

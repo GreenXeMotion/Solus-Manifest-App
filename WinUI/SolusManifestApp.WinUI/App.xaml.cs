@@ -86,6 +86,9 @@ public partial class App : Application
         services.AddSingleton<SteamApiService>();
         services.AddSingleton<SteamCmdApiService>();
         services.AddSingleton<ProtocolHandlerService>();
+        services.AddSingleton<DepotFilterService>();
+        services.AddSingleton<LuaParser>();
+        services.AddSingleton<ImageCacheService>();
 
         // WinUI-Specific Services
         services.AddSingleton<IDialogService, WinUIDialogService>();
