@@ -80,6 +80,9 @@ public partial class App : Application
         services.AddSingleton<LibraryRefreshService>();
         services.AddSingleton<FileInstallService>();
         services.AddSingleton<LuaFileManager>();
+        services.AddSingleton<BackupService>();
+        services.AddSingleton<ArchiveExtractionService>();
+        services.AddSingleton<RecentGamesService>();
 
         // WinUI-Specific Services
         services.AddSingleton<IDialogService, WinUIDialogService>();
