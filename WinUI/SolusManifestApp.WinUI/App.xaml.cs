@@ -68,6 +68,7 @@ public partial class App : Application
         });
 
         // Core Services
+        services.AddSingleton<ILoggerService, LoggerService>();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<ISteamService, SteamService>();
 

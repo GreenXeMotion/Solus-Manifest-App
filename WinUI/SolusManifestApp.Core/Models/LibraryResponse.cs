@@ -1,0 +1,103 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
+
+namespace SolusManifestApp.Core.Models;
+
+public class LibraryResponse
+{
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = string.Empty;
+
+    [JsonPropertyName("total_count")]
+    public int TotalCount { get; set; }
+
+    [JsonPropertyName("limit")]
+    public int Limit { get; set; }
+
+    [JsonPropertyName("offset")]
+    public int Offset { get; set; }
+
+    [JsonPropertyName("search")]
+    public string? Search { get; set; }
+
+    [JsonPropertyName("sort_by")]
+    public string SortBy { get; set; } = "updated";
+
+    [JsonPropertyName("games")]
+    public List<LibraryGame> Games { get; set; } = new();
+
+    [JsonPropertyName("timestamp")]
+    public DateTime Timestamp { get; set; }
+}
+
+public class LibraryGame : INotifyPropertyChanged
+{
+    [JsonPropertyName("game_id")]
+    public string GameId { get; set; } = string.Empty;
+
+    [JsonPropertyName("game_name")]
+    public string GameName { get; set; } = string.Empty;
+
+    [JsonPropertyName("header_image")]
+    public string HeaderImage { get; set; } = string.Empty;
+
+    [JsonPropertyName("uploaded_date")]
+    public DateTime UploadedDate { get; set; }
+
+    [JsonPropertyName("manifest_available")]
+    public bool ManifestAvailable { get; set; }
+
+    [JsonPropertyName("manifest_size")]
+    public long? ManifestSize { get; set; }
+
+    [JsonPropertyName("manifest_updated")]
+    public DateTime? ManifestUpdated { get; set; }
+
+    private string? _cachedIconPath;
+    public string? CachedIconPath
+    {
+        get => _cachedIconPath;
+        set
+        {
+            if (_cachedIconPath != value)
+            {
+                _cachedIconPath = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+}
+
+public class SearchResponse
+{
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = string.Empty;
+
+    [JsonPropertyName("query")]
+    public string Query { get; set; } = string.Empty;
+
+    [JsonPropertyName("total_matches")]
+    public int TotalMatches { get; set; }
+
+    [JsonPropertyName("returned_count")]
+    public int ReturnedCount { get; set; }
+
+    [JsonPropertyName("limit")]
+    public int Limit { get; set; }
+
+    [JsonPropertyName("results")]
+    public List<LibraryGame> Results { get; set; } = new();
+
+    [JsonPropertyName("timestamp")]
+    public DateTime Timestamp { get; set; }
+}
