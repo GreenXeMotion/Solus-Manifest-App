@@ -8,12 +8,12 @@ namespace SolusManifestApp.WinUI.Views;
 /// </summary>
 public sealed partial class HomePage : Page
 {
-    public HomeViewModel ViewModel { get; }
+    public HomePageViewModel ViewModel { get; }
 
     public HomePage()
     {
         InitializeComponent();
-        ViewModel = App.GetService<HomeViewModel>();
+        ViewModel = App.GetService<HomePageViewModel>();
         DataContext = ViewModel;
     }
 }

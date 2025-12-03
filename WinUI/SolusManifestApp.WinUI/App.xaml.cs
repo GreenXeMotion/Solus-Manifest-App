@@ -103,7 +103,9 @@ public partial class App : Application
 
         // ViewModels
         services.AddSingleton<MainViewModel>();
-        services.AddTransient<HomeViewModel>();
+        services.AddTransient<HomePageViewModel>();
+        services.AddTransient<StorePageViewModel>();
+        services.AddTransient<ToolsPageViewModel>();
         services.AddTransient<SettingsViewModel>();
 
         // Register MainWindow
