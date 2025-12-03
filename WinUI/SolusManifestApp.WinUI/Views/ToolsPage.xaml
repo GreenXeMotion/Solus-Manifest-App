@@ -6,42 +6,310 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollViewer>
-        <StackPanel Padding="40" Spacing="24" MaxWidth="1200">
-            <TextBlock
-                Text="Tools Page"
-                Style="{StaticResource TitleTextBlockStyle}"/>
+    <Grid Padding="40,24,40,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <TextBlock
-                Text="Access integrated tools: DepotDumper, SteamAuthPro, Config Extractor"
-                Style="{StaticResource SubtitleTextBlockStyle}"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+        <!-- Header -->
+        <TextBlock
+            Grid.Row="0"
+            Text="Tools &amp; Resources"
+            Style="{StaticResource TitleTextBlockStyle}"
+            Margin="0,0,0,24"/>
 
-            <Border
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="40"
-                MinHeight="300">
-                <StackPanel Spacing="16" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <FontIcon
-                        Glyph="&#xE90F;"
-                        FontSize="64"
-                        Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
-                    <TextBlock
-                        Text="Tools Page - Coming Soon"
-                        Style="{StaticResource TitleTextBlockStyle}"
-                        TextAlignment="Center"/>
-                    <TextBlock
-                        Text="This page will provide access to DepotDumper, SteamAuthPro, and more"
-                        Style="{StaticResource BodyTextBlockStyle}"
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        TextAlignment="Center"
-                        TextWrapping="Wrap"
-                        MaxWidth="400"/>
-                </StackPanel>
-            </Border>
-        </StackPanel>
-    </ScrollViewer>
+        <!-- TabView for Tools -->
+        <TabView
+            Grid.Row="1"
+            SelectedIndex="{x:Bind ViewModel.SelectedTabIndex, Mode=TwoWay}">
+
+            <!-- Depot Keys Tab -->
+            <TabViewItem Header="🔑 Depot Keys">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Padding="24" Spacing="16" MaxWidth="900">
+
+                        <!-- Config VDF Key Extractor Section -->
+                        <Expander Header="Config VDF Key Extractor" IsExpanded="True" HorizontalAlignment="Stretch">
+                            <StackPanel Padding="16" Spacing="12">
+                                <TextBlock
+                                    Text="Extract depot keys from Steam's config.vdf file"
+                                    Style="{StaticResource BodyTextBlockStyle}"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    TextWrapping="Wrap"/>
+
+                                <!-- Config.vdf Path -->
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Config.vdf File Path" FontWeight="SemiBold"/>
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox PlaceholderText="Select config.vdf file..."/>
+                                        <Button Grid.Column="1" Content="Browse"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- CombinedKeys Path -->
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="CombinedKeys.key Path (Optional)" FontWeight="SemiBold"/>
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox PlaceholderText="Filter out existing keys..."/>
+                                        <Button Grid.Column="1" Content="Browse"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <Button Content="🔑 Extract Depot Keys" Style="{StaticResource AccentButtonStyle}" HorizontalAlignment="Stretch"/>
+
+                                <InfoBar
+                                    Title="Tool Integration Pending"
+                                    Message="Full DepotDumper and Config Extractor integration coming soon"
+                                    Severity="Informational"
+                                    IsOpen="True"
+                                    IsClosable="False"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- DepotDumper Section -->
+                        <Expander Header="DepotDumper" HorizontalAlignment="Stretch">
+                            <StackPanel Padding="16" Spacing="12">
+                                <TextBlock
+                                    Text="Login to Steam and dump depot keys from your account"
+                                    Style="{StaticResource BodyTextBlockStyle}"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    TextWrapping="Wrap"/>
+
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Username" FontWeight="SemiBold"/>
+                                    <TextBox PlaceholderText="Steam username"/>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Password" FontWeight="SemiBold"/>
+                                    <PasswordBox PlaceholderText="Steam password"/>
+                                </StackPanel>
+
+                                <CheckBox Content="Dump unreleased apps"/>
+
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Specific App ID (Optional)" FontWeight="SemiBold"/>
+                                    <TextBox PlaceholderText="Leave empty to dump all apps"/>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <Button Content="Sign In" Style="{StaticResource AccentButtonStyle}" HorizontalAlignment="Stretch"/>
+                                    <Button Content="Login with QR Code" HorizontalAlignment="Stretch"/>
+                                    <Button Content="Login Anonymously" HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+
+                                <InfoBar
+                                    Title="Tool Integration Pending"
+                                    Message="Full DepotDumper integration with Steam authentication coming soon"
+                                    Severity="Informational"
+                                    IsOpen="True"
+                                    IsClosable="False"/>
+                            </StackPanel>
+                        </Expander>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabViewItem>
+
+            <!-- Denuvo Tab -->
+            <TabViewItem Header="🛡️ Denuvo">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Padding="24" Spacing="16" MaxWidth="900">
+
+                        <!-- SteamAuth Pro Section -->
+                        <Expander Header="SteamAuth Pro" IsExpanded="True" HorizontalAlignment="Stretch">
+                            <StackPanel Padding="16" Spacing="12">
+                                <TextBlock
+                                    Text="Generate encrypted Steam authentication tickets"
+                                    Style="{StaticResource BodyTextBlockStyle}"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    TextWrapping="Wrap"/>
+
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Active Account" FontWeight="SemiBold"/>
+                                    <ComboBox PlaceholderText="Select Steam account..." HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="App ID" FontWeight="SemiBold"/>
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox PlaceholderText="Enter Steam App ID"/>
+                                        <Button Grid.Column="1" Content="🔍 Search Game"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Usage Limit" FontWeight="SemiBold"/>
+                                    <ComboBox HorizontalAlignment="Stretch">
+                                        <ComboBoxItem Content="Unlimited" IsSelected="True"/>
+                                        <ComboBoxItem Content="1 use"/>
+                                        <ComboBoxItem Content="5 uses"/>
+                                        <ComboBoxItem Content="10 uses"/>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <Button Content="Generate Auth Code" Style="{StaticResource AccentButtonStyle}" HorizontalAlignment="Stretch"/>
+
+                                <InfoBar
+                                    Title="Tool Integration Pending"
+                                    Message="Full SteamAuth Pro integration coming soon"
+                                    Severity="Informational"
+                                    IsOpen="True"
+                                    IsClosable="False"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- GBE Token Generator Section -->
+                        <Expander Header="GBE Token Generator" HorizontalAlignment="Stretch">
+                            <StackPanel Padding="16" Spacing="12">
+                                <TextBlock
+                                    Text="Generate Goldberg Emulator tokens for games. Requires Steam to be running and game ownership."
+                                    Style="{StaticResource BodyTextBlockStyle}"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    TextWrapping="Wrap"/>
+
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Steam App ID" FontWeight="SemiBold"/>
+                                    <TextBox PlaceholderText="Enter App ID"/>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Output Directory" FontWeight="SemiBold"/>
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox PlaceholderText="Select output folder..."/>
+                                        <Button Grid.Column="1" Content="Browse"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <Button Content="Generate Token" Style="{StaticResource AccentButtonStyle}" HorizontalAlignment="Stretch"/>
+
+                                <InfoBar
+                                    Title="Tool Integration Pending"
+                                    Message="Full GBE Token Generator integration coming soon"
+                                    Severity="Informational"
+                                    IsOpen="True"
+                                    IsClosable="False"/>
+                            </StackPanel>
+                        </Expander>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabViewItem>
+
+            <!-- External Resources Tab -->
+            <TabViewItem Header="🌐 External Resources">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Padding="24" Spacing="20" MaxWidth="900">
+
+                        <!-- SteamTools Card -->
+                        <Border
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="24">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Text="SteamTools"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"/>
+                                <TextBlock
+                                    Text="Download SteamTools for standard game management"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    TextWrapping="Wrap"/>
+                                <Button
+                                    Content="🔗 Download SteamTools"
+                                    Command="{x:Bind ViewModel.OpenSteamToolsCommand}"
+                                    HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- GreenLuma Card -->
+                        <Border
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="24">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Text="GreenLuma"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"/>
+                                <TextBlock
+                                    Text="Download GreenLuma for advanced depot control and game downgrading"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    TextWrapping="Wrap"/>
+                                <Button
+                                    Content="🔗 Download GreenLuma"
+                                    Command="{x:Bind ViewModel.OpenGreenLumaCommand}"
+                                    HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Manifest Website Card -->
+                        <Border
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="24">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Text="Solus Manifest Website"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"/>
+                                <TextBlock
+                                    Text="Visit our website for more manifests and resources"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    TextWrapping="Wrap"/>
+                                <Button
+                                    Content="🌐 Visit Website"
+                                    Command="{x:Bind ViewModel.OpenManifestSiteCommand}"
+                                    HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Discord Card -->
+                        <Border
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="24">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Text="Discord Community"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"/>
+                                <TextBlock
+                                    Text="Join our Discord server for support and updates"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    TextWrapping="Wrap"/>
+                                <Button
+                                    Content="💬 Join Discord"
+                                    Command="{x:Bind ViewModel.OpenDiscordCommand}"
+                                    HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabViewItem>
+
+        </TabView>
+    </Grid>
 </Page>

@@ -59,9 +59,20 @@ public sealed partial class MainWindow : Window
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
+        // Debug output
+        System.Diagnostics.Debug.WriteLine($"Navigation triggered - IsSettingsSelected: {args.IsSettingsSelected}");
+
+        if (args.IsSettingsSelected)
+        {
+            System.Diagnostics.Debug.WriteLine("Navigating to Settings page");
+            ContentFrame.Navigate(typeof(SettingsPage));
+            return;
+        }
+
         if (args.SelectedItem is NavigationViewItem item)
         {
             var tag = item.Tag?.ToString();
+            System.Diagnostics.Debug.WriteLine($"Navigation triggered - Tag: {tag}");
 
             switch (tag)
             {
@@ -81,10 +92,6 @@ public sealed partial class MainWindow : Window
                     ContentFrame.Navigate(typeof(ToolsPage));
                     break;
             }
-        }
-        else if (args.IsSettingsSelected)
-        {
-            ContentFrame.Navigate(typeof(SettingsPage));
         }
     }
 }
