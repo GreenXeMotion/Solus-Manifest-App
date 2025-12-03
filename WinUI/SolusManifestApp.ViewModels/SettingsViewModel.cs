@@ -24,6 +24,12 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ILoggerService _logger;
     private readonly IManifestApiService _manifestApiService;
 
+    // Events for requesting file/folder pickers from the View
+    public event EventHandler? BrowseSteamPathRequested;
+    public event EventHandler? BrowseDownloadsPathRequested;
+    public event EventHandler? BrowseAppListPathRequested;
+    public event EventHandler? BrowseDllInjectorPathRequested;
+
     [ObservableProperty]
     private AppSettings _settings = new();
 
@@ -340,29 +346,29 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task BrowseSteamPathAsync()
     {
-        _notificationService.ShowInfo("Folder picker will be implemented", "Coming Soon");
-        // TODO: Implement folder picker dialog
+        BrowseSteamPathRequested?.Invoke(this, EventArgs.Empty);
+        await Task.CompletedTask;
     }
 
     [RelayCommand]
     private async Task BrowseDownloadsPathAsync()
     {
-        _notificationService.ShowInfo("Folder picker will be implemented", "Coming Soon");
-        // TODO: Implement folder picker dialog
+        BrowseDownloadsPathRequested?.Invoke(this, EventArgs.Empty);
+        await Task.CompletedTask;
     }
 
     [RelayCommand]
     private async Task BrowseAppListPathAsync()
     {
-        _notificationService.ShowInfo("File picker will be implemented", "Coming Soon");
-        // TODO: Implement file picker dialog
+        BrowseAppListPathRequested?.Invoke(this, EventArgs.Empty);
+        await Task.CompletedTask;
     }
 
     [RelayCommand]
     private async Task BrowseDllInjectorPathAsync()
     {
-        _notificationService.ShowInfo("File picker will be implemented", "Coming Soon");
-        // TODO: Implement file picker dialog
+        BrowseDllInjectorPathRequested?.Invoke(this, EventArgs.Empty);
+        await Task.CompletedTask;
     }
 
     [RelayCommand]
