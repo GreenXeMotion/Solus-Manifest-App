@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using SolusManifestApp.WinUI.Views;
 using System;
+using System.Runtime.InteropServices;
 using Windows.Graphics;
 using WinRT.Interop;
 
@@ -17,6 +18,13 @@ public sealed partial class MainWindow : Window
 {
     private AppWindow _appWindow;
 
+    // P/Invoke declarations to destroy caption controls
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool DestroyWindow(IntPtr hwnd);
+
     public MainWindow()
     {
         InitializeComponent();
@@ -24,14 +32,34 @@ public sealed partial class MainWindow : Window
         // Set up the custom title bar
         SetupTitleBar();
 
-        // Set window size
+        // Set window size and position
         var hwnd = WindowNative.GetWindowHandle(this);
         var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
         _appWindow = AppWindow.GetFromWindowId(windowId);
         _appWindow.Resize(new SizeInt32(1280, 800));
 
+        // Center window on screen
+        CenterWindow();
+
         // Navigate to home page by default
         ContentFrame.Navigate(typeof(HomePage));
+    }
+
+    private void CenterWindow()
+    {
+        if (_appWindow != null)
+        {
+            var displayArea = DisplayArea.GetFromWindowId(_appWindow.Id, DisplayAreaFallback.Primary);
+            var workArea = displayArea.WorkArea;
+
+            var windowWidth = 1280;
+            var windowHeight = 800;
+
+            var x = (workArea.Width - windowWidth) / 2 + workArea.X;
+            var y = (workArea.Height - windowHeight) / 2 + workArea.Y;
+
+            _appWindow.Move(new Windows.Graphics.PointInt32(x, y));
+        }
     }
 
     private void SetupTitleBar()
@@ -41,26 +69,30 @@ public sealed partial class MainWindow : Window
         var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
         _appWindow = AppWindow.GetFromWindowId(windowId);
 
-        // Extend content into title bar
-        ExtendsContentIntoTitleBar = true;
-
-        // Set the title bar control (for drag region)
-        SetTitleBar(AppTitleBar);
-
-        // Customize title bar appearance - hide default buttons
+        // Check if title bar customization is supported (Collapse Launcher pattern)
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
-            var titleBar = _appWindow.TitleBar;
-            titleBar.ExtendsContentIntoTitleBar = true;
+            // Extend content into title bar like Collapse Launcher
+            ExtendsContentIntoTitleBar = true;
 
-            // Make default buttons invisible since we're using custom ones
-            titleBar.ButtonBackgroundColor = Colors.Transparent;
-            titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-            titleBar.ButtonForegroundColor = Colors.Transparent;
+            // Set the title bar control (for drag region)
+            SetTitleBar(AppTitleBar);
+
+            // Hide icon and system menu (Collapse style)
+            _appWindow.TitleBar.IconShowOptions = IconShowOptions.HideIconAndSystemMenu;
+
+            // Make title bar buttons completely transparent
+            _appWindow.TitleBar.ButtonBackgroundColor = new Windows.UI.Color { A = 0, B = 0, G = 0, R = 0 };
+            _appWindow.TitleBar.ButtonInactiveBackgroundColor = new Windows.UI.Color { A = 0, B = 0, G = 0, R = 0 };
+
+            // Destroy the caption controls window (Collapse Launcher's key trick)
+            var controlsHwnd = FindWindowEx(hwnd, IntPtr.Zero, "ReunionWindowingCaptionControls", "ReunionCaptionControlsWindow");
+            if (controlsHwnd != IntPtr.Zero)
+            {
+                DestroyWindow(controlsHwnd);
+            }
         }
-    }
-
-    private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+    }    private void MinimizeButton_Click(object sender, RoutedEventArgs e)
     {
         if (_appWindow.Presenter is OverlappedPresenter presenter)
         {
