@@ -71,6 +71,11 @@ public partial class App : Application
         services.AddSingleton<ILoggerService, LoggerService>();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<ISteamService, SteamService>();
+        services.AddSingleton<ICacheService, CacheService>();
+        services.AddSingleton<IManifestApiService, ManifestApiService>();
+        services.AddSingleton<SteamGamesService>();
+        services.AddSingleton<SteamLibraryService>();
+        services.AddSingleton<ProfileService>();
 
         // WinUI-Specific Services
         services.AddSingleton<IDialogService, WinUIDialogService>();
