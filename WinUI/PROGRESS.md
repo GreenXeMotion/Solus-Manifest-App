@@ -70,7 +70,7 @@ Successfully completed Phase 1 (Week 1-2) and Phase 2 (Theme System)! Phase 3 no
 - [x] **Manifest** (50 lines) - Manifest metadata
 - [x] **SteamGame** (32 lines) - Steam-installed games
 
-### Services Migrated (21/26+) 🔄 ~81% Complete
+### Services Migrated (22/26+) 🔄 ~85% Complete
 - [x] **LoggerService** (115 lines) - App-wide logging with 8MB rotation
 - [x] **SteamGamesService** (160 lines) - Parse Steam appmanifest files
 - [x] **SteamLibraryService** (80 lines) - Detect library folders
@@ -92,6 +92,7 @@ Successfully completed Phase 1 (Week 1-2) and Phase 2 (Theme System)! Phase 3 no
 - [x] **ImageCacheService** (130 lines) - Image path caching for performance
 - [x] **DepotDownloadService** (230 lines) - Depot analysis and language options
 - [x] **ConfigKeysUploadService** (315 lines) - Auto-upload depot keys from config.vdf
+- [x] **DownloadService** (285 lines) - Download queue management with progress tracking
 - [x] **RecentGamesService** (100 lines) - Recent games tracking (file-based)
 
 ### Helpers & Interfaces (10) ✅

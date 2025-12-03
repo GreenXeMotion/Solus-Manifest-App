@@ -91,6 +91,7 @@ public partial class App : Application
         services.AddSingleton<ImageCacheService>();
         services.AddSingleton<DepotDownloadService>();
         services.AddSingleton<ConfigKeysUploadService>();
+        services.AddSingleton<DownloadService>();
 
         // WinUI-Specific Services
         services.AddSingleton<IDialogService, WinUIDialogService>();
