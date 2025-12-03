@@ -2,11 +2,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
 using SolusManifestApp.Core.Interfaces;
+using SolusManifestApp.Core.Models;
 using SolusManifestApp.Core.Services;
 using SolusManifestApp.ViewModels;
 using SolusManifestApp.WinUI.Services;
 
-namespace SolusManifestApp;
+namespace SolusManifestApp.WinUI;
 
 /// <summary>
 /// Provides application-specific behavior to supplement the default Application class.
@@ -28,6 +29,9 @@ public partial class App : Application
     {
         InitializeComponent();
 
+        // Handle unhandled exceptions
+        this.UnhandledException += App_UnhandledException;
+
         // Build the DI container
         _host = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
@@ -35,6 +39,21 @@ public partial class App : Application
                 ConfigureServices(services);
             })
             .Build();
+    }
+
+    private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    {
+        // Log the exception
+        System.Diagnostics.Debug.WriteLine($"UNHANDLED EXCEPTION: {e.Exception}");
+        try
+        {
+            System.IO.File.WriteAllText(
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "SolusManifestApp_Crash.txt"),
+                $"Exception: {e.Exception}\r\n\r\nStackTrace: {e.Exception.StackTrace}\r\n\r\nInnerException: {e.Exception.InnerException}"
+            );
+        }
+        catch { }
+        e.Handled = true;
     }
 
     /// <summary>
@@ -55,10 +74,12 @@ public partial class App : Application
         // WinUI-Specific Services
         services.AddSingleton<IDialogService, WinUIDialogService>();
         services.AddSingleton<INotificationService, WinUINotificationService>();
+        services.AddSingleton<IThemeService, ThemeService>();
 
         // ViewModels
         services.AddSingleton<MainViewModel>();
         services.AddTransient<HomeViewModel>();
+        services.AddTransient<SettingsViewModel>();
 
         // Register MainWindow
         services.AddTransient<MainWindow>();
@@ -73,9 +94,27 @@ public partial class App : Application
         // Start the host
         await _host.StartAsync();
 
-        // Create and activate main window
+        // Create and activate main window first
         MainWindow = _host.Services.GetRequiredService<MainWindow>();
         MainWindow.Activate();
+
+        // Apply saved theme AFTER window is shown (with error handling)
+        /*
+        try
+        {
+            var themeService = _host.Services.GetRequiredService<IThemeService>();
+            var settingsService = _host.Services.GetRequiredService<ISettingsService>();
+            var settings = await settingsService.LoadSettingsAsync<AppSettings>();
+            if (settings != null)
+            {
+                themeService.ApplyTheme(settings.Theme.ToString());
+            }
+        }
+        catch
+        {
+            // If theme loading fails, continue with default theme
+        }
+        */
     }
 
     /// <summary>

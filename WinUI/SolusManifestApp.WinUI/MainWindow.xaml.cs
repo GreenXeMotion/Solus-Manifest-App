@@ -6,7 +6,7 @@ using SolusManifestApp.WinUI.Views;
 using System;
 using WinRT.Interop;
 
-namespace SolusManifestApp;
+namespace SolusManifestApp.WinUI;
 
 /// <summary>
 /// Main window with navigation
