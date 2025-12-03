@@ -14,6 +14,21 @@
             <Color x:Key="SystemAccentColorLight1">#ffe15f</Color>
             <Color x:Key="SystemAccentColorDark1">#d4b023</Color>
 
+            <!-- Extended Color Palette -->
+            <Color x:Key="GoldAccent">#ffd52a</Color>
+            <Color x:Key="GoldAccentLight">#ffe15f</Color>
+            <Color x:Key="GoldAccentDark">#d4b023</Color>
+            <Color x:Key="DarkBackground1">#1a1a1a</Color>
+            <Color x:Key="DarkBackground2">#222222</Color>
+            <Color x:Key="DarkBackground3">#242424</Color>
+            <Color x:Key="DarkBackground4">#333333</Color>
+
+            <!-- Status Colors -->
+            <Color x:Key="SuccessColor">#4caf50</Color>
+            <Color x:Key="WarningColor">#ff9800</Color>
+            <Color x:Key="ErrorColor">#f44336</Color>
+            <Color x:Key="InfoColor">#2196f3</Color>
+
             <SolidColorBrush x:Key="WindowBackground" Color="#242424" />
             <SolidColorBrush x:Key="AccentColor" Color="#ffd52a" />
 
@@ -56,6 +71,26 @@
             <SolidColorBrush x:Key="TextFillColorSecondaryBrush" Color="#CCCCCC" />
             <SolidColorBrush x:Key="TextFillColorTertiaryBrush" Color="#999999" />
 
+            <!-- Progress Ring Style -->
+            <Style x:Key="AccentProgressRingStyle" TargetType="ProgressRing">
+                <Setter Property="Foreground" Value="{StaticResource AccentColor}"/>
+                <Setter Property="Width" Value="48"/>
+                <Setter Property="Height" Value="48"/>
+            </Style>
+
+            <!-- Loading Overlay -->
+            <Style x:Key="LoadingOverlayStyle" TargetType="Grid">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <AcrylicBrush
+                            FallbackColor="#CC000000"
+                            TintColor="#000000"
+                            TintLuminosityOpacity="0.3"
+                            TintOpacity="0.5" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
             <!-- Value Converters -->
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <converters:BoolToVisibilityInverseConverter x:Key="BoolToVisibilityInverseConverter"/>
@@ -65,6 +100,107 @@
             <converters:BytesToStringConverter x:Key="BytesToStringConverter"/>
             <converters:PercentageConverter x:Key="PercentageConverter"/>
             <converters:EnumToStringConverter x:Key="EnumToStringConverter"/>
+
+            <!-- Button Styles -->
+            <Style x:Key="AccentButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                <Setter Property="Foreground" Value="#000000"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="CornerRadius" Value="4"/>
+                <Setter Property="Padding" Value="16,8"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
+
+            <!-- Input Control Styles -->
+            <Style x:Key="ModernTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource DefaultTextBoxStyle}">
+                <Setter Property="CornerRadius" Value="4"/>
+                <Setter Property="BorderBrush" Value="#44ffd52a"/>
+                <Setter Property="Background" Value="#22222222"/>
+            </Style>
+
+            <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource DefaultComboBoxStyle}">
+                <Setter Property="CornerRadius" Value="4"/>
+                <Setter Property="BorderBrush" Value="#44ffd52a"/>
+                <Setter Property="Background" Value="#22222222"/>
+            </Style>
+
+            <!-- Card Hover Effect Style -->
+            <Style x:Key="InteractiveCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundAcrylicBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Padding" Value="20"/>
+                <Setter Property="Transitions">
+                    <Setter.Value>
+                        <TransitionCollection>
+                            <RepositionThemeTransition/>
+                            <EntranceThemeTransition/>
+                        </TransitionCollection>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Page Transition Animations -->
+            <Storyboard x:Key="PageFadeInAnimation">
+                <DoubleAnimation
+                    Storyboard.TargetProperty="Opacity"
+                    From="0.0"
+                    To="1.0"
+                    Duration="0:0:0.3">
+                    <DoubleAnimation.EasingFunction>
+                        <CubicEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+                <DoubleAnimation
+                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                    From="20"
+                    To="0"
+                    Duration="0:0:0.3">
+                    <DoubleAnimation.EasingFunction>
+                        <CubicEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard>
+
+            <!-- Hover Scale Animation -->
+            <Storyboard x:Key="HoverScaleUpAnimation">
+                <DoubleAnimation
+                    Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                    To="1.02"
+                    Duration="0:0:0.15">
+                    <DoubleAnimation.EasingFunction>
+                        <QuadraticEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+                <DoubleAnimation
+                    Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                    To="1.02"
+                    Duration="0:0:0.15">
+                    <DoubleAnimation.EasingFunction>
+                        <QuadraticEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard>
+
+            <Storyboard x:Key="HoverScaleDownAnimation">
+                <DoubleAnimation
+                    Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                    To="1.0"
+                    Duration="0:0:0.15">
+                    <DoubleAnimation.EasingFunction>
+                        <QuadraticEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+                <DoubleAnimation
+                    Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                    To="1.0"
+                    Duration="0:0:0.15">
+                    <DoubleAnimation.EasingFunction>
+                        <QuadraticEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard>
 
             <!-- Additional Resources -->
             <CornerRadius x:Key="OverlayCornerRadius">8</CornerRadius>

@@ -8,50 +8,26 @@
 
     <Grid Background="#242424">
         <Grid.RowDefinitions>
-            <RowDefinition Height="56"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Custom Title Bar with Gradient Overlay -->
-        <Grid x:Name="AppTitleBar" Grid.Row="0">
+        <!-- Background Overlay Gradient at Top -->
+        <Grid
+            Height="80"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Top"
+            IsHitTestVisible="False">
             <Grid.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                    <GradientStop Offset="0" Color="#ffd52a"/>
-                    <GradientStop Offset="1" Color="#d4b023"/>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Offset="0" Color="#88000000"/>
+                    <GradientStop Offset="1" Color="#00000000"/>
                 </LinearGradientBrush>
             </Grid.Background>
-
-            <Grid.Shadow>
-                <ThemeShadow />
-            </Grid.Shadow>
-            <Grid.Translation>0,0,16</Grid.Translation>
-
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- App Icon & Title -->
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" Margin="20,0">
-                <FontIcon
-                    Glyph="&#xE8B7;"
-                    FontSize="20"
-                    Foreground="#000000"/>
-                <TextBlock
-                    Text="Solus Manifest App"
-                    Style="{StaticResource TitleTextBlockStyle}"
-                    VerticalAlignment="Center"
-                    Foreground="#000000"
-                    FontWeight="SemiBold"/>
-            </StackPanel>
-
-            <!-- Window Controls will be overlaid by system -->
         </Grid>
 
         <!-- Main Content with Navigation -->
         <NavigationView
-            Grid.Row="1"
+            Grid.Row="0"
             x:Name="NavView"
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="True"
@@ -95,5 +71,142 @@
 
             <Frame x:Name="ContentFrame" Background="Transparent"/>
         </NavigationView>
+
+        <!-- Floating Title Bar Container (Top Right) -->
+        <Grid
+            x:Name="TitleBarContainer"
+            Height="48"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Margin="0,12,12,0">
+
+            <!-- Shadow Layer -->
+            <Grid
+                Width="120"
+                Height="36"
+                CornerRadius="8">
+                <Grid.Shadow>
+                    <ThemeShadow />
+                </Grid.Shadow>
+                <Grid.Translation>0,0,16</Grid.Translation>
+            </Grid>
+
+            <!-- Button Container with Acrylic -->
+            <Grid
+                Width="120"
+                Height="36"
+                CornerRadius="8">
+                <Grid.Background>
+                    <AcrylicBrush
+                        FallbackColor="#DD222222"
+                        TintColor="#222222"
+                        TintLuminosityOpacity="0.7"
+                        TintOpacity="0.3" />
+                </Grid.Background>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Minimize Button -->
+                <Button
+                    x:Name="MinimizeButton"
+                    Grid.Column="0"
+                    Width="40"
+                    Height="36"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    CornerRadius="8,0,0,8"
+                    Click="MinimizeButton_Click">
+                    <Path
+                        Width="10"
+                        Height="2"
+                        Data="M 0 0 H 10"
+                        Stretch="Fill"
+                        Stroke="#FFFFFF"
+                        StrokeThickness="1.5"
+                        StrokeStartLineCap="Round"
+                        StrokeEndLineCap="Round"/>
+                </Button>
+
+                <!-- Maximize/Restore Button -->
+                <Button
+                    x:Name="MaximizeButton"
+                    Grid.Column="1"
+                    Width="40"
+                    Height="36"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    CornerRadius="0"
+                    Click="MaximizeButton_Click">
+                    <Path
+                        x:Name="MaximizeIcon"
+                        Width="10"
+                        Height="10"
+                        Data="M 0 0 H 10 V 10 H 0 Z"
+                        Stretch="Fill"
+                        Stroke="#FFFFFF"
+                        StrokeThickness="1.5"/>
+                </Button>
+
+                <!-- Close Button -->
+                <Button
+                    x:Name="CloseButton"
+                    Grid.Column="2"
+                    Width="40"
+                    Height="36"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    CornerRadius="0,8,8,0"
+                    Click="CloseButton_Click">
+                    <Button.Resources>
+                        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#AAE81123"/>
+                        <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#88E81123"/>
+                    </Button.Resources>
+                    <Path
+                        Width="10"
+                        Height="10"
+                        Data="M 0 0 L 10 10 M 10 0 L 0 10"
+                        Stretch="Fill"
+                        Stroke="#FFFFFF"
+                        StrokeThickness="1.5"
+                        StrokeStartLineCap="Round"
+                        StrokeEndLineCap="Round"/>
+                </Button>
+            </Grid>
+        </Grid>
+
+        <!-- App Title Bar (Top Left, for dragging) -->
+        <Grid
+            x:Name="AppTitleBar"
+            Height="48"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="140"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Title and Icon -->
+            <StackPanel
+                Grid.Column="0"
+                Orientation="Horizontal"
+                Spacing="12"
+                VerticalAlignment="Center"
+                Margin="60,0,0,0">
+                <FontIcon
+                    Glyph="&#xE8B7;"
+                    FontSize="16"
+                    Foreground="#ffd52a"/>
+                <TextBlock
+                    Text="Solus Manifest App"
+                    FontSize="13"
+                    FontWeight="SemiBold"
+                    Foreground="#FFFFFF"
+                    VerticalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

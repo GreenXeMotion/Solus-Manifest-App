@@ -2,8 +2,10 @@ using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using SolusManifestApp.WinUI.Views;
 using System;
+using Windows.Graphics;
 using WinRT.Interop;
 
 namespace SolusManifestApp.WinUI;
@@ -26,7 +28,7 @@ public sealed partial class MainWindow : Window
         var hwnd = WindowNative.GetWindowHandle(this);
         var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
         _appWindow = AppWindow.GetFromWindowId(windowId);
-        _appWindow.Resize(new Windows.Graphics.SizeInt32(1280, 800));
+        _appWindow.Resize(new SizeInt32(1280, 800));
 
         // Navigate to home page by default
         ContentFrame.Navigate(typeof(HomePage));
@@ -42,19 +44,48 @@ public sealed partial class MainWindow : Window
         // Extend content into title bar
         ExtendsContentIntoTitleBar = true;
 
-        // Set the title bar control
+        // Set the title bar control (for drag region)
         SetTitleBar(AppTitleBar);
 
-        // Customize title bar appearance
+        // Customize title bar appearance - hide default buttons
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
             var titleBar = _appWindow.TitleBar;
             titleBar.ExtendsContentIntoTitleBar = true;
 
-            // Set button colors to match theme
+            // Make default buttons invisible since we're using custom ones
             titleBar.ButtonBackgroundColor = Colors.Transparent;
             titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            titleBar.ButtonForegroundColor = Colors.Transparent;
         }
+    }
+
+    private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_appWindow.Presenter is OverlappedPresenter presenter)
+        {
+            presenter.Minimize();
+        }
+    }
+
+    private void MaximizeButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_appWindow.Presenter is OverlappedPresenter presenter)
+        {
+            if (presenter.State == OverlappedPresenterState.Maximized)
+            {
+                presenter.Restore();
+            }
+            else
+            {
+                presenter.Maximize();
+            }
+        }
+    }
+
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    {
+        Close();
     }
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
