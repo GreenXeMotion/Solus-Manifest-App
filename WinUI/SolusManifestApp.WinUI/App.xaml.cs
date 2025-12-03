@@ -105,6 +105,8 @@ public partial class App : Application
         services.AddSingleton<MainViewModel>();
         services.AddTransient<HomePageViewModel>();
         services.AddTransient<StorePageViewModel>();
+        services.AddTransient<LibraryPageViewModel>();
+        services.AddTransient<DownloadsPageViewModel>();
         services.AddTransient<ToolsPageViewModel>();
         services.AddTransient<SettingsViewModel>();
 

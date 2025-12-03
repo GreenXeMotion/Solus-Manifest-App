@@ -156,4 +156,55 @@ public class ManifestApiService : IManifestApiService
             return null;
         }
     }
+
+    public async Task<LibraryResponse?> GetLibraryAsync(string apiKey, int limit = 100, int offset = 0, string? search = null, string sortBy = "updated")
+    {
+        try
+        {
+            var client = CreateClient();
+            var url = $"{BaseUrl}/library?api_key={apiKey}&limit={limit}&offset={offset}&sort_by={sortBy}";
+            if (!string.IsNullOrEmpty(search))
+            {
+                url += $"&search={Uri.EscapeDataString(search)}";
+            }
+
+            var response = await client.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"API returned {response.StatusCode}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<LibraryResponse>(json);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to fetch library: {ex.Message}", ex);
+        }
+    }
+
+    public async Task<SearchResponse?> SearchLibraryAsync(string query, string apiKey, int limit = 50)
+    {
+        try
+        {
+            var client = CreateClient();
+            var url = $"{BaseUrl}/search?q={Uri.EscapeDataString(query)}&api_key={apiKey}&limit={limit}";
+            var response = await client.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"API returned {response.StatusCode}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<SearchResponse>(json);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to search library: {ex.Message}", ex);
+        }
+    }
 }
