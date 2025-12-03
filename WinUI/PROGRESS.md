@@ -70,7 +70,7 @@ Successfully completed Phase 1 (Week 1-2) and Phase 2 (Theme System)! Phase 3 no
 - [x] **Manifest** (50 lines) - Manifest metadata
 - [x] **SteamGame** (32 lines) - Steam-installed games
 
-### Services Migrated (7/26+) 🔄
+### Services Migrated (10/26+) 🔄
 - [x] **LoggerService** (115 lines) - App-wide logging with 8MB rotation
 - [x] **SteamGamesService** (160 lines) - Parse Steam appmanifest files
 - [x] **SteamLibraryService** (80 lines) - Detect library folders
@@ -78,6 +78,9 @@ Successfully completed Phase 1 (Week 1-2) and Phase 2 (Theme System)! Phase 3 no
 - [x] **CacheService** (260 lines) - Icon & data caching (200MB managed)
 - [x] **ManifestApiService** (150 lines) - Morrenus API with 5-min cache
 - [x] **UpdateService** (220 lines) - GitHub auto-update with batch installer
+- [x] **LibraryRefreshService** (50 lines) - Event coordination for library updates
+- [x] **FileInstallService** (170 lines) - Manifest & ZIP installation, fake ACF generation
+- [x] **LuaFileManager** (140 lines) - GreenLuma AppList.txt manager
 
 ### Helpers & Interfaces (10) ✅
 - [x] **VdfParser** - Steam VDF/ACF file parser (already exists in Core/Helpers)
@@ -95,8 +98,8 @@ Successfully completed Phase 1 (Week 1-2) and Phase 2 (Theme System)! Phase 3 no
 - ✅ IHttpClientFactory integration
 - ✅ Platform warnings expected (Registry APIs Windows-only)
 
-**Status**: Phase 3 ~25% complete - 9 models + 7 services operational
-**Next**: Continue service migration (19+ remaining services)
+**Status**: Phase 3 ~38% complete - 9 models + 10 services operational
+**Next**: Continue service migration (16+ remaining services)
 
 ---
 

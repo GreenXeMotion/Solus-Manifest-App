@@ -77,6 +77,9 @@ public partial class App : Application
         services.AddSingleton<SteamLibraryService>();
         services.AddSingleton<ProfileService>();
         services.AddSingleton<UpdateService>();
+        services.AddSingleton<LibraryRefreshService>();
+        services.AddSingleton<FileInstallService>();
+        services.AddSingleton<LuaFileManager>();
 
         // WinUI-Specific Services
         services.AddSingleton<IDialogService, WinUIDialogService>();
