@@ -1,7 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
-using System;
+using SolusManifestApp.Core.Interfaces;
+using SolusManifestApp.Core.Services;
+using SolusManifestApp.ViewModels;
+using SolusManifestApp.WinUI.Services;
 
 namespace SolusManifestApp;
 
@@ -11,7 +14,11 @@ namespace SolusManifestApp;
 public partial class App : Application
 {
     private readonly IHost _host;
-    private Window? _mainWindow;
+
+    /// <summary>
+    /// Main window instance accessible to services
+    /// </summary>
+    public MainWindow? MainWindow { get; private set; }
 
     /// <summary>
     /// Initializes the singleton application object. This is the first line of authored code
@@ -41,9 +48,17 @@ public partial class App : Application
             client.Timeout = TimeSpan.FromMinutes(30);
         });
 
-        // TODO: Register services from Core project
-        // TODO: Register ViewModels
-        // TODO: Register WinUI-specific services (DialogService, NotificationService, etc.)
+        // Core Services
+        services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<ISteamService, SteamService>();
+
+        // WinUI-Specific Services
+        services.AddSingleton<IDialogService, WinUIDialogService>();
+        services.AddSingleton<INotificationService, WinUINotificationService>();
+
+        // ViewModels
+        services.AddSingleton<MainViewModel>();
+        services.AddTransient<HomeViewModel>();
 
         // Register MainWindow
         services.AddTransient<MainWindow>();
@@ -59,8 +74,8 @@ public partial class App : Application
         await _host.StartAsync();
 
         // Create and activate main window
-        _mainWindow = _host.Services.GetRequiredService<MainWindow>();
-        _mainWindow.Activate();
+        MainWindow = _host.Services.GetRequiredService<MainWindow>();
+        MainWindow.Activate();
     }
 
     /// <summary>

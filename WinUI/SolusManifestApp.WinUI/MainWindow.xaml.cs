@@ -1,14 +1,15 @@
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using SolusManifestApp.WinUI.Views;
 using System;
-using System.Runtime.InteropServices;
 using WinRT.Interop;
 
 namespace SolusManifestApp;
 
 /// <summary>
-/// An empty window that can be used on its own or navigated to within a Frame.
+/// Main window with navigation
 /// </summary>
 public sealed partial class MainWindow : Window
 {
@@ -26,6 +27,9 @@ public sealed partial class MainWindow : Window
         var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
         _appWindow = AppWindow.GetFromWindowId(windowId);
         _appWindow.Resize(new Windows.Graphics.SizeInt32(1280, 800));
+
+        // Navigate to home page by default
+        ContentFrame.Navigate(typeof(HomePage));
     }
 
     private void SetupTitleBar()
@@ -50,6 +54,37 @@ public sealed partial class MainWindow : Window
             // Set button colors to match theme
             titleBar.ButtonBackgroundColor = Colors.Transparent;
             titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+        }
+    }
+
+    private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    {
+        if (args.SelectedItem is NavigationViewItem item)
+        {
+            var tag = item.Tag?.ToString();
+
+            switch (tag)
+            {
+                case "Home":
+                    ContentFrame.Navigate(typeof(HomePage));
+                    break;
+                case "Store":
+                    // TODO: Navigate to StorePage
+                    break;
+                case "Library":
+                    // TODO: Navigate to LibraryPage
+                    break;
+                case "Downloads":
+                    // TODO: Navigate to DownloadsPage
+                    break;
+                case "Tools":
+                    // TODO: Navigate to ToolsPage
+                    break;
+            }
+        }
+        else if (args.IsSettingsSelected)
+        {
+            // TODO: Navigate to SettingsPage
         }
     }
 }

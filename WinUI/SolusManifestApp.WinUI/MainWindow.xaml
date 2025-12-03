@@ -20,30 +20,61 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- App Icon -->
-            <Image Grid.Column="0"
-                   Source="Assets/icon.ico"
-                   Width="16"
-                   Height="16"
-                   Margin="16,0,12,0"/>
-
-            <!-- App Title -->
-            <TextBlock Grid.Column="1"
-                       Text="Solus Manifest App"
-                       Style="{StaticResource CaptionTextBlockStyle}"
-                       VerticalAlignment="Center"
-                       Foreground="White"/>
+            <!-- App Icon & Title -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" Margin="16,0">
+                <TextBlock
+                    Text="Solus Manifest App"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    VerticalAlignment="Center"
+                    Foreground="White"
+                    FontWeight="SemiBold"/>
+            </StackPanel>
 
             <!-- Window Controls will be overlaid by system -->
         </Grid>
 
-        <!-- Main Content Area -->
-        <Grid Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <TextBlock
-                Text="WinUI 3 Migration - Initial Setup Complete"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Style="{StaticResource TitleTextBlockStyle}"/>
-        </Grid>
+        <!-- Main Content with Navigation -->
+        <NavigationView
+            Grid.Row="1"
+            x:Name="NavView"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="True"
+            PaneDisplayMode="Left"
+            SelectionChanged="NavView_SelectionChanged">
+
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Home" Tag="Home">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE80F;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <NavigationViewItem Content="Store" Tag="Store">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE719;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <NavigationViewItem Content="Library" Tag="Library">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8F1;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <NavigationViewItem Content="Downloads" Tag="Downloads">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE896;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <NavigationViewItem Content="Tools" Tag="Tools">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE90F;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+
+            <Frame x:Name="ContentFrame"/>
+        </NavigationView>
     </Grid>
 </Window>
