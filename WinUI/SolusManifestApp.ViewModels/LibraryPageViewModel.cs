@@ -60,6 +60,9 @@ public partial class LibraryPageViewModel : ObservableObject
     [ObservableProperty]
     private LibraryItem? _selectedItem;
 
+    [ObservableProperty]
+    private bool _isListView = false;
+
     // Computed properties for UI
     public bool HasGames => LibraryItems.Count > 0;
     public bool CanDeleteProfile => ActiveProfile != null && Profiles.Count > 1;
@@ -408,5 +411,11 @@ public partial class LibraryPageViewModel : ObservableObject
 
         _notificationService.ShowInfo("Uninstall functionality will be implemented", "Coming Soon");
         // TODO: Implement uninstall with confirmation dialog
+    }
+
+    [RelayCommand]
+    private void ToggleView()
+    {
+        IsListView = !IsListView;
     }
 }

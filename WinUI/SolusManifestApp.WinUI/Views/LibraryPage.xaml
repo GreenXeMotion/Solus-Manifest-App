@@ -13,6 +13,150 @@
 
     <Page.Resources>
         <ThemeShadow x:Name="SharedShadow" />
+
+        <!-- Grid View Template (Vertical Cards) -->
+        <DataTemplate x:Key="GridViewTemplate" x:DataType="models:LibraryItem">
+            <Border Width="280"
+                    Height="350"
+                    Margin="0,0,20,20"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="8"
+                    Shadow="{StaticResource SharedShadow}"
+                    Translation="0,0,16">
+                <Border.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Text="➕ Add to GreenLuma"
+                                        Command="{Binding ElementName=Root, Path=ViewModel.AddToGreenLumaCommand}"
+                                        CommandParameter="{x:Bind}"/>
+                        <MenuFlyoutItem Text="➖ Remove from GreenLuma"
+                                        Command="{Binding ElementName=Root, Path=ViewModel.RemoveFromGreenLumaCommand}"
+                                        CommandParameter="{x:Bind}"/>
+                        <MenuFlyoutSeparator/>
+                        <MenuFlyoutItem Text="🗑️ Uninstall"
+                                        Command="{Binding ElementName=Root, Path=ViewModel.UninstallGameCommand}"
+                                        CommandParameter="{x:Bind}"/>
+                    </MenuFlyout>
+                </Border.ContextFlyout>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="160"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Game Image -->
+                    <Border Grid.Row="0" Background="#222222" CornerRadius="8,8,0,0">
+                        <Grid>
+                            <Image Source="{x:Bind CachedIconPath, Mode=OneWay}" Stretch="Uniform"/>
+                            <TextBlock Text="🎮" FontSize="64" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Visibility="{x:Bind CachedIconPath, Mode=OneWay, Converter={StaticResource NullToVisibilityInverseConverter}}"/>
+                            <Border Background="{ThemeResource AccentFillColorDefaultBrush}" Padding="8,4" CornerRadius="4"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8">
+                                <TextBlock Text="{x:Bind TypeBadge}" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Game Info -->
+                    <StackPanel Grid.Row="1" Padding="12,8,12,8" Spacing="4">
+                        <TextBlock Text="{x:Bind Name}" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="11">
+                            <Run Text="App ID: "/><Run Text="{x:Bind AppId}"/>
+                        </TextBlock>
+                        <TextBlock FontSize="10" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                            <Run Text="{x:Bind SizeFormatted, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <!-- Actions -->
+                    <StackPanel Grid.Row="2" Padding="12,8,12,12" Spacing="6">
+                        <Button Content="▶ Launch" HorizontalAlignment="Stretch"
+                                Command="{Binding ElementName=Root, Path=ViewModel.LaunchGameCommand}"
+                                CommandParameter="{x:Bind}"/>
+                        <Button Content="🗑️ Uninstall" HorizontalAlignment="Stretch"
+                                Command="{Binding ElementName=Root, Path=ViewModel.UninstallGameCommand}"
+                                CommandParameter="{x:Bind}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <!-- List View Template (Horizontal Cards) -->
+        <DataTemplate x:Key="ListViewTemplate" x:DataType="models:LibraryItem">
+            <Border Height="100"
+                    Margin="0,0,0,10"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="8"
+                    Padding="10">
+                <Border.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Text="➕ Add to GreenLuma"
+                                        Command="{Binding ElementName=Root, Path=ViewModel.AddToGreenLumaCommand}"
+                                        CommandParameter="{x:Bind}"/>
+                        <MenuFlyoutItem Text="➖ Remove from GreenLuma"
+                                        Command="{Binding ElementName=Root, Path=ViewModel.RemoveFromGreenLumaCommand}"
+                                        CommandParameter="{x:Bind}"/>
+                        <MenuFlyoutSeparator/>
+                        <MenuFlyoutItem Text="🗑️ Uninstall"
+                                        Command="{Binding ElementName=Root, Path=ViewModel.UninstallGameCommand}"
+                                        CommandParameter="{x:Bind}"/>
+                    </MenuFlyout>
+                </Border.ContextFlyout>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Game Image (Left) -->
+                    <Border Grid.Column="0" Background="#222222" CornerRadius="8" Margin="0,0,10,0">
+                        <Grid>
+                            <Image Source="{x:Bind CachedIconPath, Mode=OneWay}" Stretch="Uniform"/>
+                            <TextBlock Text="🎮" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Visibility="{x:Bind CachedIconPath, Mode=OneWay, Converter={StaticResource NullToVisibilityInverseConverter}}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Game Info (Center) -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <Border Background="{ThemeResource AccentFillColorDefaultBrush}" Padding="6,3" CornerRadius="4">
+                                <TextBlock Text="{x:Bind TypeBadge}" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                            </Border>
+                            <TextBlock Text="{x:Bind Name}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"
+                                       TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="11">
+                            <Run Text="App ID: "/><Run Text="{x:Bind AppId}"/>
+                            <Run Text="  •  "/><Run Text="{x:Bind SizeFormatted, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <!-- Actions (Right) -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center" Margin="10,0,0,0">
+                        <Button Content="▶ Launch" Padding="15,8"
+                                Command="{Binding ElementName=Root, Path=ViewModel.LaunchGameCommand}"
+                                CommandParameter="{x:Bind}"/>
+                        <Button Content="🗑️ Uninstall" Padding="15,8"
+                                Command="{Binding ElementName=Root, Path=ViewModel.UninstallGameCommand}"
+                                CommandParameter="{x:Bind}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <!-- Grid Panel Template -->
+        <ItemsPanelTemplate x:Key="GridPanelTemplate">
+            <ItemsWrapGrid Orientation="Horizontal"/>
+        </ItemsPanelTemplate>
+
+        <!-- List Panel Template -->
+        <ItemsPanelTemplate x:Key="ListPanelTemplate">
+            <StackPanel Orientation="Vertical"/>
+        </ItemsPanelTemplate>
     </Page.Resources>
 
     <Grid Margin="30">
@@ -125,6 +269,7 @@
                 <ColumnDefinition Width="*" MinWidth="150"/>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <!-- Search Box -->
@@ -149,123 +294,25 @@
                       HorizontalAlignment="Stretch"
                       Height="32"
                       PlaceholderText="Select profile"/>
+
+            <!-- View Toggle Button -->
+            <Button Grid.Column="3"
+                    Command="{x:Bind ViewModel.ToggleViewCommand}"
+                    Width="32"
+                    Height="32"
+                    Padding="0"
+                    ToolTipService.ToolTip="Toggle Grid/List View">
+                <FontIcon x:Name="ViewIcon" Glyph="&#xE8A9;" FontSize="14"/>
+            </Button>
         </Grid>
 
-        <!-- Games Grid -->
+        <!-- Games Grid/List -->
         <ScrollViewer Grid.Row="2"
                       VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{x:Bind ViewModel.LibraryItems, Mode=OneWay}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <ItemsWrapGrid Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="models:LibraryItem">
-                        <Border Width="280"
-                                Height="350"
-                                Margin="0,0,20,20"
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                CornerRadius="8"
-                                Shadow="{StaticResource SharedShadow}"
-                                Translation="0,0,16">
-                            <Border.ContextFlyout>
-                                <MenuFlyout>
-                                    <MenuFlyoutItem Text="➕ Add to GreenLuma"
-                                                    Command="{Binding ElementName=Root, Path=ViewModel.AddToGreenLumaCommand}"
-                                                    CommandParameter="{x:Bind}"/>
-                                    <MenuFlyoutItem Text="➖ Remove from GreenLuma"
-                                                    Command="{Binding ElementName=Root, Path=ViewModel.RemoveFromGreenLumaCommand}"
-                                                    CommandParameter="{x:Bind}"/>
-                                    <MenuFlyoutSeparator/>
-                                    <MenuFlyoutItem Text="🗑️ Uninstall"
-                                                    Command="{Binding ElementName=Root, Path=ViewModel.UninstallGameCommand}"
-                                                    CommandParameter="{x:Bind}"/>
-                                </MenuFlyout>
-                            </Border.ContextFlyout>
-
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="160"/>
-                                    <!-- Image -->
-                                    <RowDefinition Height="*"/>
-                                    <!-- Info -->
-                                    <RowDefinition Height="Auto"/>
-                                    <!-- Actions -->
-                                </Grid.RowDefinitions>
-
-                                <!-- Game Image Container -->
-                                <Border Grid.Row="0"
-                                        Background="#222222"
-                                        CornerRadius="8,8,0,0">
-                                    <Grid>
-                                        <!-- Game Image -->
-                                        <Image Source="{x:Bind CachedIconPath, Mode=OneWay}"
-                                               Stretch="Uniform"/>
-
-                                        <!-- Placeholder if no icon -->
-                                        <TextBlock Text="🎮"
-                                                   FontSize="64"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   Visibility="{x:Bind CachedIconPath, Mode=OneWay, Converter={StaticResource NullToVisibilityInverseConverter}}"/>
-
-                                        <!-- Type Badge -->
-                                        <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                                Padding="8,4"
-                                                CornerRadius="4"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Top"
-                                                Margin="8">
-                                            <TextBlock Text="{x:Bind TypeBadge}"
-                                                       FontSize="10"
-                                                       FontWeight="Bold"
-                                                       Foreground="White"/>
-                                        </Border>
-                                    </Grid>
-                                </Border>
-
-                                <!-- Game Info -->
-                                <StackPanel Grid.Row="1"
-                                            Padding="12,8,12,8"
-                                            Spacing="4">
-                                    <TextBlock Text="{x:Bind Name}"
-                                               FontSize="15"
-                                               FontWeight="SemiBold"
-                                               TextWrapping="Wrap"
-                                               MaxLines="2"
-                                               TextTrimming="CharacterEllipsis"/>
-
-                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                               FontSize="11">
-                                        <Run Text="App ID: "/>
-                                        <Run Text="{x:Bind AppId}"/>
-                                    </TextBlock>
-
-                                    <TextBlock FontSize="10"
-                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                        <Run Text="{x:Bind SizeFormatted, Mode=OneWay}"/>
-                                    </TextBlock>
-                                </StackPanel>
-
-                                <!-- Action Button -->
-                                <StackPanel Grid.Row="2"
-                                            Padding="12,8,12,12"
-                                            Spacing="6">
-                                    <Button Content="▶ Launch"
-                                            HorizontalAlignment="Stretch"
-                                            Command="{Binding ElementName=Root, Path=ViewModel.LaunchGameCommand}"
-                                            CommandParameter="{x:Bind}"/>
-                                    <Button Content="🗑️ Uninstall"
-                                            HorizontalAlignment="Stretch"
-                                            Command="{Binding ElementName=Root, Path=ViewModel.UninstallGameCommand}"
-                                            CommandParameter="{x:Bind}"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <ItemsControl x:Name="GamesItemsControl"
+                          ItemsSource="{x:Bind ViewModel.LibraryItems, Mode=OneWay}"
+                          ItemTemplate="{StaticResource GridViewTemplate}"
+                          ItemsPanel="{StaticResource GridPanelTemplate}"/>
         </ScrollViewer>
 
         <!-- Loading Overlay -->
