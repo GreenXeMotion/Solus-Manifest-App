@@ -11,7 +11,7 @@
     <Page.Resources>
         <!-- Grid View Template (Vertical Cards) -->
         <DataTemplate x:Key="GridViewTemplate" x:DataType="models:LibraryGame">
-            <Border Width="280" Height="350" Margin="0,0,20,20"
+            <Border Width="240" Height="300" Margin="0,0,15,15"
                     Background="{ThemeResource CardBackgroundAcrylicBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorBrush}"
                     BorderThickness="1" CornerRadius="8" Padding="0">
@@ -20,7 +20,7 @@
 
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="160"/>
+                        <RowDefinition Height="130"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
@@ -30,7 +30,7 @@
                         <Grid>
                             <Image Source="{x:Bind CachedIconPath, Mode=OneWay}" Stretch="UniformToFill"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBlock Text="🎮" FontSize="64" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            <TextBlock Text="🎮" FontSize="48" HorizontalAlignment="Center" VerticalAlignment="Center"
                                        Foreground="{ThemeResource SystemAccentColor}"
                                        Visibility="{x:Bind CachedIconPath, Mode=OneWay, Converter={StaticResource NullToVisibilityInverseConverter}}"/>
                             <Border Padding="8,4" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8">

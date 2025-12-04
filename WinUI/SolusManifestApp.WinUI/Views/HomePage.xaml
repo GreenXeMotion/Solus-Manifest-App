@@ -6,8 +6,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollViewer>
-        <StackPanel Padding="40" Spacing="24" MaxWidth="1200">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Padding="40" Spacing="24" MaxWidth="1200" HorizontalAlignment="Center">
             <!-- Welcome Header -->
             <StackPanel Spacing="8">
                 <TextBlock
