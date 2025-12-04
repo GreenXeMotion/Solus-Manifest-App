@@ -32,11 +32,11 @@ public sealed partial class MainWindow : Window
         // Set up the custom title bar
         SetupTitleBar();
 
-        // Set window size and position
+        // Set window size to match Collapse Launcher (1280x720)
         var hwnd = WindowNative.GetWindowHandle(this);
         var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
         _appWindow = AppWindow.GetFromWindowId(windowId);
-        _appWindow.Resize(new SizeInt32(1280, 800));
+        _appWindow.Resize(new SizeInt32(1280, 720));
 
         // Center window on screen
         CenterWindow();
@@ -53,7 +53,7 @@ public sealed partial class MainWindow : Window
             var workArea = displayArea.WorkArea;
 
             var windowWidth = 1280;
-            var windowHeight = 800;
+            var windowHeight = 720;
 
             var x = (workArea.Width - windowWidth) / 2 + workArea.X;
             var y = (workArea.Height - windowHeight) / 2 + workArea.Y;
