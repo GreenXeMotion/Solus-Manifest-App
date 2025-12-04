@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using SolusManifestApp.ViewModels;
+using System.ComponentModel;
 
 namespace SolusManifestApp.WinUI.Views;
 
@@ -15,6 +16,45 @@ public sealed partial class StorePage : Page
         InitializeComponent();
         ViewModel = App.GetService<StorePageViewModel>();
         DataContext = ViewModel;
+
+        // Subscribe to IsListView changes to update layout
+        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+    }
+
+    private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ViewModel.IsListView))
+        {
+            UpdateViewLayout();
+        }
+    }
+
+    private void UpdateViewLayout()
+    {
+        // Update the icon to show current view mode
+        if (ViewIcon != null)
+        {
+            // If in list view, show grid icon (to switch back to grid)
+            // If in grid view, show list icon (to switch to list)
+            ViewIcon.Glyph = ViewModel.IsListView ? "\uE8A9" : "\uE8FD"; // Grid icon : List icon
+        }
+
+        // Switch between grid and list templates
+        if (GamesItemsControl != null)
+        {
+            if (ViewModel.IsListView)
+            {
+                // Switch to list view
+                GamesItemsControl.ItemTemplate = (DataTemplate)Resources["ListViewTemplate"];
+                GamesItemsControl.ItemsPanel = (ItemsPanelTemplate)Resources["ListPanelTemplate"];
+            }
+            else
+            {
+                // Switch to grid view
+                GamesItemsControl.ItemTemplate = (DataTemplate)Resources["GridViewTemplate"];
+                GamesItemsControl.ItemsPanel = (ItemsPanelTemplate)Resources["GridPanelTemplate"];
+            }
+        }
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)
