@@ -20,6 +20,7 @@ public partial class LibraryPageViewModel : ObservableObject
     private readonly ISettingsService _settingsService;
     private readonly ISteamService _steamService;
     private readonly INotificationService _notificationService;
+    private readonly ICacheService _cacheService;
     private readonly ILoggerService _logger;
 
     private AppSettings? _currentSettings;
@@ -81,6 +82,7 @@ public partial class LibraryPageViewModel : ObservableObject
         ISettingsService settingsService,
         ISteamService steamService,
         INotificationService notificationService,
+        ICacheService cacheService,
         ILoggerService logger)
     {
         _steamGamesService = steamGamesService;
@@ -88,6 +90,7 @@ public partial class LibraryPageViewModel : ObservableObject
         _settingsService = settingsService;
         _steamService = steamService;
         _notificationService = notificationService;
+        _cacheService = cacheService;
         _logger = logger;
 
         _ = InitializeAsync();
@@ -174,6 +177,8 @@ public partial class LibraryPageViewModel : ObservableObject
                     item.ItemType = LibraryItemType.GreenLuma;
                 }
                 LibraryItems.Add(item);
+                // Start icon caching in background
+                _ = LoadGameIconAsync(item);
             }
 
             // Add GreenLuma-only games (not in Steam library)
@@ -188,6 +193,8 @@ public partial class LibraryPageViewModel : ObservableObject
                         ItemType = LibraryItemType.Lua
                     };
                     LibraryItems.Add(item);
+                    // Start icon caching in background
+                    _ = LoadGameIconAsync(item);
                 }
             }
 
@@ -417,5 +424,30 @@ public partial class LibraryPageViewModel : ObservableObject
     private void ToggleView()
     {
         IsListView = !IsListView;
+    }
+
+    private async Task LoadGameIconAsync(LibraryItem item)
+    {
+        try
+        {
+            // Build Steam CDN URL for the game header image
+            var headerImageUrl = $"https://cdn.cloudflare.steamstatic.com/steam/apps/{item.AppId}/header.jpg";
+
+            // Check if already cached
+            if (_cacheService.HasCachedIcon(item.AppId))
+            {
+                var cachedPath = _cacheService.GetCachedIconPath(item.AppId);
+                item.CachedIconPath = cachedPath;
+                return;
+            }
+
+            // Use the Steam CDN URL directly for now
+            // Future: Download and cache locally via ImageCacheService
+            item.CachedIconPath = headerImageUrl;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to load icon for {item.Name}: {ex.Message}");
+        }
     }
 }
