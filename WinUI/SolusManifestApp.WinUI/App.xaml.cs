@@ -106,6 +106,7 @@ public partial class App : Application
         services.AddTransient<HomePageViewModel>();
         services.AddTransient<StorePageViewModel>();
         services.AddTransient<LibraryPageViewModel>();
+        services.AddTransient<LuaInstallerViewModel>();
         services.AddTransient<DownloadsPageViewModel>();
         services.AddTransient<ToolsPageViewModel>();
         services.AddTransient<SettingsViewModel>();

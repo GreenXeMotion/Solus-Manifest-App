@@ -81,6 +81,12 @@
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
 
+                <NavigationViewItem Content="Lua Installer" Tag="LuaInstaller">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8B7;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
                 <NavigationViewItem Content="Downloads" Tag="Downloads">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE896;"/>

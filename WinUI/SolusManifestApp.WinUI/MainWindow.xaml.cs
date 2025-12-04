@@ -148,6 +148,9 @@ public sealed partial class MainWindow : Window
                 case "Library":
                     ContentFrame.Navigate(typeof(LibraryPage));
                     break;
+                case "LuaInstaller":
+                    ContentFrame.Navigate(typeof(LuaInstallerPage));
+                    break;
                 case "Downloads":
                     ContentFrame.Navigate(typeof(DownloadsPage));
                     break;
