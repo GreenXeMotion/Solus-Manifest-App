@@ -129,7 +129,7 @@ namespace SolusManifestApp.Services
 
         public async Task<bool> DownloadDepotsAsync(
             uint appId,
-            List<(uint depotId, string depotKey, string? manifestFile)> depots,
+            List<(uint depotId, string depotKey, string? manifestFile, uint ownerAppId)> depots,
             string targetDirectory,
             bool verifyFiles = true,
             int maxDownloads = 8,
@@ -193,7 +193,7 @@ namespace SolusManifestApp.Services
                 try
                 {
                     // Load depot keys
-                    foreach (var (depotId, depotKey, manifestFile) in depots)
+                    foreach (var (depotId, depotKey, manifestFile, ownerAppId) in depots)
                     {
                         if (!string.IsNullOrEmpty(depotKey))
                         {
@@ -203,9 +203,9 @@ namespace SolusManifestApp.Services
                     }
 
                     // Download each depot
-                    foreach (var (depotId, depotKey, manifestFile) in depots)
+                    foreach (var (depotId, depotKey, manifestFile, ownerAppId) in depots)
                     {
-                        LogInfo($"Starting depot {depotId} download ({currentDepotIndex + 1}/{totalDepots})...");
+                        LogInfo($"Starting depot {depotId} download ({currentDepotIndex + 1}/{totalDepots}) using app {ownerAppId}...");
 
                         var depotList = new List<(uint depotId, ulong manifestId)>
                         {
@@ -220,7 +220,7 @@ namespace SolusManifestApp.Services
                         }
 
                         await ContentDownloader.DownloadAppAsync(
-                            appId,
+                            ownerAppId,
                             depotList,
                             ContentDownloader.DEFAULT_BRANCH,
                             null, // os

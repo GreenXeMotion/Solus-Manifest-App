@@ -156,6 +156,14 @@ namespace SolusManifestApp.ViewModels
                             DepotDownloader.TokenCFG.appToken = tokenValue;
                             _logger.Info($"Set PICS token for app {appId}: {tokenValue}");
                         }
+
+                        foreach (var tokenEntry in picsTokens)
+                        {
+                            if (uint.TryParse(tokenEntry.AppId, out var tAppId) && ulong.TryParse(tokenEntry.Token, out var tValue))
+                            {
+                                DepotDownloader.TokenCFG.AppTokens[tAppId] = tValue;
+                            }
+                        }
                     }
 
                     var depotFilterService = new DepotFilterService(new LoggerService("DepotFilter"));
@@ -204,6 +212,61 @@ namespace SolusManifestApp.ViewModels
                         IsInstalling = false;
                         steamKitService.Disconnect();
                         return;
+                    }
+
+                    var luaParserForDlc = new LuaParser();
+                    var allLuaDepots = luaParserForDlc.ParseDepotsFromLua(luaContent, appId);
+                    var dlcAppIds = allLuaDepots
+                        .Where(d => !string.IsNullOrEmpty(d.DlcAppId) && d.DlcAppId != appId && parsedDepotKeys.ContainsKey(d.DepotId))
+                        .Select(d => d.DlcAppId!)
+                        .Distinct()
+                        .ToList();
+
+                    var depotOwnerMap = new Dictionary<string, string>();
+                    foreach (var luaDepot in allLuaDepots)
+                    {
+                        if (!string.IsNullOrEmpty(luaDepot.DlcAppId) && luaDepot.DlcAppId != appId)
+                            depotOwnerMap[luaDepot.DepotId] = luaDepot.DlcAppId;
+                        else
+                            depotOwnerMap[luaDepot.DepotId] = appId;
+                    }
+
+                    if (dlcAppIds.Count > 0)
+                    {
+                        _logger.Info($"Found {dlcAppIds.Count} DLC app(s) with inner depots: {string.Join(", ", dlcAppIds)}");
+                        StatusMessage = $"Fetching metadata for {dlcAppIds.Count} DLC app(s)...";
+
+                        foreach (var dlcAppIdStr in dlcAppIds)
+                        {
+                            ulong? dlcToken = null;
+                            var dlcTokenEntry = picsTokens.FirstOrDefault(t => t.AppId == dlcAppIdStr);
+                            if (dlcTokenEntry != default && ulong.TryParse(dlcTokenEntry.Token, out ulong tv))
+                                dlcToken = tv;
+
+                            _logger.Info($"Fetching depot info for DLC app {dlcAppIdStr}...");
+                            var dlcData = await steamKitService.GetDepotInfoAsync(dlcAppIdStr, dlcToken);
+
+                            if (dlcData?.Data != null && dlcData.Data.TryGetValue(dlcAppIdStr, out var dlcAppData) && dlcAppData.Depots != null)
+                            {
+                                int mergedCount = 0;
+                                foreach (var depotKvp in dlcAppData.Depots)
+                                {
+                                    if (!steamCmdData.Data[appId].Depots.ContainsKey(depotKvp.Key))
+                                    {
+                                        var depotData = depotKvp.Value;
+                                        if (string.IsNullOrEmpty(depotData.DlcAppId))
+                                            depotData.DlcAppId = dlcAppIdStr;
+                                        steamCmdData.Data[appId].Depots[depotKvp.Key] = depotData;
+                                        mergedCount++;
+                                    }
+                                }
+                                _logger.Info($"Merged {mergedCount} depot(s) from DLC app {dlcAppIdStr}");
+                            }
+                            else
+                            {
+                                _logger.Warning($"Could not fetch depot info for DLC app {dlcAppIdStr}");
+                            }
+                        }
                     }
 
                     steamKitService.Disconnect();
@@ -310,13 +373,14 @@ namespace SolusManifestApp.ViewModels
                     StatusMessage = "Extracting manifest files...";
                     var manifestFiles = _downloadService.ExtractManifestFilesFromZip(filePath, appId);
 
-                    var depotsToDownload = new List<(uint depotId, string depotKey, string? manifestFile)>();
+                    var depotsToDownload = new List<(uint depotId, string depotKey, string? manifestFile, uint ownerAppId)>();
                     foreach (var selectedDepotId in depotDialog.SelectedDepotIds)
                     {
                         if (uint.TryParse(selectedDepotId, out var depotId) && parsedDepotKeys.TryGetValue(selectedDepotId, out var depotKey))
                         {
                             string? manifestFilePath = manifestFiles.TryGetValue(selectedDepotId, out var manifestPath) ? manifestPath : null;
-                            depotsToDownload.Add((depotId, depotKey, manifestFilePath));
+                            uint ownerAppId = uint.Parse(depotOwnerMap.TryGetValue(selectedDepotId, out var ownerId) ? ownerId : appId);
+                            depotsToDownload.Add((depotId, depotKey, manifestFilePath, ownerAppId));
                         }
                     }
 

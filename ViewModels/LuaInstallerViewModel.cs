@@ -217,6 +217,26 @@ namespace SolusManifestApp.ViewModels
                         StatusMessage = "Extracting depot information from lua file...";
                         var luaContent = _downloadService.ExtractLuaContentFromZip(SelectedFilePath, appId);
 
+                        var luaParserForTokens = new LuaParser();
+                        var picsTokens = luaParserForTokens.ParseTokens(luaContent);
+                        if (picsTokens.Count > 0)
+                        {
+                            var mainToken = picsTokens.FirstOrDefault(t => t.AppId == appId);
+                            if (mainToken != default && ulong.TryParse(mainToken.Token, out ulong tokenValue))
+                            {
+                                DepotDownloader.TokenCFG.useAppToken = true;
+                                DepotDownloader.TokenCFG.appToken = tokenValue;
+                            }
+
+                            foreach (var tokenEntry in picsTokens)
+                            {
+                                if (uint.TryParse(tokenEntry.AppId, out var tAppId) && ulong.TryParse(tokenEntry.Token, out var tValue))
+                                {
+                                    DepotDownloader.TokenCFG.AppTokens[tAppId] = tValue;
+                                }
+                            }
+                        }
+
                         var depotFilterService = new DepotFilterService(_logger);
                         var parsedDepotKeys = depotFilterService.ExtractDepotKeysFromLua(luaContent);
 
@@ -251,6 +271,53 @@ namespace SolusManifestApp.ViewModels
                             IsInstalling = false;
                             steamKitService.Disconnect();
                             return;
+                        }
+
+                        var luaParserForDlc = new LuaParser();
+                        var allLuaDepots = luaParserForDlc.ParseDepotsFromLua(luaContent, appId);
+                        var dlcAppIds = allLuaDepots
+                            .Where(d => !string.IsNullOrEmpty(d.DlcAppId) && d.DlcAppId != appId && parsedDepotKeys.ContainsKey(d.DepotId))
+                            .Select(d => d.DlcAppId!)
+                            .Distinct()
+                            .ToList();
+
+                        var depotOwnerMap = new Dictionary<string, string>();
+                        foreach (var luaDepot in allLuaDepots)
+                        {
+                            if (!string.IsNullOrEmpty(luaDepot.DlcAppId) && luaDepot.DlcAppId != appId)
+                                depotOwnerMap[luaDepot.DepotId] = luaDepot.DlcAppId;
+                            else
+                                depotOwnerMap[luaDepot.DepotId] = appId;
+                        }
+
+                        if (dlcAppIds.Count > 0)
+                        {
+                            _logger.Info($"Found {dlcAppIds.Count} DLC app(s) with inner depots: {string.Join(", ", dlcAppIds)}");
+                            StatusMessage = $"Fetching metadata for {dlcAppIds.Count} DLC app(s)...";
+
+                            foreach (var dlcAppIdStr in dlcAppIds)
+                            {
+                                ulong? dlcToken = null;
+                                var dlcTokenEntry = picsTokens.FirstOrDefault(t => t.AppId == dlcAppIdStr);
+                                if (dlcTokenEntry != default && ulong.TryParse(dlcTokenEntry.Token, out ulong tv))
+                                    dlcToken = tv;
+
+                                var dlcData = await steamKitService.GetDepotInfoAsync(dlcAppIdStr, dlcToken);
+
+                                if (dlcData?.Data != null && dlcData.Data.TryGetValue(dlcAppIdStr, out var dlcAppData) && dlcAppData.Depots != null)
+                                {
+                                    foreach (var depotKvp in dlcAppData.Depots)
+                                    {
+                                        if (!steamCmdData.Data[appId].Depots.ContainsKey(depotKvp.Key))
+                                        {
+                                            var depotData = depotKvp.Value;
+                                            if (string.IsNullOrEmpty(depotData.DlcAppId))
+                                                depotData.DlcAppId = dlcAppIdStr;
+                                            steamCmdData.Data[appId].Depots[depotKvp.Key] = depotData;
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         steamKitService.Disconnect();
@@ -346,13 +413,14 @@ namespace SolusManifestApp.ViewModels
                         StatusMessage = "Extracting manifest files...";
                         var manifestFiles = _downloadService.ExtractManifestFilesFromZip(SelectedFilePath, appId);
 
-                        var depotsToDownload = new List<(uint depotId, string depotKey, string? manifestFile)>();
+                        var depotsToDownload = new List<(uint depotId, string depotKey, string? manifestFile, uint ownerAppId)>();
                         foreach (var selectedDepotId in depotDialog.SelectedDepotIds)
                         {
                             if (uint.TryParse(selectedDepotId, out var depotId) && parsedDepotKeys.TryGetValue(selectedDepotId, out var depotKey))
                             {
                                 string? manifestFilePath = manifestFiles.TryGetValue(selectedDepotId, out var manifestPath) ? manifestPath : null;
-                                depotsToDownload.Add((depotId, depotKey, manifestFilePath));
+                                uint ownerAppId = uint.Parse(depotOwnerMap.TryGetValue(selectedDepotId, out var ownerId) ? ownerId : appId);
+                                depotsToDownload.Add((depotId, depotKey, manifestFilePath, ownerAppId));
                             }
                         }
 

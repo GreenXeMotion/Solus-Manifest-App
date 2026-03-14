@@ -731,7 +731,7 @@ namespace SolusManifestApp.Services
         public async Task<bool> DownloadViaDepotDownloaderAsync(
             string appId,
             string gameName,
-            List<(uint depotId, string depotKey, string? manifestFile)> depots,
+            List<(uint depotId, string depotKey, string? manifestFile, uint ownerAppId)> depots,
             string outputPath,
             bool verifyFiles = true,
             int maxDownloads = 8)

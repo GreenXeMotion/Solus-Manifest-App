@@ -1,4 +1,5 @@
-// Stub class for token configuration
+using System.Collections.Generic;
+
 namespace DepotDownloader
 {
     static class TokenCFG
@@ -7,5 +8,6 @@ namespace DepotDownloader
         public static ulong appToken = 0;
         public static bool usePackageToken = false;
         public static ulong packageToken = 0;
+        public static Dictionary<uint, ulong> AppTokens = new();
     }
 }

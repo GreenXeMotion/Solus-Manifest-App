@@ -131,7 +131,7 @@ namespace SolusManifestApp.Services
         /// <summary>
         /// Get app info from Steam directly
         /// </summary>
-        public async Task<AppInfoResult?> GetAppInfoAsync(uint appId)
+        public async Task<AppInfoResult?> GetAppInfoAsync(uint appId, ulong? accessToken = null)
         {
             try
             {
@@ -153,9 +153,14 @@ namespace SolusManifestApp.Services
 
                 _logger.Info($"[SteamKit] Requesting app info for {appId}...");
 
-                // Request app info with timeout
+                var picsRequest = new SteamApps.PICSRequest(appId);
+                if (accessToken.HasValue)
+                {
+                    picsRequest.AccessToken = accessToken.Value;
+                }
+
                 var requestTask = _steamApps.PICSGetProductInfo(
-                    new List<SteamApps.PICSRequest> { new SteamApps.PICSRequest(appId) },
+                    new List<SteamApps.PICSRequest> { picsRequest },
                     new List<SteamApps.PICSRequest>()
                 ).ToTask();
 
@@ -345,7 +350,7 @@ namespace SolusManifestApp.Services
         /// <summary>
         /// Get app info in SteamCMD API compatible format (drop-in replacement)
         /// </summary>
-        public async Task<SteamCmdDepotData?> GetDepotInfoAsync(string appId)
+        public async Task<SteamCmdDepotData?> GetDepotInfoAsync(string appId, ulong? accessToken = null)
         {
             if (!uint.TryParse(appId, out var appIdUint))
             {
@@ -353,7 +358,7 @@ namespace SolusManifestApp.Services
                 return null;
             }
 
-            var appInfo = await GetAppInfoAsync(appIdUint);
+            var appInfo = await GetAppInfoAsync(appIdUint, accessToken);
             if (appInfo == null)
                 return null;
 

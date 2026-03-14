@@ -169,6 +169,11 @@ namespace DepotDownloader
                 request.AccessToken = TokenCFG.appToken;
             }
 
+            if (TokenCFG.AppTokens.TryGetValue(appId, out var perAppToken))
+            {
+                request.AccessToken = perAppToken;
+            }
+
             var appInfoMultiple = await steamApps.PICSGetProductInfo([request], []);
 
             foreach (var appInfo in appInfoMultiple.Results)
