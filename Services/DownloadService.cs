@@ -789,7 +789,7 @@ namespace SolusManifestApp.Services
                         downloadItem.Progress = e.Progress;
                         downloadItem.DownloadedBytes = e.DownloadedBytes;
                         downloadItem.TotalBytes = e.TotalBytes;
-                        var progressPercent = (int)(e.Progress * 100);
+                        var progressPercent = (int)e.Progress;
                         downloadItem.StatusMessage = $"Downloading: {e.CurrentFile} ({progressPercent}% - {e.ProcessedFiles}/{e.TotalFiles} files)";
                     });
                 };
