@@ -148,7 +148,7 @@ namespace SolusManifestApp
             var settingsService = _host.Services.GetRequiredService<SettingsService>();
             var themeService = _host.Services.GetRequiredService<ThemeService>();
             var settings = settingsService.LoadSettings();
-            themeService.ApplyTheme(settings.Theme);
+            themeService.ApplyTheme(settings.Theme, settings);
 
             _mainWindow = _host.Services.GetRequiredService<MainWindow>();
 

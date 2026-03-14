@@ -150,6 +150,32 @@ namespace SolusManifestApp.ViewModels
         [ObservableProperty]
         private int _maxConcurrentDownloads;
 
+        [ObservableProperty]
+        private string _customPrimaryDark = "#1b2838";
+
+        [ObservableProperty]
+        private string _customSecondaryDark = "#2a475e";
+
+        [ObservableProperty]
+        private string _customCardBackground = "#16202d";
+
+        [ObservableProperty]
+        private string _customCardHover = "#1b2838";
+
+        [ObservableProperty]
+        private string _customAccent = "#3d8ec9";
+
+        [ObservableProperty]
+        private string _customAccentHover = "#4a9edd";
+
+        [ObservableProperty]
+        private string _customTextPrimary = "#c7d5e0";
+
+        [ObservableProperty]
+        private string _customTextSecondary = "#8f98a0";
+
+        public bool IsCustomTheme => SelectedThemeName == "Custom";
+
         public string CurrentVersion => _updateService.GetCurrentVersion();
 
         partial void OnSteamPathChanged(string value) => MarkAsUnsaved();
@@ -174,7 +200,11 @@ namespace SolusManifestApp.ViewModels
         partial void OnDefaultStartupPageChanged(string value) => MarkAsUnsaved();
         partial void OnWindowLeftChanged(double? value) => MarkAsUnsaved();
         partial void OnWindowTopChanged(double? value) => MarkAsUnsaved();
-        partial void OnSelectedThemeNameChanged(string value) => MarkAsUnsaved();
+        partial void OnSelectedThemeNameChanged(string value)
+        {
+            MarkAsUnsaved();
+            OnPropertyChanged(nameof(IsCustomTheme));
+        }
         partial void OnConfigVdfPathChanged(string value) => MarkAsUnsaved();
         partial void OnCombinedKeysPathChanged(string value) => MarkAsUnsaved();
         partial void OnDepotDownloaderOutputPathChanged(string value) => MarkAsUnsaved();
@@ -183,6 +213,14 @@ namespace SolusManifestApp.ViewModels
         partial void OnMaxConcurrentDownloadsChanged(int value) => MarkAsUnsaved();
         partial void OnGBETokenOutputPathChanged(string value) => MarkAsUnsaved();
         partial void OnGBESteamWebApiKeyChanged(string value) => MarkAsUnsaved();
+        partial void OnCustomPrimaryDarkChanged(string value) => MarkAsUnsaved();
+        partial void OnCustomSecondaryDarkChanged(string value) => MarkAsUnsaved();
+        partial void OnCustomCardBackgroundChanged(string value) => MarkAsUnsaved();
+        partial void OnCustomCardHoverChanged(string value) => MarkAsUnsaved();
+        partial void OnCustomAccentChanged(string value) => MarkAsUnsaved();
+        partial void OnCustomAccentHoverChanged(string value) => MarkAsUnsaved();
+        partial void OnCustomTextPrimaryChanged(string value) => MarkAsUnsaved();
+        partial void OnCustomTextSecondaryChanged(string value) => MarkAsUnsaved();
 
         private void MarkAsUnsaved()
         {
@@ -302,6 +340,16 @@ namespace SolusManifestApp.ViewModels
             GBETokenOutputPath = Settings.GBETokenOutputPath;
             GBESteamWebApiKey = Settings.GBESteamWebApiKey;
 
+            // Load custom theme colors
+            CustomPrimaryDark = Settings.CustomPrimaryDark;
+            CustomSecondaryDark = Settings.CustomSecondaryDark;
+            CustomCardBackground = Settings.CustomCardBackground;
+            CustomCardHover = Settings.CustomCardHover;
+            CustomAccent = Settings.CustomAccent;
+            CustomAccentHover = Settings.CustomAccentHover;
+            CustomTextPrimary = Settings.CustomTextPrimary;
+            CustomTextSecondary = Settings.CustomTextSecondary;
+
             _isLoading = false;
             HasUnsavedChanges = false; // Clear unsaved changes flag after load
 
@@ -360,13 +408,23 @@ namespace SolusManifestApp.ViewModels
             Settings.GBETokenOutputPath = GBETokenOutputPath;
             Settings.GBESteamWebApiKey = GBESteamWebApiKey;
 
+            // Save custom theme colors
+            Settings.CustomPrimaryDark = CustomPrimaryDark;
+            Settings.CustomSecondaryDark = CustomSecondaryDark;
+            Settings.CustomCardBackground = CustomCardBackground;
+            Settings.CustomCardHover = CustomCardHover;
+            Settings.CustomAccent = CustomAccent;
+            Settings.CustomAccentHover = CustomAccentHover;
+            Settings.CustomTextPrimary = CustomTextPrimary;
+            Settings.CustomTextSecondary = CustomTextSecondary;
+
             try
             {
                 _settingsService.SaveSettings(Settings);
                 _steamService.SetCustomSteamPath(SteamPath);
 
                 // Apply theme
-                _themeService.ApplyTheme(Settings.Theme);
+                _themeService.ApplyTheme(Settings.Theme, Settings);
 
                 // Refresh mode on Installer page
                 _luaInstallerViewModel.RefreshMode();

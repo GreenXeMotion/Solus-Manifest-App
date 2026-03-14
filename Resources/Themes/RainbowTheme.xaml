@@ -1,0 +1,38 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Color x:Key="PrimaryDark">#1a1a2e</Color>
+    <Color x:Key="SecondaryDark">#242440</Color>
+    <Color x:Key="CardBackground">#12121f</Color>
+    <Color x:Key="CardHover">#1e1e35</Color>
+    <Color x:Key="Accent">#ff6b6b</Color>
+    <Color x:Key="AccentHover">#ee5a5a</Color>
+    <Color x:Key="TextPrimary">#e8e8f0</Color>
+    <Color x:Key="TextSecondary">#8888a0</Color>
+    <Color x:Key="BorderColor">#3a3a5c</Color>
+    <Color x:Key="Success">#69db7c</Color>
+    <Color x:Key="Warning">#ffd43b</Color>
+    <Color x:Key="Danger">#ff6b6b</Color>
+
+    <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{StaticResource PrimaryDark}"/>
+    <SolidColorBrush x:Key="SecondaryDarkBrush" Color="{StaticResource SecondaryDark}"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="{StaticResource CardBackground}"/>
+    <SolidColorBrush x:Key="CardHoverBrush" Color="{StaticResource CardHover}"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Accent}"/>
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHover}"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondary}"/>
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource Success}"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource Warning}"/>
+    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource Danger}"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
+
+    <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#ff6b6b" Offset="0"/>
+        <GradientStop Color="#feca57" Offset="0.25"/>
+        <GradientStop Color="#48dbfb" Offset="0.5"/>
+        <GradientStop Color="#ff9ff3" Offset="0.75"/>
+        <GradientStop Color="#ff6b6b" Offset="1"/>
+    </LinearGradientBrush>
+
+</ResourceDictionary>

@@ -18,7 +18,11 @@ namespace SolusManifestApp.Models
         Sunset,
         Forest,
         Grape,
-        Cyberpunk
+        Cyberpunk,
+        Pink,
+        Pastel,
+        Rainbow,
+        Custom
     }
 
     public enum AutoUpdateMode
@@ -57,6 +61,14 @@ namespace SolusManifestApp.Models
 
         // Display & Interface
         public AppTheme Theme { get; set; } = AppTheme.Default;
+        public string CustomPrimaryDark { get; set; } = "#1b2838";
+        public string CustomSecondaryDark { get; set; } = "#2a475e";
+        public string CustomCardBackground { get; set; } = "#16202d";
+        public string CustomCardHover { get; set; } = "#1b2838";
+        public string CustomAccent { get; set; } = "#3d8ec9";
+        public string CustomAccentHover { get; set; } = "#4a9edd";
+        public string CustomTextPrimary { get; set; } = "#c7d5e0";
+        public string CustomTextSecondary { get; set; } = "#8f98a0";
         public string DefaultStartupPage { get; set; } = "Home";
         public double WindowWidth { get; set; } = 1200;
         public double WindowHeight { get; set; } = 800;

@@ -158,7 +158,111 @@
                                     <ComboBoxItem Content="Forest" Tag="Forest"/>
                                     <ComboBoxItem Content="Grape" Tag="Grape"/>
                                     <ComboBoxItem Content="Cyberpunk" Tag="Cyberpunk"/>
+                                    <ComboBoxItem Content="Pink" Tag="Pink"/>
+                                    <ComboBoxItem Content="Pastel" Tag="Pastel"/>
+                                    <ComboBoxItem Content="Rainbow" Tag="Rainbow"/>
+                                    <ComboBoxItem Content="Custom" Tag="Custom"/>
                                 </ComboBox>
+
+                                <Border Background="{DynamicResource CardBackgroundBrush}"
+                                        CornerRadius="8"
+                                        Padding="15"
+                                        Margin="0,0,0,15"
+                                        BorderBrush="{DynamicResource AccentBrush}"
+                                        BorderThickness="1"
+                                        Visibility="{Binding IsCustomTheme, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <TextBlock Text="Custom Colors"
+                                                   FontSize="16"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   Margin="0,0,0,10"/>
+
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="15"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,8">
+                                                <TextBlock Text="Primary Background"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           FontSize="12" Margin="0,0,0,3"/>
+                                                <TextBox Text="{Binding CustomPrimaryDark, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="13" Padding="8,6" FontFamily="Consolas"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,8">
+                                                <TextBlock Text="Secondary Background"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           FontSize="12" Margin="0,0,0,3"/>
+                                                <TextBox Text="{Binding CustomSecondaryDark, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="13" Padding="8,6" FontFamily="Consolas"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,8">
+                                                <TextBlock Text="Card Background"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           FontSize="12" Margin="0,0,0,3"/>
+                                                <TextBox Text="{Binding CustomCardBackground, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="13" Padding="8,6" FontFamily="Consolas"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,8">
+                                                <TextBlock Text="Card Hover"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           FontSize="12" Margin="0,0,0,3"/>
+                                                <TextBox Text="{Binding CustomCardHover, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="13" Padding="8,6" FontFamily="Consolas"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,8">
+                                                <TextBlock Text="Accent Color"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           FontSize="12" Margin="0,0,0,3"/>
+                                                <TextBox Text="{Binding CustomAccent, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="13" Padding="8,6" FontFamily="Consolas"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,8">
+                                                <TextBlock Text="Accent Hover"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           FontSize="12" Margin="0,0,0,3"/>
+                                                <TextBox Text="{Binding CustomAccentHover, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="13" Padding="8,6" FontFamily="Consolas"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,0">
+                                                <TextBlock Text="Text Primary"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           FontSize="12" Margin="0,0,0,3"/>
+                                                <TextBox Text="{Binding CustomTextPrimary, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="13" Padding="8,6" FontFamily="Consolas"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,0,0,0">
+                                                <TextBlock Text="Text Secondary"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           FontSize="12" Margin="0,0,0,3"/>
+                                                <TextBox Text="{Binding CustomTextSecondary, UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="13" Padding="8,6" FontFamily="Consolas"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <TextBlock Text="Use hex color codes (e.g. #ff69b4)"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="11"
+                                                   FontStyle="Italic"
+                                                   Margin="0,8,0,0"/>
+                                    </StackPanel>
+                                </Border>
 
                                 <TextBlock Text="Store Page Size (games per page)"
                                            Foreground="{DynamicResource TextSecondaryBrush}"
