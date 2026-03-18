@@ -128,20 +128,18 @@ namespace SolusManifestApp.Services
         {
             _httpClient = new HttpClient
             {
-                Timeout = TimeSpan.FromSeconds(30)
+                Timeout = TimeSpan.FromSeconds(120)
             };
-            // Add headers to mimic browser requests
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
             _httpClient.DefaultRequestHeaders.Add("Accept", "application/json, text/plain, */*");
             _cacheService = cacheService;
         }
 
-        // For cases where CacheService is not available (backward compatibility)
         public SteamApiService()
         {
             _httpClient = new HttpClient
             {
-                Timeout = TimeSpan.FromSeconds(30)
+                Timeout = TimeSpan.FromSeconds(120)
             };
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
             _httpClient.DefaultRequestHeaders.Add("Accept", "application/json, text/plain, */*");
@@ -212,54 +210,48 @@ namespace SolusManifestApp.Services
                 }
             }
 
-            // Try new Morrenus applist API first (faster and no API key required)
             try
             {
-                var morrenusData = await GetAppListFromMorrenusApiAsync();
-                if (morrenusData != null)
-                {
-                    _cachedData = morrenusData;
-                    var cacheJson = JsonConvert.SerializeObject(morrenusData);
-                    _cacheService.CacheSteamAppList(cacheJson);
-                    return morrenusData;
-                }
-            }
-            catch
-            {
-                // Morrenus API failed - fall through to Steam API
-            }
-
-            // Fetch from Morrenus App List API
-            try
-            {
-                var url = "https://applist.morrenus.xyz";
+                var url = "https://applist.morrenus.xyz/";
                 var response = await _httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
-                var appList = JsonConvert.DeserializeObject<List<SteamApp>>(json);
 
-                // Build response in old format for backward compatibility
+                List<SteamApp>? apps = null;
+
+                try
+                {
+                    apps = JsonConvert.DeserializeObject<List<SteamApp>>(json);
+                }
+                catch
+                {
+                    var appDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+                    if (appDict != null)
+                    {
+                        apps = appDict.Select(kvp => new SteamApp
+                        {
+                            AppId = int.TryParse(kvp.Key, out var id) ? id : 0,
+                            Name = kvp.Value
+                        }).Where(a => a.AppId > 0).ToList();
+                    }
+                }
+
                 var data = new SteamApiResponse
                 {
                     AppList = new SteamAppList
                     {
-                        Apps = appList ?? new List<SteamApp>()
+                        Apps = apps ?? new List<SteamApp>()
                     }
                 };
 
-                // Cache to memory
                 _cachedData = data;
-
-                // Cache to disk
                 var cacheJson = JsonConvert.SerializeObject(data);
                 _cacheService.CacheSteamAppList(cacheJson);
-
                 return data;
             }
             catch (Exception ex)
             {
-                // Try to return stale cache if API fails
                 var (cachedJson, _) = _cacheService.GetCachedSteamAppList();
                 if (!string.IsNullOrEmpty(cachedJson))
                 {
@@ -268,10 +260,7 @@ namespace SolusManifestApp.Services
                         _cachedData = JsonConvert.DeserializeObject<SteamApiResponse>(cachedJson);
                         return _cachedData;
                     }
-                    catch
-                    {
-                        // Stale cache deserialization failed - throw original error
-                    }
+                    catch { }
                 }
 
                 throw new Exception($"Failed to fetch Steam app list: {ex.Message}", ex);

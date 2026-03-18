@@ -206,29 +206,35 @@ namespace SolusManifestApp.Services
 
         public List<Game> GetInstalledGames()
         {
+            _logger.Debug("[FileInstallService] GetInstalledGames() called");
             var games = new List<Game>();
 
             try
             {
                 var stpluginPath = _steamService.GetStPluginPath();
+                _logger.Debug($"[FileInstallService] stplug-in path: {stpluginPath ?? "null"}");
+
                 if (string.IsNullOrEmpty(stpluginPath) || !Directory.Exists(stpluginPath))
                 {
+                    _logger.Warning($"[FileInstallService] stplug-in path is null/empty or does not exist (exists: {(stpluginPath != null ? Directory.Exists(stpluginPath).ToString() : "N/A")})");
                     return games;
                 }
 
                 var luaFiles = Directory.GetFiles(stpluginPath, "*.lua");
+                _logger.Debug($"[FileInstallService] Found {luaFiles.Length} .lua file(s) in stplug-in");
 
                 foreach (var luaFile in luaFiles)
                 {
                     var fileName = Path.GetFileName(luaFile);
                     var appId = Path.GetFileNameWithoutExtension(fileName);
+                    _logger.Debug($"[FileInstallService] Processing lua file: {fileName} (appId={appId})");
 
                     var fileInfo = new FileInfo(luaFile);
 
                     games.Add(new Game
                     {
                         AppId = appId,
-                        Name = appId, // Will be updated from manifest if available
+                        Name = appId,
                         IsInstalled = true,
                         LocalPath = luaFile,
                         SizeBytes = fileInfo.Length,
@@ -239,9 +245,10 @@ namespace SolusManifestApp.Services
             }
             catch (Exception ex)
             {
-                _logger.Warning($"Error scanning installed games: {ex.Message}");
+                _logger.Warning($"[FileInstallService] Error scanning installed games: {ex.Message}\n{ex.StackTrace}");
             }
 
+            _logger.Info($"[FileInstallService] Returning {games.Count} installed game(s)");
             return games;
         }
 

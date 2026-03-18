@@ -10,28 +10,35 @@ namespace SolusManifestApp.Services
     public class SteamGamesService
     {
         private readonly SteamService _steamService;
+        private readonly LoggerService? _logger;
 
-        public SteamGamesService(SteamService steamService)
+        public SteamGamesService(SteamService steamService, LoggerService? logger = null)
         {
             _steamService = steamService;
+            _logger = logger;
         }
 
         public List<SteamGame> GetInstalledGames()
         {
+            _logger?.Debug("[SteamGamesService] GetInstalledGames() called");
             var games = new List<SteamGame>();
 
             try
             {
                 var libraryFolders = GetLibraryFolders();
+                _logger?.Debug($"[SteamGamesService] Found {libraryFolders.Count} library folder(s)");
 
                 foreach (var libraryPath in libraryFolders)
                 {
                     var steamappsPath = Path.Combine(libraryPath, "steamapps");
                     if (!Directory.Exists(steamappsPath))
+                    {
+                        _logger?.Warning($"[SteamGamesService] steamapps directory does not exist: {steamappsPath}");
                         continue;
+                    }
 
-                    // Find all appmanifest files
                     var manifestFiles = Directory.GetFiles(steamappsPath, "appmanifest_*.acf");
+                    _logger?.Debug($"[SteamGamesService] Found {manifestFiles.Length} manifest(s) in {steamappsPath}");
 
                     foreach (var manifestFile in manifestFiles)
                     {
@@ -43,45 +50,48 @@ namespace SolusManifestApp.Services
                                 games.Add(game);
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            // Skip invalid manifests
+                            _logger?.Warning($"[SteamGamesService] Failed to parse manifest {manifestFile}: {ex.Message}");
                         }
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Return empty list on error
+                _logger?.Error($"[SteamGamesService] GetInstalledGames failed: {ex.Message}\n{ex.StackTrace}");
             }
 
-            // Remove duplicates by AppId (keep first occurrence)
-            return games.GroupBy(g => g.AppId)
+            var uniqueGames = games.GroupBy(g => g.AppId)
                        .Select(g => g.First())
                        .OrderBy(g => g.Name)
                        .ToList();
+            _logger?.Info($"[SteamGamesService] Returning {uniqueGames.Count} unique installed games (from {games.Count} total)");
+            return uniqueGames;
         }
 
         private List<string> GetLibraryFolders()
         {
+            _logger?.Debug("[SteamGamesService] GetLibraryFolders() called");
             var folders = new List<string>();
 
             var steamPath = _steamService.GetSteamPath();
+            _logger?.Debug($"[SteamGamesService] Steam path: {steamPath ?? "null"}");
             if (string.IsNullOrEmpty(steamPath))
             {
+                _logger?.Error("[SteamGamesService] Steam installation not found");
                 throw new Exception("Steam installation not found");
             }
 
-            // Add main Steam folder
             folders.Add(steamPath);
 
-            // Parse libraryfolders.vdf to find additional library locations
-            // Try both possible locations (newer Steam uses steamapps, older uses config)
             var libraryFoldersFile = Path.Combine(steamPath, "steamapps", "libraryfolders.vdf");
             if (!File.Exists(libraryFoldersFile))
             {
+                _logger?.Debug($"[SteamGamesService] VDF not found at steamapps, trying config location");
                 libraryFoldersFile = Path.Combine(steamPath, "config", "libraryfolders.vdf");
             }
+            _logger?.Debug($"[SteamGamesService] Using VDF file: {libraryFoldersFile} (exists: {File.Exists(libraryFoldersFile)})");
 
             if (File.Exists(libraryFoldersFile))
             {
@@ -92,47 +102,58 @@ namespace SolusManifestApp.Services
 
                     if (libraryFoldersObj != null)
                     {
-                        // VDF format: "0" { "path" "C:\\..." }, "1" { "path" ... }, etc.
-                        // Sometimes "0" gets flattened, so check if "path" exists directly
                         var directPath = VdfParser.GetValue(libraryFoldersObj, "path");
-                        if (!string.IsNullOrEmpty(directPath) && Directory.Exists(directPath))
+                        if (!string.IsNullOrEmpty(directPath))
                         {
-                            folders.Add(directPath);
+                            var exists = Directory.Exists(directPath);
+                            _logger?.Debug($"[SteamGamesService] Direct path: {directPath} (exists: {exists})");
+                            if (exists) folders.Add(directPath);
                         }
 
-                        // Also check numbered keys
                         for (int i = 0; i < 10; i++)
                         {
                             var folderData = VdfParser.GetObject(libraryFoldersObj, i.ToString());
                             if (folderData != null)
                             {
                                 var path = VdfParser.GetValue(folderData, "path");
-                                if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
+                                if (!string.IsNullOrEmpty(path))
                                 {
-                                    folders.Add(path);
+                                    var exists = Directory.Exists(path);
+                                    _logger?.Debug($"[SteamGamesService] Library folder [{i}]: {path} (exists: {exists})");
+                                    if (exists) folders.Add(path);
                                 }
                             }
                         }
                     }
+                    else
+                    {
+                        _logger?.Warning("[SteamGamesService] libraryfolders object is null in VDF");
+                    }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // If parsing fails, just use main Steam folder
+                    _logger?.Warning($"[SteamGamesService] Failed to parse libraryfolders.vdf: {ex.Message}");
                 }
             }
 
-            return folders.Distinct().ToList();
+            var result = folders.Distinct().ToList();
+            _logger?.Info($"[SteamGamesService] Resolved {result.Count} library folder(s)");
+            return result;
         }
 
         private SteamGame? ParseAppManifest(string manifestPath, string libraryPath)
         {
+            _logger?.Debug($"[SteamGamesService] Parsing manifest: {manifestPath}");
             try
             {
                 var data = VdfParser.Parse(manifestPath);
                 var appState = VdfParser.GetObject(data, "AppState");
 
                 if (appState == null)
+                {
+                    _logger?.Warning($"[SteamGamesService] AppState is null in {manifestPath}");
                     return null;
+                }
 
                 var appId = VdfParser.GetValue(appState, "appid");
                 var name = VdfParser.GetValue(appState, "name");
@@ -154,7 +175,10 @@ namespace SolusManifestApp.Services
                 var buildId = VdfParser.GetValue(appState, "buildid");
 
                 if (string.IsNullOrEmpty(appId) || string.IsNullOrEmpty(name))
+                {
+                    _logger?.Warning($"[SteamGamesService] Missing appId or name in {manifestPath} (appId={appId}, name={name})");
                     return null;
+                }
 
                 var gamePath = Path.Combine(libraryPath, "steamapps", "common", installDir);
 
@@ -186,8 +210,9 @@ namespace SolusManifestApp.Services
 
                 return game;
             }
-            catch
+            catch (Exception ex)
             {
+                _logger?.Warning($"[SteamGamesService] Exception parsing manifest {manifestPath}: {ex.Message}");
                 return null;
             }
         }

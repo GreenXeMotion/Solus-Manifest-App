@@ -259,6 +259,7 @@ namespace SolusManifestApp.Services
 
         public bool HasRecentData(TimeSpan maxAge)
         {
+            _logger?.Debug("[LibraryDatabaseService] HasRecentData() called");
             try
             {
                 using var connection = CreateConnection();
@@ -266,21 +267,33 @@ namespace SolusManifestApp.Services
 
                 command.CommandText = "SELECT COUNT(*) FROM LibraryItems";
                 var count = Convert.ToInt32(command.ExecuteScalar());
+                _logger?.Debug($"[LibraryDatabaseService] Item count: {count}");
 
                 if (count == 0)
+                {
+                    _logger?.Debug("[LibraryDatabaseService] No items in database, returning false");
                     return false;
+                }
 
                 command.CommandText = "SELECT MAX(LastScanned) FROM LibraryItems";
                 var lastScanned = command.ExecuteScalar()?.ToString();
+                _logger?.Debug($"[LibraryDatabaseService] LastScanned: {lastScanned}");
 
                 if (string.IsNullOrEmpty(lastScanned))
+                {
+                    _logger?.Debug("[LibraryDatabaseService] LastScanned is null/empty, returning false");
                     return false;
+                }
 
                 var lastScannedDate = DateTime.Parse(lastScanned, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-                return DateTime.Now - lastScannedDate < maxAge;
+                var age = DateTime.Now - lastScannedDate;
+                var result = age < maxAge;
+                _logger?.Info($"[LibraryDatabaseService] Cache age: {age.TotalMinutes:F1} minutes, maxAge: {maxAge.TotalMinutes:F1} minutes, hasRecentData: {result}");
+                return result;
             }
-            catch
+            catch (Exception ex)
             {
+                _logger?.Error($"[LibraryDatabaseService] HasRecentData failed: {ex.Message}\n{ex.StackTrace}");
                 return false;
             }
         }

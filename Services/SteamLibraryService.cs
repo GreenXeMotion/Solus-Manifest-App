@@ -8,48 +8,58 @@ namespace SolusManifestApp.Services
     public class SteamLibraryService
     {
         private readonly SteamService _steamService;
+        private readonly LoggerService? _logger;
 
-        public SteamLibraryService(SteamService steamService)
+        public SteamLibraryService(SteamService steamService, LoggerService? logger = null)
         {
             _steamService = steamService;
+            _logger = logger;
         }
 
         public List<string> GetLibraryFolders()
         {
+            _logger?.Debug("[SteamLibraryService] GetLibraryFolders() called");
             var libraryFolders = new List<string>();
 
             try
             {
                 var steamPath = _steamService.GetSteamPath();
+                _logger?.Debug($"[SteamLibraryService] Steam path: {steamPath ?? "null"}");
                 if (string.IsNullOrEmpty(steamPath))
                 {
+                    _logger?.Warning("[SteamLibraryService] Steam path is null/empty, returning empty list");
                     return libraryFolders;
                 }
 
-                // Add main Steam library
                 var mainLibraryPath = Path.Combine(steamPath, "steamapps");
-                if (Directory.Exists(mainLibraryPath))
+                var mainExists = Directory.Exists(mainLibraryPath);
+                _logger?.Debug($"[SteamLibraryService] Main library path: {mainLibraryPath} (exists: {mainExists})");
+                if (mainExists)
                 {
                     libraryFolders.Add(mainLibraryPath);
                 }
 
-                // Parse libraryfolders.vdf
                 var libraryFoldersPath = Path.Combine(steamPath, "steamapps", "libraryfolders.vdf");
+                _logger?.Debug($"[SteamLibraryService] VDF file: {libraryFoldersPath} (exists: {File.Exists(libraryFoldersPath)})");
                 if (!File.Exists(libraryFoldersPath))
                 {
+                    _logger?.Warning("[SteamLibraryService] libraryfolders.vdf not found");
                     return libraryFolders;
                 }
 
                 var content = File.ReadAllText(libraryFoldersPath);
                 var additionalPaths = ParseLibraryFoldersVdf(content);
+                _logger?.Debug($"[SteamLibraryService] Found {additionalPaths.Count} additional library path(s) from VDF");
                 libraryFolders.AddRange(additionalPaths);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Return what we have even if there's an error
+                _logger?.Error($"[SteamLibraryService] Error getting library folders: {ex.Message}\n{ex.StackTrace}");
             }
 
-            return libraryFolders.Distinct().ToList();
+            var result = libraryFolders.Distinct().ToList();
+            _logger?.Info($"[SteamLibraryService] Returning {result.Count} library folder(s)");
+            return result;
         }
 
         private List<string> ParseLibraryFoldersVdf(string content)
@@ -58,23 +68,23 @@ namespace SolusManifestApp.Services
 
             try
             {
-                // Simple VDF parser - look for "path" entries
                 var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                _logger?.Debug($"[SteamLibraryService] Parsing VDF content ({lines.Length} lines)");
 
                 foreach (var line in lines)
                 {
                     var trimmed = line.Trim();
                     if (trimmed.Contains("\"path\""))
                     {
-                        // Extract path value: "path"		"C:\\SteamLibrary"
                         var parts = trimmed.Split(new[] { '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         if (parts.Length >= 2)
                         {
                             var pathValue = parts[parts.Length - 1].Trim('"');
-                            // Convert to proper path and add steamapps subdirectory
                             pathValue = pathValue.Replace("\\\\", "\\");
                             var steamappsPath = Path.Combine(pathValue, "steamapps");
-                            if (Directory.Exists(steamappsPath))
+                            var exists = Directory.Exists(steamappsPath);
+                            _logger?.Debug($"[SteamLibraryService] VDF path entry: {steamappsPath} (exists: {exists})");
+                            if (exists)
                             {
                                 libraryPaths.Add(steamappsPath);
                             }
@@ -82,9 +92,9 @@ namespace SolusManifestApp.Services
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Return empty list on parse error
+                _logger?.Warning($"[SteamLibraryService] Failed to parse VDF content: {ex.Message}");
             }
 
             return libraryPaths;

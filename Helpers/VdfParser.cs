@@ -99,7 +99,15 @@ namespace SolusManifestApp.Helpers
                 }
                 else if (inQuotes)
                 {
-                    current.Append(ch);
+                    if (ch == '\\' && i + 1 < line.Length && line[i + 1] == '\\')
+                    {
+                        current.Append('\\');
+                        i++;
+                    }
+                    else
+                    {
+                        current.Append(ch);
+                    }
                 }
                 else if (char.IsWhiteSpace(ch))
                 {

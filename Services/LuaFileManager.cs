@@ -8,50 +8,69 @@ namespace SolusManifestApp.Services
     public class LuaFileManager
     {
         private readonly string _stpluginPath;
+        private readonly LoggerService? _logger;
 
-        public LuaFileManager(string stpluginPath)
+        public LuaFileManager(string stpluginPath, LoggerService? logger = null)
         {
             _stpluginPath = stpluginPath;
+            _logger = logger;
         }
 
         public (List<string> luaFiles, List<string> disabledFiles) FindLuaFiles()
         {
+            _logger?.Debug($"[LuaFileManager] FindLuaFiles() called, stplug-in path: {_stpluginPath}");
             var luaFiles = new List<string>();
             var disabledFiles = new List<string>();
 
             try
             {
                 if (!Directory.Exists(_stpluginPath))
+                {
+                    _logger?.Warning($"[LuaFileManager] stplug-in directory does not exist: {_stpluginPath}");
                     return (luaFiles, disabledFiles);
+                }
 
-                foreach (var file in Directory.GetFiles(_stpluginPath))
+                var allFiles = Directory.GetFiles(_stpluginPath);
+                _logger?.Debug($"[LuaFileManager] Total files in directory: {allFiles.Length}");
+
+                foreach (var file in allFiles)
                 {
                     var fileName = Path.GetFileName(file);
                     var extension = Path.GetExtension(file);
 
-                    // Check for .lua files (not steamtools.lua)
                     if (extension == ".lua" && fileName.Count(c => c == '.') == 1)
                     {
                         if (!fileName.Equals("steamtools.lua", StringComparison.OrdinalIgnoreCase))
                         {
+                            _logger?.Debug($"[LuaFileManager] Found lua file: {fileName}");
                             luaFiles.Add(file);
                         }
+                        else
+                        {
+                            _logger?.Debug($"[LuaFileManager] Skipped steamtools.lua");
+                        }
                     }
-                    // Check for .lua.disabled files
                     else if (fileName.EndsWith(".lua.disabled", StringComparison.OrdinalIgnoreCase) && fileName.Count(c => c == '.') == 2)
                     {
                         if (!fileName.Equals("steamtools.lua.disabled", StringComparison.OrdinalIgnoreCase))
                         {
+                            _logger?.Debug($"[LuaFileManager] Found disabled file: {fileName}");
                             disabledFiles.Add(file);
                         }
+                    }
+                    else
+                    {
+                        _logger?.Debug($"[LuaFileManager] Skipped non-lua file: {fileName}");
                     }
                 }
             }
             catch (Exception ex)
             {
+                _logger?.Error($"[LuaFileManager] Error reading stplug-in directory: {ex.Message}\n{ex.StackTrace}");
                 throw new Exception($"Error reading stplug-in directory: {ex.Message}", ex);
             }
 
+            _logger?.Info($"[LuaFileManager] FindLuaFiles result: {luaFiles.Count} lua files, {disabledFiles.Count} disabled files");
             return (luaFiles, disabledFiles);
         }
 

@@ -121,7 +121,7 @@ namespace SolusManifestApp.ViewModels
             _recentGamesService = recentGamesService;
 
             var stpluginPath = _steamService.GetStPluginPath() ?? "";
-            _luaFileManager = new LuaFileManager(stpluginPath);
+            _luaFileManager = new LuaFileManager(stpluginPath, logger);
             _archiveExtractor = new ArchiveExtractionService();
             _imageCacheService = new ImageCacheService(logger);
 
@@ -215,6 +215,7 @@ namespace SolusManifestApp.ViewModels
 
         public async Task RefreshLibrary(bool forceFullScan)
         {
+            _logger.Debug($"[LibraryViewModel] RefreshLibrary called (forceFullScan={forceFullScan})");
             IsLoading = true;
             StatusMessage = "Loading library...";
 
@@ -233,8 +234,9 @@ namespace SolusManifestApp.ViewModels
 
             try
             {
-                // Check if we have recent database cache (< 5 minutes old)
-                if (!forceFullScan && _dbService.HasRecentData(TimeSpan.FromMinutes(5)))
+                var hasRecentCache = !forceFullScan && _dbService.HasRecentData(TimeSpan.FromMinutes(5));
+                _logger.Debug($"[LibraryViewModel] Cache check: forceFullScan={forceFullScan}, hasRecentCache={hasRecentCache}");
+                if (hasRecentCache)
                 {
                     _logger.Info("Loading library from database cache (fast path)");
                     var cachedItems = _dbService.GetAllLibraryItems();
@@ -288,25 +290,31 @@ namespace SolusManifestApp.ViewModels
                 }
 
                 var steamGames = await Task.Run(() => _steamGamesService.GetInstalledGames());
+                _logger.Info($"[LibraryViewModel] Steam games found: {steamGames.Count}");
                 var steamGameDict = steamGames.ToDictionary(g => g.AppId, g => g);
 
-                var steamAppList = await _steamApiService.GetAppListAsync();
-
                 var luaGames = await Task.Run(() => _fileInstallService.GetInstalledGames());
+                _logger.Info($"[LibraryViewModel] Lua games found: {luaGames.Count}");
 
                 foreach (var mod in luaGames)
                 {
                     var cachedManifest = _cacheService.GetCachedManifest(mod.AppId);
                     if (cachedManifest != null)
                     {
+                        _logger.Debug($"[LibraryViewModel] Lua game {mod.AppId}: name from manifest cache = {cachedManifest.Name}");
                         mod.Name = cachedManifest.Name;
                         mod.Description = cachedManifest.Description;
                         mod.Version = cachedManifest.Version;
                         mod.IconUrl = cachedManifest.IconUrl;
                     }
+                    else if (steamGameDict.TryGetValue(mod.AppId, out var matchedSteamGame))
+                    {
+                        _logger.Debug($"[LibraryViewModel] Lua game {mod.AppId}: name from Steam manifest = {matchedSteamGame.Name}");
+                        mod.Name = matchedSteamGame.Name;
+                    }
                     else
                     {
-                        mod.Name = _steamApiService.GetGameName(mod.AppId, steamAppList);
+                        _logger.Debug($"[LibraryViewModel] Lua game {mod.AppId}: no local name available, will resolve from API");
                     }
 
                     if (steamGameDict.TryGetValue(mod.AppId, out var steamGame))
@@ -376,15 +384,17 @@ namespace SolusManifestApp.ViewModels
                                              .Select(i => i.AppId)
                                              .ToHashSet();
 
-                    // Only add Steam games that don't already have lua files
+                    var steamOnlyCount = 0;
                     foreach (var steamGame in steamGames)
                     {
                         if (!luaAppIds.Contains(steamGame.AppId))
                         {
                             var item = LibraryItem.FromSteamGame(steamGame);
                             _allItems.Add(item);
+                            steamOnlyCount++;
                         }
                     }
+                    _logger.Info($"[LibraryViewModel] Added {steamOnlyCount} Steam-only games (no lua files)");
 
                     // Load Steam game icons in background with throttling
                     _ = Task.Run(async () =>
@@ -426,23 +436,49 @@ namespace SolusManifestApp.ViewModels
                 TotalLua = _allItems.Count(i => i.ItemType == LibraryItemType.Lua);
                 TotalSteamGames = _allItems.Count(i => i.ItemType == LibraryItemType.SteamGame);
                 TotalSize = _allItems.Sum(i => i.SizeBytes);
+                _logger.Info($"[LibraryViewModel] Library totals: {TotalLua} lua, {TotalSteamGames} steam games, {_allItems.Count} total, {TotalSize} bytes");
 
                 ApplyFilters();
 
                 StatusMessage = $"{_allItems.Count} item(s) loaded";
 
-                // Save to database in background (don't block UI)
-                _ = Task.Run(() =>
+                // Resolve unknown game names from API in background, then save to DB
+                _ = Task.Run(async () =>
                 {
                     try
                     {
+                        var unknownItems = _allItems.Where(i => i.ItemType == LibraryItemType.Lua && i.Name == i.AppId).ToList();
+                        if (unknownItems.Count > 0)
+                        {
+                            _logger.Info($"[LibraryViewModel] Fetching app list to resolve {unknownItems.Count} unknown game name(s)...");
+                            var appList = await _steamApiService.GetAppListAsync();
+                            if (appList != null)
+                            {
+                                foreach (var item in unknownItems)
+                                {
+                                    var name = _steamApiService.GetGameName(item.AppId, appList);
+                                    if (name != "Unknown Game")
+                                    {
+                                        _logger.Debug($"[LibraryViewModel] Resolved {item.AppId} -> {name}");
+                                        Application.Current.Dispatcher.Invoke(() => { item.Name = name; });
+                                    }
+                                }
+                                _logger.Info("[LibraryViewModel] Finished resolving game names from API");
+                            }
+                        }
+
                         _logger.Info($"Saving {_allItems.Count} items to database");
                         _dbService.BulkUpsertLibraryItems(_allItems);
                         _logger.Info("Database save complete");
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error($"Failed to save to database: {ex.Message}");
+                        _logger.Error($"Failed background name resolution/DB save: {ex.Message}");
+                        try
+                        {
+                            _dbService.BulkUpsertLibraryItems(_allItems);
+                        }
+                        catch { }
                     }
                 });
             }

@@ -20,8 +20,12 @@ namespace SolusManifestApp.Services
 
         public string? GetSteamPath()
         {
+            _logger?.Debug("[SteamService] GetSteamPath() called");
             if (!string.IsNullOrEmpty(_cachedSteamPath))
+            {
+                _logger?.Debug($"[SteamService] Returning cached Steam path: {_cachedSteamPath}");
                 return _cachedSteamPath;
+            }
 
             // Try registry first (64-bit)
             try
@@ -32,6 +36,7 @@ namespace SolusManifestApp.Services
                     var installPath = key.GetValue("InstallPath") as string;
                     if (!string.IsNullOrEmpty(installPath) && Directory.Exists(installPath))
                     {
+                        _logger?.Info($"[SteamService] Found Steam via 64-bit registry: {installPath}");
                         _cachedSteamPath = installPath;
                         return installPath;
                     }
@@ -39,10 +44,9 @@ namespace SolusManifestApp.Services
             }
             catch (Exception ex)
             {
-                _logger?.Debug($"Failed to read 64-bit Steam registry: {ex.Message}");
+                _logger?.Debug($"[SteamService] Failed to read 64-bit Steam registry: {ex.Message}");
             }
 
-            // Try registry (32-bit)
             try
             {
                 using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Valve\Steam");
@@ -51,6 +55,7 @@ namespace SolusManifestApp.Services
                     var installPath = key.GetValue("InstallPath") as string;
                     if (!string.IsNullOrEmpty(installPath) && Directory.Exists(installPath))
                     {
+                        _logger?.Info($"[SteamService] Found Steam via 32-bit registry: {installPath}");
                         _cachedSteamPath = installPath;
                         return installPath;
                     }
@@ -58,7 +63,7 @@ namespace SolusManifestApp.Services
             }
             catch (Exception ex)
             {
-                _logger?.Debug($"Failed to read 32-bit Steam registry: {ex.Message}");
+                _logger?.Debug($"[SteamService] Failed to read 32-bit Steam registry: {ex.Message}");
             }
 
             // Fallback to common locations
@@ -74,11 +79,13 @@ namespace SolusManifestApp.Services
             {
                 if (Directory.Exists(path) && File.Exists(Path.Combine(path, "steam.exe")))
                 {
+                    _logger?.Info($"[SteamService] Found Steam via fallback path: {path}");
                     _cachedSteamPath = path;
                     return path;
                 }
             }
 
+            _logger?.Warning("[SteamService] Steam installation not found via any method");
             return null;
         }
 
@@ -86,9 +93,13 @@ namespace SolusManifestApp.Services
         {
             var steamPath = GetSteamPath();
             if (string.IsNullOrEmpty(steamPath))
+            {
+                _logger?.Warning("[SteamService] GetStPluginPath: Steam path is null, returning null");
                 return null;
+            }
 
             var stpluginPath = Path.Combine(steamPath, "config", "stplug-in");
+            _logger?.Debug($"[SteamService] stplug-in path: {stpluginPath} (exists: {Directory.Exists(stpluginPath)})");
             return stpluginPath;
         }
 
